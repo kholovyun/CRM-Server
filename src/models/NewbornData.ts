@@ -11,203 +11,203 @@ export class NewbornData extends Model {
         type: DataType.UUID,
         defaultValue: DataType.UUIDV4,
     })
-    id!: string;
+        id!: string;
 
     @ForeignKey(() => Patient)
     @Column({
         allowNull: false,
     })
-    patient_id!: string;
+        patient_id!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    discharged_date!: string;
+        discharged_date!: string;
 
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
     })
-    pregnancy_n!: number;
+        pregnancy_n!: number;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    pregnancy_descript!: string;
+        pregnancy_descript!: string;
 
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
     })
-    birth_n!: number;
+        birth_n!: number;
 
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
     })
-    gest_age!: number;
+        gest_age!: number;
 
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
     })
-    period_1!: number;
+        period_1!: number;
 
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
     })
-    period_2!: number;
+        period_2!: number;
 
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
     })
-    amn_abs_period!: number;
+        amn_abs_period!: number;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    amn_descript!: string;
+        amn_descript!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    anesthesia!: string;
+        anesthesia!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    post_birth_period!: string;
+        post_birth_period!: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    mother_state!: string;
+        mother_state!: string;
 
     @Column({
         type: DataType.DECIMAL(4, 3),
         allowNull: false,
     })
-    birth_weight!: number;
+        birth_weight!: number;
 
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
     })
-    birth_height!: number;
+        birth_height!: number;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    newborn_state!: string;
+        newborn_state!: string;
 
     @Column({
         type: DataType.STRING(10),
         allowNull: false,
     })
-    apgar_score!: string;
+        apgar_score!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    reanimation!: string;
+        reanimation!: string;
 
     @Column({
         type: DataType.BOOLEAN,
         allowNull: false,
     })
-    breast_try!: boolean;
+        breast_try!: boolean;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    feeding!: string;
+        feeding!: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    diagnosis!: string;
+        diagnosis!: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    examination!: string;
+        examination!: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    treatment!: string;
+        treatment!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    eyes!: string;
+        eyes!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    reflexes!: string;
+        reflexes!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    skin!: string;
+        skin!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    organs!: string;
+        organs!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    stool!: string;
+        stool!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    diuresis!: string;
+        diuresis!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    umbilical_cord!: string;
+        umbilical_cord!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    examed_by!: string;
+        examed_by!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: true,
     })
-    notes!: string;
+        notes!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: true,
     })
-    feeding_reason!: string;
+        feeding_reason!: string;
 }

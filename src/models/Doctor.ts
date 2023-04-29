@@ -18,54 +18,54 @@ export class Doctor extends Model {
         type: DataType.UUID,
         defaultValue: DataType.UUIDV4,
     })
-    id!: string;
+        id!: string;
 
     @ForeignKey(() => User)
     @Column({
         allowNull: false,
     })
-    user_id!: string;
+        user_id!: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    photo!: string;
+        photo!: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false,
     })
-    speciality!: string;
+        speciality!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
     })
-    place_of_work!: string;
+        place_of_work!: string;
 
     @Column({
         type: DataType.INTEGER,
         allowNull: false,
     })
-    experience!: number;
+        experience!: number;
 
     @Column({
         type: DataType.BOOLEAN,
         allowNull: false,
         defaultValue: true,
     })
-    is_active!: boolean;
+        is_active!: boolean;
 
     @Column({
         type: DataType.STRING,
         allowNull: true,
     })
-    achievements!: string;
+        achievements!: string;
 
     @Column({
         type: DataType.STRING(256),
         allowNull: true,
     })
-    degree!: string;
+        degree!: string;
 }
