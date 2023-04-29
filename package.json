@@ -38,6 +38,7 @@
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.31.0",
     "sequelize-typescript": "^2.1.5",
-    "shortid": "^2.2.16"
+    "shortid": "^2.2.16",
+    "winston": "^3.8.2"
   }
 }

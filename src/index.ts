@@ -1,6 +1,7 @@
 import express, { Express } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import Logger from "./lib/logger";
 
 dotenv.config();
 
@@ -18,11 +19,11 @@ class App {
     public init = async (): Promise<void> => {
         try {
             this.app.listen(process.env.APP_PORT, () => {
-                console.log(`Server is running on port ${process.env.APP_PORT}`);
+                Logger.info(`Server is running on port ${process.env.APP_PORT}`);
             });
         } catch (err: unknown) {
             const error = err as Error;
-            console.log(`Server error: ${error.message}`);
+            Logger.error(`Server error: ${error.message}`);
         }
     };
 }
@@ -31,8 +32,8 @@ const app = new App();
 
 app.init()
     .then(() => {
-        console.log("Server is OK");
+        Logger.info("Server is OK");
     })
     .catch(() => {
-        console.log("Server is NOT OK");
+        Logger.error("Server is NOT OK");
     });
