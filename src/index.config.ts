@@ -1,5 +1,5 @@
-import path from 'path';
+import path from "path";
 
 export const config = {
-    filePath: path.join(__dirname, '../public/'),
-}
+    filePath: path.join(__dirname, "../public/"),
+};

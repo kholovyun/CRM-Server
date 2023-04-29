@@ -1,4 +1,4 @@
-import express, { Express } from "express";
+import express, {Express} from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
@@ -7,7 +7,7 @@ dotenv.config();
 class App {
     private app: Express;
 
-    constructor () {
+    constructor() {
         this.app = express();
         this.app.use(express.urlencoded({extended: true}));
         this.app.use(express.static("public"));
@@ -18,7 +18,9 @@ class App {
     public init = async (): Promise<void> => {
         try {
             this.app.listen(process.env.APP_PORT, () => {
-                console.log(`Server is running on port ${process.env.APP_PORT}`);
+                console.log(
+                    `Server is running on port ${process.env.APP_PORT}`
+                );
             });
         } catch (error) {
             const err = error as Error;
@@ -32,6 +34,7 @@ const app = new App();
 app.init()
     .then(() => {
         console.log("Server is OK");
-    }).catch(() => {
+    })
+    .catch(() => {
         console.log("Server is NOT OK");
     });
