@@ -5,11 +5,12 @@ import cors from "cors";
 dotenv.config();
 
 class App {
+
     private app: Express;
 
-    constructor () {
+    constructor() {
         this.app = express();
-        this.app.use(express.urlencoded({extended: true}));
+        this.app.use(express.urlencoded({ extended: true }));
         this.app.use(express.static("public"));
         this.app.use(express.json());
         this.app.use(cors());
@@ -20,9 +21,9 @@ class App {
             this.app.listen(process.env.APP_PORT, () => {
                 console.log(`Server is running on port ${process.env.APP_PORT}`);
             });
-        } catch (error) {
-            const err = error as Error;
-            console.log(`Server running error: ${err}`);
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.log(`Server error: ${error.message}`);
         }
     };
 }
