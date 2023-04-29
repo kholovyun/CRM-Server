@@ -1,0 +1,20 @@
+2023-04-29 20:03:58:358 [32minfo[39m: [32mServer is running on port undefined[39m
+2023-04-29 20:05:04:54 [32minfo[39m: [32mServer is running on port undefined[39m
+2023-04-29 20:06:19:619 [32minfo[39m: [32mServer is running on port undefined[39m
+2023-04-29 20:06:57:657 [32minfo[39m: [32mServer is running on port 3000[39m
+2023-04-29 20:07:58:758 [32minfo[39m: [32mServer is running on port 3000[39m
+2023-04-29 20:08:00:80 [32minfo[39m: [32mServer is running on port 3000[39m
+2023-04-29 20:08:29:829 [32minfo[39m: [32mServer is running on port 3000[39m
+2023-04-29 20:08:29:829 [32minfo[39m: [32mServer is OK[39m
+2023-04-29 20:09:12:912 [31merror[39m: [31mServer error: console_1.error is not a constructor[39m
+2023-04-29 20:09:12:912 [32minfo[39m: [32mServer is OK[39m
+2023-04-29 20:09:20:920 [31merror[39m: [31mServer error: [39m
+2023-04-29 20:09:20:920 [32minfo[39m: [32mServer is OK[39m
+2023-04-29 20:09:26:926 [31merror[39m: [31mServer error: [39m
+2023-04-29 20:09:26:926 [32minfo[39m: [32mServer is OK[39m
+2023-04-29 20:09:30:930 [32minfo[39m: [32mServer is running on port 3000[39m
+2023-04-29 20:09:30:930 [32minfo[39m: [32mServer is OK[39m
+2023-04-29 20:09:58:958 [32minfo[39m: [32mServer is running on port 3000[39m
+2023-04-29 20:10:07:107 [32minfo[39m: [32mServer is running on port 3000[39m
+2023-04-29 20:10:19:1019 [32minfo[39m: [32mServer is running on port 3000[39m
+2023-04-29 20:10:19:1019 [32minfo[39m: [32mServer is OK[39m
