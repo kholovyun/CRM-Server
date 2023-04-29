@@ -4,7 +4,7 @@ import { Patient } from "./Patient";
 @Table({
     tableName: "allergies",
     timestamps: false
-})
+}) 
 
 export class Allergy extends Model {
     @PrimaryKey
