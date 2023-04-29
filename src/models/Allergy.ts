@@ -1,40 +1,40 @@
 import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
-import { Patient } from "./Patient";
+import { Child } from "./Child";
 
 @Table({
     tableName: "allergies",
-    timestamps: false
-}) 
+    timestamps: false,
+})
 
 export class Allergy extends Model {
     @PrimaryKey
     @Column({
         type: DataType.UUID,
-        defaultValue: DataType.UUIDV4
+        defaultValue: DataType.UUIDV4,
     })
         id!: string;
 
-    @ForeignKey(() => Patient)
+    @ForeignKey(() => Child)
     @Column({
-        allowNull: false
+        allowNull: false,
     })
-        patient_id!: string;
+        child_id!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
     })
         type!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
     })
         symptom!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
     })
         factors!: string;
 }

@@ -1,71 +1,65 @@
-import {
-    Model,
-    Table,
-    Column,
-    PrimaryKey,
-    DataType,
-    ForeignKey,
-} from "sequelize-typescript";
-import {User} from "./User";
+import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
+import { User } from "./User";
 
 @Table({
     tableName: "doctors",
-    timestamps: false,
+    timestamps: false
 })
+
 export class Doctor extends Model {
     @PrimaryKey
     @Column({
         type: DataType.UUID,
-        defaultValue: DataType.UUIDV4,
+        defaultValue: DataType.UUIDV4
     })
         id!: string;
-
+    
     @ForeignKey(() => User)
     @Column({
-        allowNull: false,
+        allowNull: false
     })
         user_id!: string;
-
+    
     @Column({
         type: DataType.STRING,
-        allowNull: false,
+        allowNull: false
     })
         photo!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false,
+        allowNull: false
     })
         speciality!: string;
 
     @Column({
         type: DataType.STRING(256),
-        allowNull: false,
+        allowNull: false
     })
         place_of_work!: string;
 
     @Column({
         type: DataType.INTEGER,
-        allowNull: false,
+        allowNull: false
     })
         experience!: number;
 
     @Column({
         type: DataType.BOOLEAN,
         allowNull: false,
-        defaultValue: true,
+        defaultValue: true
     })
         is_active!: boolean;
 
     @Column({
         type: DataType.STRING,
-        allowNull: true,
+        allowNull: true
     })
         achievements!: string;
-
+    
     @Column({
         type: DataType.STRING(256),
-        allowNull: true,
+        allowNull: true
     })
         degree!: string;
 }

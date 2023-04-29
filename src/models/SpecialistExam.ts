@@ -1,5 +1,5 @@
 import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
-import { Patient } from "./Patient";
+import { Child } from "./Child";
 
 @Table({
     tableName: "specialistExams",
@@ -14,11 +14,11 @@ export class SpecialistExam extends Model {
     })
         id!: string;
 
-    @ForeignKey(() => Patient)
+    @ForeignKey(() => Child)
     @Column({
         allowNull: false
     })
-        patient_id!: string;
+        child_id!: string;
 
     @Column({
         type: DataType.STRING(256),
@@ -33,10 +33,10 @@ export class SpecialistExam extends Model {
         name!: string;
 
     @Column({
-        type: DataType.STRING(256),
+        type: DataType.DATEONLY,
         allowNull: false
     })
-        date!: string;
+        date!: Date;
 
     @Column({
         type: DataType.STRING,
