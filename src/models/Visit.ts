@@ -1,47 +1,54 @@
-import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
-import { Patient } from "./Patient";
+import {
+    Model,
+    Table,
+    Column,
+    PrimaryKey,
+    DataType,
+    ForeignKey,
+} from "sequelize-typescript";
 import { EVisitReasons } from "../enums/EVisitReasons";
+import { Child } from "./Child";
 
 @Table({
     tableName: "visits",
-    timestamps: false
+    timestamps: false,
 })
 
 export class Visit extends Model {
     @PrimaryKey
     @Column({
         type: DataType.UUID,
-        defaultValue: DataType.UUIDV4
+        defaultValue: DataType.UUIDV4,
     })
         id!: string;
 
-    @ForeignKey(() => Patient)
+    @ForeignKey(() => Child)
     @Column({
-        allowNull: false
+        allowNull: false,
     })
-        patient_id!: string;
+        child_id!: string;
 
     @Column({
         type: DataType.ENUM(...Object.values(EVisitReasons)),
-        allowNull: false
+        allowNull: false,
     })
         reason!: EVisitReasons;
 
     @Column({
-        type: DataType.STRING(256),
-        allowNull: false
+        type: DataType.DATEONLY,
+        allowNull: false,
     })
-        date!: string;
+        date!: Date;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
     })
         conclusion!: string;
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
     })
         appointment!: string;
 }

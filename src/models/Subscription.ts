@@ -27,14 +27,14 @@ export class Subscription extends Model {
         type!: string;
 
     @Column({
-        type: DataType.STRING(256),
+        type: DataType.DATE,
         allowNull: false
     })
-        start_date!: string;
+        start_date!: Date;
 
     @Column({
-        type: DataType.STRING(256),
+        type: DataType.DATE,
         allowNull: false
     })
-        end_date!: string;
+        end_date!: Date;
 }
