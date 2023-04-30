@@ -6,6 +6,9 @@ import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import IUserCreateDto  from "../interfaces/IUser/IUserCreateDto";
 import { User } from "../models/User";
 import { generateJWT } from "../helpers/generateJWT";
+import IUserLoginDto from "../interfaces/IUser/IUserLoginDto";
+import { StatusCodes } from "http-status-codes";
+import { checkPassword } from "../helpers/checkPassword";
 dotenv.config();
 
 export class PostgresDB {
@@ -45,22 +48,51 @@ export class PostgresDB {
         }
     };
 
-    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDto | undefined>> => {
+    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDto | string>> => {
         try {
-            console.log(userDto);
+            const userExists = await User.findOne({where: {
+                email: userDto.email
+            }});
+            if (userExists) throw new Error("User by this email already exists");
+
             const user = await User.create({...userDto});
-            const userWithToken: IUserGetDto = {...user.dataValues, token: generateJWT({email: userDto.email, password: userDto.password})};
+            delete user.dataValues.password;
+            const userWithToken: IUserGetDto = {...user.dataValues, token: generateJWT({id: user.dataValues.id, email: user.dataValues.email})};
+            
             return {
-                status: "Created",
-                message: "New user created",
+                status: StatusCodes.CREATED,
+                result: userWithToken
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            return {
+                status: StatusCodes.BAD_REQUEST,
+                result: error.message,
+            };
+        }
+    };
+
+    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDto | string>> => {
+        try {
+            const foundUser = await User.findOne({where: {email: userDto.email}});
+            
+            if (!foundUser) throw new Error("User is not found!");
+            
+            const isMatch: boolean = await checkPassword(userDto.password, foundUser);
+            if (!isMatch) throw new Error("Wrong password!");
+            const user =  foundUser.dataValues;
+            delete user.password;
+            const userWithToken: IUserGetDto = {...user, token: generateJWT({id: user.id, email: user.email})};
+            
+            return {
+                status: StatusCodes.OK,
                 result: userWithToken,
             };
         } catch (err: unknown) {
             const error = err as Error;
             return {
-                status: "Bad Request",
-                message: error.message,
-                result: undefined,
+                status: StatusCodes.UNAUTHORIZED,
+                result: error.message,
             };
         }
     };

@@ -1,8 +1,8 @@
+import { StatusCodes } from "http-status-codes";
 
 
 export default interface IResponse<T> {
-    status: string
-    message: string
-    result: T | undefined
+    status: StatusCodes
+    result: T
 // eslint-disable-next-line semi
 }

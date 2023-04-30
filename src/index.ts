@@ -26,17 +26,6 @@ class App {
             });
             postgresDB.init();
             this.app.use("/users", new UsersController().getRouter());
-            postgresDB.register(
-                {
-                    name: "Jane",
-                    password: "123",
-                    surname: "Doe",
-                    patronim: "Harry",
-                    phone: "+77475674218",
-                    email: "janedoe@gmail.com",
-                    role: ERoles.DOCTOR
-                }
-            );
         } catch (err: unknown) {
             const error = err as Error;
             Logger.error(`Server error: ${error.message}`);
