@@ -4,6 +4,7 @@
 import IResponse from "../interfaces/IResponse";
 import IUserCreateDto from "../interfaces/IUser/IUserCreateDto";
 import IUserGetDto from "../interfaces/IUser/IUserGetDto";
+import IUserLoginDto from "../interfaces/IUser/IUserLoginDto";
 import { postgresDB, PostgresDB } from "../repository/postgresDb";
 
 export class UsersService {
@@ -12,13 +13,13 @@ export class UsersService {
         this.repository = postgresDB;
     }
 
-    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDto | undefined>> => {
+    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDto | string>> => {
         return await this.repository.register(userDto);
     };
 
-    // public login = async (userDto: IUserDto): Promise<IResponse<{ username: string, token: string } | undefined>> => {
-    //     return await this.repository.login(userDto);
-    // };
+    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDto | string>> => {
+        return await this.repository.login(userDto);
+    };
 }
 
 export const usersService = new UsersService();
