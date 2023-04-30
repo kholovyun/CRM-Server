@@ -4,7 +4,6 @@ import cors from "cors";
 import Logger from "./lib/logger";
 import { postgresDB } from "./repository/postgresDb";
 import { UsersController } from "./controllers/usersController";
-import { ERoles } from "./enums/ERoles";
 
 dotenv.config();
 

@@ -2,8 +2,9 @@ import express, { Request, Response, Router } from "express";
 import IResponse from "../interfaces/IResponse";
 import { UsersService, usersService } from "../services/usersService";
 import IUserGetDto from "../interfaces/IUser/IUserGetDto";
-// import IRequestWithTokenData from '../interfaces/IRequestWithTokenData'
-// import { auth } from '../middlewares/auth'
+import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
+import { StatusCodes } from "http-status-codes";
+import { auth } from "../middleware/auth";
 
 export class UsersController {
     private service: UsersService;
@@ -12,7 +13,7 @@ export class UsersController {
         this.router = express.Router();
         this.router.post("/", this.register);
         this.router.post("/login", this.login);
-        // this.router.get('/token', auth, this.checkToken)
+        this.router.get("/token", auth, this.checkToken);
         this.service = usersService;
     }
 
@@ -30,16 +31,8 @@ export class UsersController {
         res.status(response.status).send(response.result);
     };
     
-    // private checkToken = async (
-    //     expressReq: Request,
-    //     res: Response,
-    // ): Promise<void> => {
-    //     const req = expressReq as IRequestWithTokenData;
-    //     const response: IResponse<IUserGetDto | undefined> = {
-    //     status: EStatuses.OK,
-    //     result: req.dataFromToken as IUserGetDto,
-    //     message: "",
-    //     };
-    //     res.send(response);
-    // };
+    private checkToken = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = await expressReq as IRequestWithTokenData;
+        res.status(StatusCodes.OK).send(req.dataFromToken);
+    };
 }
