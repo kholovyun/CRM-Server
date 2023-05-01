@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import Logger from "./lib/logger";
 import sendMail from "./lib/mailer";
+import router from "./routes/setPassword";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ class App {
         this.app.use(express.static("public"));
         this.app.use(express.json());
         this.app.use(cors());
+        this.app.use(router);
     }
 
     public init = async (): Promise<void> => {

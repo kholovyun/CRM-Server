@@ -16,8 +16,8 @@ oAuth2_client.setCredentials({
     refresh_token: process.env.REFRESH_TOKEN,
 });
 
-const sendMail = (name: string, recipient: string) => {
-    const accessToken: any = oAuth2_client.getAccessToken();
+const sendMail = async (password: string, recipient: string) => {
+    const accessToken: string = (await oAuth2_client.getAccessToken()) as string;
 
     const nodemailerOptions: SMTPTransport.Options = {
         service: "gmail",
@@ -39,7 +39,7 @@ const sendMail = (name: string, recipient: string) => {
         subject: "Сообщение от меня",
         template: "email",
         context: {
-            name: "Ваше имя будет тут",
+            msg: `Ссылка для установки пароля: ${password}`,
         },
     };
 
