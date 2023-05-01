@@ -2,6 +2,7 @@ import express, { Express } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import Logger from "./lib/logger";
+import sendMail from "./lib/mailer";
 
 dotenv.config();
 
