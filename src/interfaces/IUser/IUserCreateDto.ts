@@ -7,5 +7,4 @@ export default interface IUserCreateDto {
     name: string
     surname: string
     patronim: string
-    password: string
 }

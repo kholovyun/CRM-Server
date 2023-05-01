@@ -50,7 +50,7 @@ export class User extends Model {
 
     @Column({
         type: DataType.STRING(256),
-        allowNull: false
+        allowNull: false,
     })
         password!: string;
 
