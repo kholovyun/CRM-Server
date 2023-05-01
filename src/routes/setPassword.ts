@@ -19,7 +19,7 @@ router.post("/set-password", (req: Request, res: Response) => {
 router.get("/set-password", (req: Request, res: Response) => {
     try {
         const token = req.query.token as string;
-        const decoded: any = jwt.verify(token, "key1");
+        jwt.verify(token, "key1");
 
         res.status(200).send("Success");
     } catch (err: unknown) {
