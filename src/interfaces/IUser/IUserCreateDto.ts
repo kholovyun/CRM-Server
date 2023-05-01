@@ -1,6 +1,5 @@
 import { ERoles } from "../../enums/ERoles";
 
-
 export default interface IUserCreateDto {
     role: ERoles
     email: string
@@ -9,5 +8,4 @@ export default interface IUserCreateDto {
     surname: string
     patronim: string
     password: string
-// eslint-disable-next-line semi
 }

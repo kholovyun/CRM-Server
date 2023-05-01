@@ -1,6 +1,5 @@
-import { Model, Table, Column, PrimaryKey, DataType, BeforeCreate, BeforeUpdate } from "sequelize-typescript";
+import { Model, Table, Column, PrimaryKey, DataType } from "sequelize-typescript";
 import { ERoles } from "../enums/ERoles";
-import bcrypt from "bcrypt";
 
 @Table({
     tableName: "users",
@@ -24,7 +23,10 @@ export class User extends Model {
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
-        unique: true
+        unique: true,
+        validate: {
+            isEmail: true
+        }
     })
         email!: string;
 
@@ -33,7 +35,7 @@ export class User extends Model {
         allowNull: false
     })
         phone!: string;
-
+    
     @Column({
         type: DataType.STRING(256),
         allowNull: false
@@ -57,14 +59,4 @@ export class User extends Model {
         allowNull: true
     })
         patronim!: string;
-    
-    @BeforeUpdate
-    @BeforeCreate
-    static async hashPassword (instance: User) {
-        // это будет вызвано при created или updated объекта
-        const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_SALT || "") || 10);
-        const hash = await bcrypt.hash(instance.password, salt);
-        instance.password = hash;
-    }
-
 }

@@ -8,5 +8,4 @@ export default interface IUserGetDto {
     name: string
     surname: string
     patronim: string
-// eslint-disable-next-line semi
 }

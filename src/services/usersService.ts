@@ -19,8 +19,16 @@ export class UsersService {
         return await this.repository.getUsers();
     };
 
+    public getUserByid = async (userId: string): Promise<IResponse<IUserGetDto | string>> => {
+        return await this.repository.getUserByid(userId);
+    };
+
     public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | string>> => {
         return await this.repository.login(userDto);
+    };
+
+    public editUser = async (userDto: IUserCreateDto, userId: string): Promise<IResponse<IUserGetDto | string>> => {
+        return await this.repository.editUser(userDto, userId);
     };
 }
 

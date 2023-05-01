@@ -16,6 +16,8 @@ export class UsersController {
         this.router.post("/login", this.login);
         this.router.get("/token", auth, this.checkToken);
         this.router.get("/", auth, this.getUsers);
+        this.router.get("/:id", auth, this.getUserById);
+        this.router.patch("/", auth, this.editUser);
         this.service = usersService;
     }
 
@@ -28,6 +30,11 @@ export class UsersController {
         res.status(response.status).send(response.result);
     };
 
+    private getUserById = async (req: Request, res: Response): Promise<void> => {
+        const response: IResponse<IUserGetDto | string> = await this.service.getUserByid(req.params.id);
+        res.status(response.status).send(response.result);
+    };
+
     private register = async (req: Request, res: Response): Promise<void> => {
         const response: IResponse<IUserGetDtoWithToken | string> = await this.service.register(req.body);
         res.status(response.status).send(response.result);
@@ -35,6 +42,13 @@ export class UsersController {
 
     private login = async (req: Request, res: Response): Promise<void> => {
         const response: IResponse<IUserGetDtoWithToken | string> = await this.service.login(req.body);
+        res.status(response.status).send(response.result);
+    };
+    
+    private editUser = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as IUserGetDto;
+        const response: IResponse<IUserGetDto | string> = await this.service.editUser(req.body, user.id);
         res.status(response.status).send(response.result);
     };
 
