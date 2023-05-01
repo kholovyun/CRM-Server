@@ -2,13 +2,14 @@ import dotenv from "dotenv";
 import path from "path";
 import { Sequelize } from "sequelize-typescript";
 import IResponse from "../interfaces/IResponse";
-import IUserGetDto from "../interfaces/IUser/IUserGetDto";
+import IUserGetDtoWithToken from "../interfaces/IUser/IUserGetDtoWithToken";
 import IUserCreateDto  from "../interfaces/IUser/IUserCreateDto";
 import { User } from "../models/User";
 import { generateJWT } from "../helpers/generateJWT";
 import IUserLoginDto from "../interfaces/IUser/IUserLoginDto";
 import { StatusCodes } from "http-status-codes";
 import { checkPassword } from "../helpers/checkPassword";
+import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 dotenv.config();
 
 export class PostgresDB {
@@ -48,7 +49,25 @@ export class PostgresDB {
         }
     };
 
-    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDto | string>> => {
+    // ПОЛЬЗОВАТЕЛИ
+
+    public getUsers = async (): Promise<IResponse<IUserGetDto[] | string>> => {
+        try {
+            const foundUsers = await User.findAll({raw: true});
+            return {
+                status: StatusCodes.CREATED,
+                result: foundUsers
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            return {
+                status: StatusCodes.BAD_REQUEST,
+                result: error.message,
+            };
+        }
+    };
+
+    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDtoWithToken | string>> => {
         try {
             const userExists = await User.findOne({where: {
                 email: userDto.email
@@ -57,7 +76,7 @@ export class PostgresDB {
 
             const user = await User.create({...userDto});
             delete user.dataValues.password;
-            const userWithToken: IUserGetDto = {...user.dataValues, token: generateJWT({id: user.dataValues.id, email: user.dataValues.email})};
+            const userWithToken: IUserGetDtoWithToken = {...user.dataValues, token: generateJWT({id: user.dataValues.id, email: user.dataValues.email})};
             
             return {
                 status: StatusCodes.CREATED,
@@ -72,7 +91,7 @@ export class PostgresDB {
         }
     };
 
-    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDto | string>> => {
+    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | string>> => {
         try {
             const foundUser = await User.findOne({where: {email: userDto.email}});
             
@@ -82,7 +101,7 @@ export class PostgresDB {
             if (!isMatch) throw new Error("Wrong password!");
             const user =  foundUser.dataValues;
             delete user.password;
-            const userWithToken: IUserGetDto = {...user, token: generateJWT({id: user.id, email: user.email})};
+            const userWithToken: IUserGetDtoWithToken = {...user, token: generateJWT({id: user.id, email: user.email})};
             
             return {
                 status: StatusCodes.OK,

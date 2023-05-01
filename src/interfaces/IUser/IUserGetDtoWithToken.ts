@@ -1,6 +1,6 @@
 import { ERoles } from "../../enums/ERoles";
 
-export default interface IUserGetDto {
+export default interface IUserGetDtoWithToken {
     id: string
     role: ERoles
     email: string
@@ -8,5 +8,6 @@ export default interface IUserGetDto {
     name: string
     surname: string
     patronim: string
+    token: string
 // eslint-disable-next-line semi
 }
