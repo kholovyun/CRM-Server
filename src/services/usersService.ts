@@ -1,6 +1,3 @@
-// import IResponse from "../interfaces/IResponse";
-// import IUserDto from "../interfaces/IUserDto";
-// import IUserGetDto from "../interfaces/IUserGetDto";
 import IResponse from "../interfaces/IResponse";
 import IUserCreateDto from "../interfaces/IUser/IUserCreateDto";
 import IUserGetDto from "../interfaces/IUser/IUserGetDto";
