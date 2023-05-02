@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import Logger from "./lib/logger";
 import router from "./routes/setPassword";
+import { postgresDB } from "./repository/postgresDb";
+import { UsersController } from "./controllers/usersController";
 
 dotenv.config();
 
@@ -23,6 +25,8 @@ class App {
             this.app.listen(process.env.APP_PORT, () => {
                 Logger.info(`Server is running on port ${process.env.APP_PORT}`);
             });
+            postgresDB.init();
+            this.app.use("/users", new UsersController().getRouter());
         } catch (err: unknown) {
             const error = err as Error;
             Logger.error(`Server error: ${error.message}`);
