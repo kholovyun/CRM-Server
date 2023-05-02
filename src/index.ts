@@ -6,7 +6,6 @@ import router from "./routes/setPassword";
 import { postgresDB } from "./repository/postgresDb";
 import { UsersController } from "./controllers/usersController";
 
-
 dotenv.config();
 
 class App {

@@ -24,7 +24,10 @@ export class User extends Model {
     @Column({
         type: DataType.STRING(256),
         allowNull: false,
-        unique: true
+        unique: true,
+        validate: {
+            isEmail: true
+        }
     })
         email!: string;
 
@@ -33,7 +36,7 @@ export class User extends Model {
         allowNull: false
     })
         phone!: string;
-
+    
     @Column({
         type: DataType.STRING(256),
         allowNull: false

@@ -3,13 +3,14 @@ import path from "path";
 import { Sequelize } from "sequelize-typescript";
 import IResponse from "../interfaces/IResponse";
 import IUserGetDtoWithToken from "../interfaces/IUser/IUserGetDtoWithToken";
-import IUserCreateDto  from "../interfaces/IUser/IUserCreateDto";
+import IUserCreateDto from "../interfaces/IUser/IUserCreateDto";
 import { User } from "../models/User";
 import { generateJWT } from "../helpers/generateJWT";
 import IUserLoginDto from "../interfaces/IUser/IUserLoginDto";
 import { StatusCodes } from "http-status-codes";
 import { checkPassword } from "../helpers/checkPassword";
 import IUserGetDto from "../interfaces/IUser/IUserGetDto";
+import { generateHash } from "../helpers/generateHash";
 dotenv.config();
 
 export class PostgresDB {
@@ -53,7 +54,7 @@ export class PostgresDB {
 
     public getUsers = async (): Promise<IResponse<IUserGetDto[] | string>> => {
         try {
-            const foundUsers = await User.findAll({raw: true});
+            const foundUsers = await User.findAll({ raw: true });
             return {
                 status: StatusCodes.CREATED,
                 result: foundUsers
@@ -67,17 +68,36 @@ export class PostgresDB {
         }
     };
 
+
+    public getUserByid = async (userId: string): Promise<IResponse<IUserGetDto | string>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser) throw new Error("User is not found");
+            return {
+                status: StatusCodes.OK,
+                result: foundUser
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            return {
+                status: StatusCodes.NOT_FOUND,
+                result: error.message,
+            };
+        }
+    };
+
     public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDtoWithToken | string>> => {
         try {
-            const userExists = await User.findOne({where: {
-                email: userDto.email
-            }});
+            const userExists = await User.findOne({
+                where: {
+                    email: userDto.email
+                }
+            });
             if (userExists) throw new Error("User by this email already exists");
-
-            const user = await User.create({...userDto});
+            const user = await User.create({ ...userDto, password: await generateHash(userDto.password) });
             delete user.dataValues.password;
-            const userWithToken: IUserGetDtoWithToken = {...user.dataValues, token: generateJWT({id: user.dataValues.id, email: user.dataValues.email})};
-            
+            const userWithToken: IUserGetDtoWithToken = { ...user.dataValues, token: generateJWT({ id: user.dataValues.id, email: user.dataValues.email }) };
+
             return {
                 status: StatusCodes.CREATED,
                 result: userWithToken
@@ -93,16 +113,16 @@ export class PostgresDB {
 
     public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | string>> => {
         try {
-            const foundUser = await User.findOne({where: {email: userDto.email}});
-            
+            const foundUser = await User.findOne({ where: { email: userDto.email } });
+
             if (!foundUser) throw new Error("User is not found!");
-            
+
             const isMatch: boolean = await checkPassword(userDto.password, foundUser);
             if (!isMatch) throw new Error("Wrong password!");
-            const user =  foundUser.dataValues;
+            const user = foundUser.dataValues;
             delete user.password;
-            const userWithToken: IUserGetDtoWithToken = {...user, token: generateJWT({id: user.id, email: user.email})};
-            
+            const userWithToken: IUserGetDtoWithToken = { ...user, token: generateJWT({ id: user.id, email: user.email }) };
+
             return {
                 status: StatusCodes.OK,
                 result: userWithToken,
@@ -112,6 +132,29 @@ export class PostgresDB {
             return {
                 status: StatusCodes.UNAUTHORIZED,
                 result: error.message,
+            };
+        }
+    };
+
+    public editUser = async (userDto: IUserCreateDto, userId: string): Promise<IResponse<IUserGetDto | string>> => {
+        try {
+            if (userDto.password) {
+                userDto.password = await generateHash(userDto.password);
+            }
+            const user = await User.update(userDto, { where: { id: userId }, returning: true }).then((result) => {
+                delete result[1][0].dataValues.password;
+                return result[1][0];
+            });
+
+            return {
+                status: StatusCodes.OK,
+                result: user
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            return {
+                status: StatusCodes.BAD_REQUEST,
+                result: error.message
             };
         }
     };

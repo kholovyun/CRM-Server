@@ -28,9 +28,14 @@
             "error",
             "double"
         ],
-        "semi": [
+        "semi": "off",
+        "@typescript-eslint/semi": ["error"],
+        "semi-spacing": [
             "error",
-            "always"
+            {
+                "before": false,
+                "after": true
+            }
         ]
     }
 }
