@@ -146,6 +146,7 @@ export class PostgresDB {
             if (!userDto.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) throw new Error("Invalid password");
 
             if (userDto.password) {
+
                 userDto.password = await generateHash(userDto.password);
             }
             const user = await User.update(userDto, { where: { id: userId }, returning: true }).then((result) => {
