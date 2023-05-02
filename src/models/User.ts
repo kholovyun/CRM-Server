@@ -60,14 +60,4 @@ export class User extends Model {
         allowNull: true
     })
         patronim!: string;
-    
-    @BeforeUpdate
-    @BeforeCreate
-    static async hashPassword (instance: User) {
-        // это будет вызвано при created или updated объекта
-        const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_SALT || "") || 10);
-        const hash = await bcrypt.hash(instance.password, salt);
-        instance.password = hash;
-    }
-
 }

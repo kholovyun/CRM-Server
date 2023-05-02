@@ -16,9 +16,10 @@ export class Doctor extends Model {
     
     @ForeignKey(() => User)
     @Column({
+        field: "user_id",
         allowNull: false
     })
-        user_id!: string;
+        userId!: string;
     
     @Column({
         type: DataType.STRING,
@@ -33,10 +34,11 @@ export class Doctor extends Model {
         speciality!: string;
 
     @Column({
+        field: "place_of_work",
         type: DataType.STRING(256),
         allowNull: false
     })
-        place_of_work!: string;
+        placeOfWork!: string;
 
     @Column({
         type: DataType.INTEGER,
@@ -45,13 +47,14 @@ export class Doctor extends Model {
         experience!: number;
 
     @Column({
+        field: "is_active",
         type: DataType.BOOLEAN,
         allowNull: false,
         defaultValue: true
     })
-        is_active!: boolean;
+        isActive!: boolean;
 
-    @Column({
+    @Column({        
         type: DataType.STRING,
         allowNull: true
     })

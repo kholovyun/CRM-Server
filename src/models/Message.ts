@@ -17,21 +17,24 @@ export class Message extends Model {
 
     @ForeignKey(() => User)
     @Column({
+        field: "author_id",
         allowNull: false,
     })
-        author_id!: string;
+        authorId!: string;
 
     @Column({
+        field: "created_at",
         type: DataType.DATE,
         allowNull: false,
     })
-        created_at!: Date;
+        createdAt!: Date;
 
     @ForeignKey(() => Question)
     @Column({
+        field: "question_id",
         allowNull: false,
     })
-        question_id!: string;
+        questionId!: string;
 
     @Column({
         type: DataType.STRING,

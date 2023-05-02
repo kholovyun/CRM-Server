@@ -1,11 +1,4 @@
-import {
-    Model,
-    Table,
-    Column,
-    PrimaryKey,
-    DataType,
-    ForeignKey,
-} from "sequelize-typescript";
+import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
 import { EVisitReasons } from "../enums/EVisitReasons";
 import { Child } from "./Child";
 
@@ -24,9 +17,10 @@ export class Visit extends Model {
 
     @ForeignKey(() => Child)
     @Column({
-        allowNull: false,
+        field: "child_id",
+        allowNull: false
     })
-        child_id!: string;
+        childId!: string;
 
     @Column({
         type: DataType.ENUM(...Object.values(EVisitReasons)),

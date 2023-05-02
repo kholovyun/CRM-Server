@@ -16,63 +16,73 @@ export class NewbornData extends Model {
 
     @ForeignKey(() => Child)
     @Column({
+        field: "child_id",
         allowNull: false
     })
-        child_id!: string;
+        childId!: string;
 
     @Column({
+        field: "discharged_date",
         type: DataType.DATEONLY,
         allowNull: false
     })
-        discharged_date!: Date;
+        dischargedDate!: Date;
 
     @Column({
+        field: "pregnancy_n",
         type: DataType.INTEGER,
         allowNull: false
     })
-        pregnancy_n!: number;
+        pregnancyN!: number;
 
     @Column({
+        field: "pregnancy_descript",
         type: DataType.STRING,
         allowNull: false
     })
-        pregnancy_descript!: string;
+        pregnancyDescript!: string;
 
     @Column({
+        field: "birth_n",
         type: DataType.INTEGER,
         allowNull: false
     })
-        birth_n!: number;
+        birthN!: number;
 
     @Column({
+        field: "gest_age",
         type: DataType.INTEGER,
         allowNull: false
     })
-        gest_age!: number;
+        gestAge!: number;
 
     @Column({
+        field: "period_1",
         type: DataType.INTEGER,
         allowNull: false
     })
-        period_1!: number;
+        period1!: number;
 
     @Column({
+        field: "period_2",
         type: DataType.INTEGER,
         allowNull: false
     })
-        period_2!: number;
+        period2!: number;
 
     @Column({
+        field: "amn_abs_period",
         type: DataType.INTEGER,
         allowNull: false
     })
-        amn_abs_period!: number;
+        amnAbsPeriod!: number;
 
     @Column({
+        field: "amn_descript",
         type: DataType.STRING(256),
         allowNull: false
     })
-        amn_descript!: string;
+        amnDescript!: string;
 
     @Column({
         type: DataType.STRING(256),
@@ -81,40 +91,46 @@ export class NewbornData extends Model {
         anesthesia!: string;
 
     @Column({
+        field: "post_birth_period",
         type: DataType.STRING(256),
         allowNull: false
     })
-        post_birth_period!: string;
+        postBirthPeriod!: string;
 
     @Column({
+        field: "mother_state",
         type: DataType.STRING,
         allowNull: false
     })
-        mother_state!: string;
+        motherState!: string;
 
     @Column({
+        field: "birth_weight",
         type: DataType.DECIMAL(4,3),
         allowNull: false
     })
-        birth_weight!: number;
+        birthWeight!: number;
 
     @Column({
+        field: "birth_height",
         type: DataType.INTEGER,
         allowNull: false
     })
-        birth_height!: number;
+        birthHeight!: number;
 
     @Column({
+        field: "newborn_state",
         type: DataType.STRING(256),
         allowNull: false
     })
-        newborn_state!: string;
+        newbornState!: string;
 
     @Column({
+        field: "apgar_score",
         type: DataType.STRING(10),
         allowNull: false
     })
-        apgar_score!: string;
+        apgarScore!: string;
 
     @Column({
         type: DataType.STRING(256),
@@ -123,10 +139,11 @@ export class NewbornData extends Model {
         reanimation!: string;
 
     @Column({
+        field: "breast_try",
         type: DataType.BOOLEAN,
         allowNull: false
     })
-        breast_try!: boolean;
+        breastTry!: boolean;
 
     @Column({
         type: DataType.STRING(256),
@@ -189,10 +206,11 @@ export class NewbornData extends Model {
         diuresis!: string;
 
     @Column({
+        field: "umbilical_cord",
         type: DataType.STRING(256),
         allowNull: false
     })
-        umbilical_cord!: string;
+        umbilicalCord!: string;
 
     @Column({
         type: DataType.STRING(256),
@@ -207,8 +225,9 @@ export class NewbornData extends Model {
         notes!: string;
 
     @Column({
+        field: "feeding_reason",
         type: DataType.STRING(256),
         allowNull: true
     })
-        feeding_reason!: string;
+        feedingReason!: string;
 }

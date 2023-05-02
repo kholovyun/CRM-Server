@@ -18,28 +18,32 @@ export class Question extends Model {
 
     @ForeignKey(() => Doctor)
     @Column({
+        field: "doctor_id",
         allowNull: false
     })
-        doctor_id!: string;
+        doctorId!: string;
 
     @ForeignKey(() => Child)
     @Column({
+        field: "child_id",
         allowNull: false
     })
-        child_id!: string;
+        childId!: string;
 
     @ForeignKey(() => Parent)
     @Column({
+        field: "parent_id",
         allowNull: false
     })
-        parent_id!: string;
+        parentId!: string;
 
     @Column({
+        field: "is_closed",
         type: DataType.BOOLEAN,
         allowNull: false,
         defaultValue: true
     })
-        is_closed!: boolean;
+        isClosed!: boolean;
     
     @Column({
         type: DataType.STRING(256),
