@@ -1,6 +1,11 @@
 import dotenv from "dotenv";
 import path from "path";
 import { Sequelize } from "sequelize-typescript";
+import IResponse from "../interfaces/IResponse";
+import IUserGetDto from "../interfaces/IUser/IUserGetDto";
+import IUserCreateDto  from "../interfaces/IUser/IUserCreateDto";
+import { User } from "../models/User";
+import { generateJWT } from "../helpers/generateJWT";
 dotenv.config();
 
 export class PostgresDB {
@@ -37,6 +42,26 @@ export class PostgresDB {
         } catch (err: unknown) {
             const error = err as Error;
             console.log(error.message);
+        }
+    };
+
+    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDto | undefined>> => {
+        try {
+            console.log(userDto);
+            const user = await User.create({...userDto});
+            const userWithToken: IUserGetDto = {...user.dataValues, token: generateJWT({email: userDto.email, password: userDto.password})};
+            return {
+                status: "Created",
+                message: "New user created",
+                result: userWithToken,
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            return {
+                status: "Bad Request",
+                message: error.message,
+                result: undefined,
+            };
         }
     };
 }

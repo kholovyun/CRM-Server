@@ -2,7 +2,13 @@ import express, { Express } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import Logger from "./lib/logger";
+<<<<<<< HEAD
 import router from "./routes/setPassword";
+=======
+import { postgresDB } from "./repository/postgresDb";
+import { UsersController } from "./controllers/usersController";
+import { ERoles } from "./enums/ERoles";
+>>>>>>> c8b8c98 ([ESDP-15] Создан роут регистрации юзера, добавлены интерфейсы юзера, установлен JWT)
 
 dotenv.config();
 
@@ -23,6 +29,19 @@ class App {
             this.app.listen(process.env.APP_PORT, () => {
                 Logger.info(`Server is running on port ${process.env.APP_PORT}`);
             });
+            postgresDB.init();
+            this.app.use("/users", new UsersController().getRouter());
+            postgresDB.register(
+                {
+                    name: "Jane",
+                    password: "123",
+                    surname: "Doe",
+                    patronim: "Harry",
+                    phone: "+77475674218",
+                    email: "janedoe@gmail.com",
+                    role: ERoles.DOCTOR
+                }
+            );
         } catch (err: unknown) {
             const error = err as Error;
             Logger.error(`Server error: ${error.message}`);
