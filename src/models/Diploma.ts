@@ -16,9 +16,10 @@ export class Diploma extends Model {
 
     @ForeignKey(() => Doctor)
     @Column({
+        field: "doctor_id",
         allowNull: false
     })
-        doctor_id!: string;
+        doctorId!: string;
 
     @Column({
         type: DataType.STRING,

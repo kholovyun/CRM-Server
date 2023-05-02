@@ -16,15 +16,17 @@ export class Document extends Model {
 
     @ForeignKey(() => Child)
     @Column({
+        field: "child_id",
         allowNull: false
     })
-        child_id!: string;
+        childId!: string;
 
     @Column({
+        field: "created_at",
         type: DataType.DATE,
         allowNull: false
     })
-        created_at!: Date;
+        createdAt!: Date;
 
     @Column({
         type: DataType.STRING,

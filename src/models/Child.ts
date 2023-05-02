@@ -17,9 +17,10 @@ export class Child extends Model {
 
     @ForeignKey(() => Parent)
     @Column({
+        field: "parent_id",
         allowNull: false
     })
-        parent_id!: string;
+        parentId!: string;
 
     @Column({
         type: DataType.STRING,
@@ -40,10 +41,11 @@ export class Child extends Model {
         surname!: string;
 
     @Column({
+        field: "date_of_birth",
         type: DataType.DATEONLY,
         allowNull: false
     })
-        date_of_birth!: Date;
+        dateOfBirth!: Date;
 
     @Column({
         type: DataType.ENUM(...Object.values(ESex)),
@@ -64,9 +66,10 @@ export class Child extends Model {
         weight!: number;
 
     @Column({
+        field: "is_active",
         type: DataType.BOOLEAN,
         allowNull: false,
         defaultValue: true
     })
-        is_active!: boolean;
+        isActive!: boolean;
 }

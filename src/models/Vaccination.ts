@@ -16,9 +16,10 @@ export class Vaccination extends Model {
 
     @ForeignKey(() => Child)
     @Column({
+        field: "child_id",
         allowNull: false
     })
-        child_id!: string;
+        childId!: string;
 
     @Column({
         type: DataType.STRING(256),

@@ -16,9 +16,10 @@ export class Subscription extends Model {
 
     @ForeignKey(() => User)
     @Column({
+        field: "user_id",
         allowNull: false
     })
-        user_id!: string;
+        userId!: string;
 
     @Column({
         type: DataType.STRING(256),
@@ -27,14 +28,16 @@ export class Subscription extends Model {
         type!: string;
 
     @Column({
+        field: "start_date",
         type: DataType.DATE,
         allowNull: false
     })
-        start_date!: Date;
+        startDate!: Date;
 
     @Column({
+        field: "end_date",
         type: DataType.DATE,
         allowNull: false
     })
-        end_date!: Date;
+        endDate!: Date;
 }

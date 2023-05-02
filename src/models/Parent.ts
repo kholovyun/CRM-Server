@@ -17,20 +17,23 @@ export class Parent extends Model {
 
     @ForeignKey(() => User)
     @Column({
+        field: "user_id",
         allowNull: false
     })
-        user_id!: string;
+        userId!: string;
 
     @ForeignKey(() => Doctor)
     @Column({
+        field: "doctor_id",
         allowNull: false
     })
-        doctor_id!: string;
+        doctorId!: string;
 
     @Column({
+        field: "is_active",
         type: DataType.BOOLEAN,
         allowNull: false,
         defaultValue: true
     })
-        is_active!: boolean;
+        isActive!: boolean;
 }
