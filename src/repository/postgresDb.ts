@@ -11,6 +11,7 @@ import { StatusCodes } from "http-status-codes";
 import { checkPassword } from "../helpers/checkPassword";
 import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import { generateHash } from "../helpers/generateHash";
+import shortid from "shortid";
 dotenv.config();
 
 export class PostgresDB {
@@ -94,7 +95,11 @@ export class PostgresDB {
                 }
             });
             if (userExists) throw new Error("User by this email already exists");
-            const user = await User.create({ ...userDto, password: await generateHash(userDto.password) });
+
+            const primaryPassword: string = shortid.generate();
+
+            const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
+
             delete user.dataValues.password;
             const userWithToken: IUserGetDtoWithToken = { ...user.dataValues, token: generateJWT({ id: user.dataValues.id, email: user.dataValues.email }) };
 
@@ -136,8 +141,10 @@ export class PostgresDB {
         }
     };
 
-    public editUser = async (userDto: IUserCreateDto, userId: string): Promise<IResponse<IUserGetDto | string>> => {
+    public editUser = async (userDto: IUserCreateDto & { password?: string }, userId: string): Promise<IResponse<IUserGetDto | string>> => {
         try {
+            if (!userDto.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) throw new Error("Invalid password");
+
             if (userDto.password) {
                 userDto.password = await generateHash(userDto.password);
             }
