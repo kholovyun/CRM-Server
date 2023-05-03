@@ -5,6 +5,7 @@ import Logger from "./lib/logger";
 import router from "./routes/setPassword";
 import { postgresDB } from "./repository/postgresDb";
 import { UsersController } from "./controllers/usersController";
+import { DoctorsController } from "./controllers/doctorsController";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ class App {
             });
             postgresDB.init();
             this.app.use("/users", new UsersController().getRouter());
+            this.app.use("/doctors", new DoctorsController().getRouter());
         } catch (err: unknown) {
             const error = err as Error;
             Logger.error(`Server error: ${error.message}`);
