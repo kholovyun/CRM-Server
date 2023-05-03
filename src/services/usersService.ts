@@ -1,4 +1,5 @@
 import IResponse from "../interfaces/IResponse";
+import ISetPasswordData from "../interfaces/ISetPasswordData";
 import IUserCreateDto from "../interfaces/IUser/IUserCreateDto";
 import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import IUserGetDtoWithToken from "../interfaces/IUser/IUserGetDtoWithToken";
@@ -29,6 +30,10 @@ export class UsersService {
 
     public editUser = async (userDto: IUserCreateDto, userId: string): Promise<IResponse<IUserGetDto | string>> => {
         return await this.repository.editUser(userDto, userId);
+    };
+
+    public setPassword = async (data: ISetPasswordData): Promise<IResponse<IUserGetDto | string>> => {
+        return await this.repository.setPassword(data);
     };
 }
 

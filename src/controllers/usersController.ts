@@ -18,6 +18,7 @@ export class UsersController {
         this.router.get("/", auth, this.getUsers);
         this.router.get("/:id", auth, this.getUserById);
         this.router.patch("/", auth, this.editUser);
+        this.router.patch("/set-password", this.setPassword);
         this.service = usersService;
     }
 
@@ -49,6 +50,11 @@ export class UsersController {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IUserGetDto | string> = await this.service.editUser(req.body, user.id);
+        res.status(response.status).send(response.result);
+    };
+
+    private setPassword = async (req: Request, res: Response): Promise<void> => {
+        const response: IResponse<IUserGetDto | string> = await this.service.setPassword(req.body);
         res.status(response.status).send(response.result);
     };
 

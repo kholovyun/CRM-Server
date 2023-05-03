@@ -7,7 +7,7 @@ import IUserCreateDto from "../interfaces/IUser/IUserCreateDto";
 import { User } from "../models/User";
 import { generateJWT } from "../helpers/generateJWT";
 import IUserLoginDto from "../interfaces/IUser/IUserLoginDto";
-import { StatusCodes } from "http-status-codes";
+import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { checkPassword } from "../helpers/checkPassword";
 import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import { generateHash } from "../helpers/generateHash";
@@ -18,6 +18,10 @@ import { Doctor } from "../models/Doctor";
 import IDoctorCreateDto from "../interfaces/IDoctor/IDoctorCreateDto";
 import IDoctorUpdateDto from "../interfaces/IDoctor/IDoctorUpdateDto";
 import Logger from "../lib/logger";
+import jwt from "jsonwebtoken";
+import ISetPasswordData from "../interfaces/ISetPasswordData";
+import { IEmailFromTokem } from "../interfaces/IEmailFromTokem";
+
 dotenv.config();
 
 export class PostgresDB {
@@ -102,7 +106,8 @@ export class PostgresDB {
             if (userExists) throw new Error("User by this email already exists");
 
             const primaryPassword: string = shortid.generate();
-
+            // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
+            console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
             const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
 
             delete user.dataValues.password;
@@ -148,10 +153,8 @@ export class PostgresDB {
 
     public editUser = async (userDto: IUserCreateDto & { password?: string }, userId: string): Promise<IResponse<IUserGetDto | string>> => {
         try {
-            if (!userDto.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) throw new Error("Invalid password");
-
             if (userDto.password) {
-
+                if (!userDto.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) throw new Error("Invalid password");
                 userDto.password = await generateHash(userDto.password);
             }
             const user = await User.update(userDto, { where: { id: userId }, returning: true }).then((result) => {
@@ -163,6 +166,31 @@ export class PostgresDB {
                 status: StatusCodes.OK,
                 result: user
             };
+        } catch (err: unknown) {
+            const error = err as Error;
+            return {
+                status: StatusCodes.BAD_REQUEST,
+                result: error.message
+            };
+        }
+    };
+
+    public setPassword = async (data: ISetPasswordData): Promise<IResponse<string>> => {
+        try {
+            const dataFromToken = jwt.verify(data.token, "key1") as IEmailFromTokem;
+            if (!dataFromToken) {
+                throw new Error(ReasonPhrases.UNAUTHORIZED);
+            } else {
+                if (!data.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) throw new Error("Invalid password");
+                const foundUser = await User.findOne({where: {email: dataFromToken.email}});
+                const newPassword = await generateHash(data.password);
+                await User.update({password: newPassword}, { where: { id: foundUser?.dataValues.id }, returning: true });
+                return {
+                    status: StatusCodes.OK,
+                    result: "Password is changed"
+                };
+            }
+            
         } catch (err: unknown) {
             const error = err as Error;
             return {

@@ -16,7 +16,7 @@ router.post("/set-password", (req: Request, res: Response) => {
     }
 });
 
-router.get("/set-password", (req: Request, res: Response) => {
+router.get("/send-set-password-link", (req: Request, res: Response) => {
     try {
         const token = req.query.token as string;
         jwt.verify(token, "key1");
