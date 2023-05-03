@@ -1,4 +1,4 @@
-import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
+import { Model, Table, Column, PrimaryKey, DataType, ForeignKey, BelongsTo } from "sequelize-typescript";
 import { User } from "./User";
 
 @Table({
@@ -7,6 +7,9 @@ import { User } from "./User";
 })
 
 export class Subscription extends Model {
+    @BelongsTo(() => User)
+        users!: User;
+
     @PrimaryKey
     @Column({
         type: DataType.UUID,
@@ -16,6 +19,7 @@ export class Subscription extends Model {
 
     @ForeignKey(() => User)
     @Column({
+        type: DataType.UUID,
         field: "user_id",
         allowNull: false
     })

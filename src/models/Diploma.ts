@@ -1,4 +1,4 @@
-import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
+import { Model, Table, Column, PrimaryKey, DataType, ForeignKey, BelongsTo } from "sequelize-typescript";
 import { Doctor } from "./Doctor";
 
 @Table({
@@ -7,6 +7,9 @@ import { Doctor } from "./Doctor";
 })
 
 export class Diploma extends Model {
+    @BelongsTo(() => Doctor)
+        doctors!: Doctor;
+
     @PrimaryKey
     @Column({
         type: DataType.UUID,
@@ -16,6 +19,7 @@ export class Diploma extends Model {
 
     @ForeignKey(() => Doctor)
     @Column({
+        type: DataType.UUID,
         field: "doctor_id",
         allowNull: false
     })

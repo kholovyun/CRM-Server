@@ -1,6 +1,13 @@
-import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
+import { Model, Table, Column, PrimaryKey, DataType, ForeignKey, HasMany, HasOne, BelongsTo } from "sequelize-typescript";
 import { Parent } from "./Parent";
 import { ESex } from "../enums/ESex";
+import { Document } from "./Document";
+import { Allergy } from "./Allergy";
+import { SpecialistExam } from "./SpecialistExam";
+import { Vaccination } from "./Vaccination";
+import { Visit } from "./Visit";
+import { NewbornData } from "./NewbornData";
+import { Question } from "./Question";
 
 @Table({
     tableName: "children",
@@ -8,6 +15,30 @@ import { ESex } from "../enums/ESex";
 })
 
 export class Child extends Model {
+    @HasMany(() => Document)
+        documents!: Document[];
+    
+    @HasMany(() => Allergy)
+        allergies!: Allergy[];
+    
+    @HasMany(() => SpecialistExam)
+        specialistExams!: SpecialistExam[];
+
+    @HasMany(() => Vaccination)
+        vaccinations!: Vaccination[];
+    
+    @HasMany(() => Visit)
+        visits!: Visit[];
+    
+    @HasMany(() => Question)
+        questions!: Question[];
+
+    @HasOne(() => NewbornData)
+        newbornDatas!: NewbornData;
+    
+    @BelongsTo(() => Parent)
+        parents!: Parent;
+    
     @PrimaryKey
     @Column({
         type: DataType.UUID,
@@ -17,6 +48,7 @@ export class Child extends Model {
 
     @ForeignKey(() => Parent)
     @Column({
+        type: DataType.UUID,
         field: "parent_id",
         allowNull: false
     })

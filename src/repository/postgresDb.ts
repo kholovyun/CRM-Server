@@ -12,6 +12,12 @@ import { checkPassword } from "../helpers/checkPassword";
 import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import { generateHash } from "../helpers/generateHash";
 import shortid from "shortid";
+import IDoctorGetDto from "../interfaces/IDoctor/IDoctorGetDto";
+import { ERoles } from "../enums/ERoles";
+import { Doctor } from "../models/Doctor";
+import IDoctorCreateDto from "../interfaces/IDoctor/IDoctorCreateDto";
+import IDoctorUpdateDto from "../interfaces/IDoctor/IDoctorUpdateDto";
+import Logger from "../lib/logger";
 dotenv.config();
 
 export class PostgresDB {
@@ -44,10 +50,10 @@ export class PostgresDB {
             await this.sequelize.sync({
                 alter: true
             });
-            console.log("DB postgres is connected");
+            Logger.info("DB postgres is connected");
         } catch (err: unknown) {
             const error = err as Error;
-            console.log(error.message);
+            Logger.error(error.message);
         }
     };
 
@@ -57,7 +63,7 @@ export class PostgresDB {
         try {
             const foundUsers = await User.findAll({ raw: true });
             return {
-                status: StatusCodes.CREATED,
+                status: StatusCodes.OK,
                 result: foundUsers
             };
         } catch (err: unknown) {
@@ -68,7 +74,6 @@ export class PostgresDB {
             };
         }
     };
-
 
     public getUserByid = async (userId: string): Promise<IResponse<IUserGetDto | string>> => {
         try {
@@ -164,6 +169,164 @@ export class PostgresDB {
                 status: StatusCodes.BAD_REQUEST,
                 result: error.message
             };
+        }
+    };
+
+    // Врачи (DOCTORS)
+    public getDoctors = async (userId: string): Promise<IResponse<IDoctorGetDto[] | string>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.role !== ERoles.ADMIN) 
+                throw new Error("У Вас нет прав доступа.");
+            const foundDoctors = await Doctor.findAll({
+                include: {
+                    model: User,
+                    as: "users",
+                    attributes:["name", "patronim", "surname", "email", "phone"]
+                },
+                order: [
+                    [{ model: User, as: "users" }, "surname", "ASC"]
+                ],
+                raw: true,
+                // limit: Какая пагинация будет???
+            });
+            return {
+                status: StatusCodes.OK,
+                result: foundDoctors
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.INTERNAL_SERVER_ERROR,
+                    result: error.message
+                };
+            }   
+        }
+    };
+
+    public getDoctorById = async (userId: string, id: string): Promise<IResponse<IDoctorGetDto | string>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser) throw new Error("Вы не идентифицированы.");
+            const doctor: IDoctorGetDto | null = await Doctor.findByPk(id,
+                {include: {
+                    model: User,
+                    as: "users",
+                    attributes:["name", "patronim", "surname"]
+                }});
+            if (!doctor) throw new Error("Врач не найден.");
+            if (foundUser.role === ERoles.ADMIN || String(foundUser.id) === String(doctor.userId)) {
+                return {
+                    status: StatusCodes.OK,
+                    result: doctor
+                };
+            }
+            if (!doctor.isActive) throw new Error("Врач не найден.");
+            return {
+                status: StatusCodes.OK,
+                result: doctor
+            };      
+        } catch (err: unknown) {
+            const error = err as Error;
+            if (error.message === "Вы не идентифицированы.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else if (error.message === "Врач не найден.") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.INTERNAL_SERVER_ERROR,
+                    result: error.message
+                };
+            }   
+        }
+    };
+
+    public createDoctor = async (userId: string, doctor: IDoctorCreateDto): Promise<IResponse<IDoctorGetDto | string>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.role !== ERoles.ADMIN) 
+                throw new Error("У Вас нет прав доступа.");
+            const exsistedDoctor = await Doctor.findOne({
+                where: {
+                    userId: doctor.userId
+                }
+            });
+            if (exsistedDoctor) throw new Error("Таблица врач для этого пользователя уже создана.");
+            if (doctor.photo === "") throw new Error("Фото обязательно"); 
+            // на фронте поставить дефолтное изображение. Эта ошибка только для постмана. Можно и на бэке вставить путь
+            const newDoctor: IDoctorGetDto = await Doctor.create({...doctor});
+            return {
+                status: StatusCodes.CREATED,
+                result: newDoctor
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.BAD_REQUEST,
+                    result: error.message
+                };
+            }
+        }
+    };
+
+    public editDoctor = async (userId: string, searchId: string, doctor: IDoctorUpdateDto): Promise<IResponse<IDoctorGetDto | string>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.role === ERoles.PARENT) 
+                throw new Error("У Вас нет прав доступа.");
+            const foundDoctor: IDoctorGetDto | null = await Doctor.findByPk(searchId);
+            if (!foundDoctor) throw new Error("Врач не найден.");
+            if (foundUser.role === ERoles.DOCTOR && String(foundUser.id) !== String(foundDoctor.userId)) {
+                throw new Error("У Вас нет прав доступа.");
+            }
+            if (doctor.photo === "") throw new Error("Фото обязательно"); 
+            // на фронте поставить дефолтное изображение. Эта ошибка только для постмана. Можно и на бэке вставить путь
+            const updatedDoctor = await Doctor.update(
+                { ...doctor },
+                { 
+                    where: { id: foundDoctor.id },
+                    returning: true
+                }).then((result) => { return result[1][0]; });            
+            return {
+                status: StatusCodes.OK,
+                result: updatedDoctor
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else if (error.message === "Врач не найден.") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.BAD_REQUEST,
+                    result: error.message
+                };
+            }
         }
     };
 }
