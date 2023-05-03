@@ -1,7 +1,8 @@
-import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
+import { Model, Table, Column, PrimaryKey, DataType, ForeignKey, HasMany, BelongsTo } from "sequelize-typescript";
 import { Doctor } from "./Doctor";
 import { Child } from "./Child";
 import { Parent } from "./Parent";
+import { Message } from "./Message";
 
 @Table({
     tableName: "questions",
@@ -9,6 +10,18 @@ import { Parent } from "./Parent";
 })
 
 export class Question extends Model {
+    @HasMany(() => Message)
+        messages!: Message[];
+
+    @BelongsTo(() => Doctor)
+        doctors!: Doctor;
+    
+    @BelongsTo(() => Parent)
+        parents!: Parent;
+    
+    @BelongsTo(() => Child)
+        choldren!: Child;
+
     @PrimaryKey
     @Column({
         type: DataType.UUID,
@@ -18,6 +31,7 @@ export class Question extends Model {
 
     @ForeignKey(() => Doctor)
     @Column({
+        type: DataType.UUID,
         field: "doctor_id",
         allowNull: false
     })
@@ -25,6 +39,7 @@ export class Question extends Model {
 
     @ForeignKey(() => Child)
     @Column({
+        type: DataType.UUID,
         field: "child_id",
         allowNull: false
     })
@@ -32,6 +47,7 @@ export class Question extends Model {
 
     @ForeignKey(() => Parent)
     @Column({
+        type: DataType.UUID,
         field: "parent_id",
         allowNull: false
     })

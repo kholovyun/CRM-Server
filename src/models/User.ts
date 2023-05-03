@@ -1,6 +1,8 @@
-import { Model, Table, Column, PrimaryKey, DataType, BeforeCreate, BeforeUpdate } from "sequelize-typescript";
+import { Model, Table, Column, PrimaryKey, DataType, HasMany } from "sequelize-typescript";
 import { ERoles } from "../enums/ERoles";
-import bcrypt from "bcrypt";
+import { Doctor } from "./Doctor";
+import { Parent } from "./Parent";
+import { Message } from "./Message";
 
 @Table({
     tableName: "users",
@@ -8,6 +10,15 @@ import bcrypt from "bcrypt";
 })
 
 export class User extends Model {
+    @HasMany(() => Doctor)
+        doctors!: Doctor[];
+
+    @HasMany(() => Parent)
+        parents!: Parent[];
+    
+    @HasMany(() => Message)
+        messages!: Message[];
+
     @PrimaryKey
     @Column({
         type: DataType.UUID,
@@ -59,5 +70,5 @@ export class User extends Model {
         type: DataType.STRING(256),
         allowNull: true
     })
-        patronim!: string;
+        patronim!: string;    
 }

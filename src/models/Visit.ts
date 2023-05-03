@@ -1,4 +1,4 @@
-import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
+import { Model, Table, Column, PrimaryKey, DataType, ForeignKey, BelongsTo } from "sequelize-typescript";
 import { EVisitReasons } from "../enums/EVisitReasons";
 import { Child } from "./Child";
 
@@ -8,6 +8,9 @@ import { Child } from "./Child";
 })
 
 export class Visit extends Model {
+    @BelongsTo(() => Child)
+        children!: Child;
+    
     @PrimaryKey
     @Column({
         type: DataType.UUID,
@@ -17,6 +20,7 @@ export class Visit extends Model {
 
     @ForeignKey(() => Child)
     @Column({
+        type: DataType.UUID,
         field: "child_id",
         allowNull: false
     })

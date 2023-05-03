@@ -1,5 +1,8 @@
-import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
+import { Model, Table, Column, PrimaryKey, DataType, ForeignKey, HasMany, BelongsTo } from "sequelize-typescript";
 import { User } from "./User";
+import { Diploma } from "./Diploma";
+import { Question } from "./Question";
+import { Parent } from "./Parent";
 
 @Table({
     tableName: "doctors",
@@ -7,6 +10,18 @@ import { User } from "./User";
 })
 
 export class Doctor extends Model {
+    @HasMany(() => Diploma)
+        diplomas!: Diploma[];
+
+    @HasMany(() => Question)
+        questions!: Question[];
+
+    @HasMany(() => Parent)
+        parents!: Parent[];
+        
+    @BelongsTo(() => User)
+        users!: User;
+
     @PrimaryKey
     @Column({
         type: DataType.UUID,
@@ -16,6 +31,7 @@ export class Doctor extends Model {
     
     @ForeignKey(() => User)
     @Column({
+        type: DataType.UUID,
         field: "user_id",
         allowNull: false
     })
@@ -29,20 +45,27 @@ export class Doctor extends Model {
 
     @Column({
         type: DataType.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: "-"
     })
         speciality!: string;
 
     @Column({
         field: "place_of_work",
         type: DataType.STRING(256),
-        allowNull: false
+        allowNull: false,
+        defaultValue: "-"
     })
         placeOfWork!: string;
 
     @Column({
         type: DataType.INTEGER,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0,
+        validate: {
+            max: 60,
+            min: 0
+        }
     })
         experience!: number;
 
@@ -50,7 +73,7 @@ export class Doctor extends Model {
         field: "is_active",
         type: DataType.BOOLEAN,
         allowNull: false,
-        defaultValue: true
+        defaultValue: false
     })
         isActive!: boolean;
 

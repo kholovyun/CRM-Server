@@ -1,6 +1,8 @@
-import { Model, Table, Column, PrimaryKey, DataType, ForeignKey } from "sequelize-typescript";
+import { Model, Table, Column, PrimaryKey, DataType, ForeignKey, HasMany, BelongsTo } from "sequelize-typescript";
 import { User } from "./User";
 import { Doctor } from "./Doctor";
+import { Child } from "./Child";
+import { Question } from "./Question";
 
 @Table({
     tableName: "parents",
@@ -8,6 +10,18 @@ import { Doctor } from "./Doctor";
 })
 
 export class Parent extends Model {
+    @HasMany(() => Child)
+        children!: Child[];
+    
+    @HasMany(() => Question)
+        question!: Question[];
+
+    @BelongsTo(() => User)
+        users!: User;
+
+    @BelongsTo(() => Doctor)
+        doctors!: Doctor;
+
     @PrimaryKey
     @Column({
         type: DataType.UUID,
@@ -17,6 +31,7 @@ export class Parent extends Model {
 
     @ForeignKey(() => User)
     @Column({
+        type: DataType.UUID,
         field: "user_id",
         allowNull: false
     })
@@ -24,6 +39,7 @@ export class Parent extends Model {
 
     @ForeignKey(() => Doctor)
     @Column({
+        type: DataType.UUID,
         field: "doctor_id",
         allowNull: false
     })
@@ -33,7 +49,7 @@ export class Parent extends Model {
         field: "is_active",
         type: DataType.BOOLEAN,
         allowNull: false,
-        defaultValue: true
+        defaultValue: false
     })
         isActive!: boolean;
 }
