@@ -10,7 +10,7 @@ dotenv.config();
 
 const oAuth2 = google.auth.OAuth2;
 const oAuth2_client = new oAuth2(process.env.CLIENT_ID, process.env.CLIENT_SECRET);
-const myGmail = "bolatovalen@gmail.com";
+const myGmail = "testteamtest22@gmail.com";
 
 oAuth2_client.setCredentials({
     refresh_token: process.env.REFRESH_TOKEN,
