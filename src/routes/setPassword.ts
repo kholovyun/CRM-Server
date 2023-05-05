@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.use(morganMiddleware);
 
-router.post("/set-password", (req: Request, res: Response) => {
+router.post("/send-set-password-link", (req: Request, res: Response) => {
     try {
         const email = req.body.email;
         const token = jwt.sign({ email }, "key1", { expiresIn: "24h" });
