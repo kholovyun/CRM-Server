@@ -16,10 +16,10 @@ export class Parent extends Model {
     @HasMany(() => Question)
         question!: Question[];
 
-    @BelongsTo(() => User)
+    @BelongsTo(() => User, { onDelete: "no action", foreignKey: "userId" })
         users!: User;
 
-    @BelongsTo(() => Doctor)
+    @BelongsTo(() => Doctor, { onDelete: "no action", foreignKey: "doctorId" })
         doctors!: Doctor;
 
     @PrimaryKey
@@ -44,6 +44,14 @@ export class Parent extends Model {
         allowNull: false
     })
         doctorId!: string;
+
+    @Column({
+        field: "register_date",
+        type: DataType.DATE,
+        allowNull: false,
+        defaultValue: DataType.NOW
+    })
+        registerDate!: Date;
 
     @Column({
         field: "is_active",

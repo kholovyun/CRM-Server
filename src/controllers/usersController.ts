@@ -6,12 +6,14 @@ import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
 import { StatusCodes } from "http-status-codes";
 import { auth } from "../middleware/auth";
 import IUserGetDto from "../interfaces/IUser/IUserGetDto";
+import morganMiddleware from "../config/morganMiddleware";
 
 export class UsersController {
     private service: UsersService;
     private router: Router;
     constructor() {
         this.router = express.Router();
+        this.router.use(morganMiddleware);
         this.router.post("/", this.register);
         this.router.post("/login", this.login);
         this.router.get("/token", auth, this.checkToken);

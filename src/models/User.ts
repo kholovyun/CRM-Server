@@ -3,6 +3,7 @@ import { ERoles } from "../enums/ERoles";
 import { Doctor } from "./Doctor";
 import { Parent } from "./Parent";
 import { Message } from "./Message";
+import { Subscription } from "./Subscription";
 
 @Table({
     tableName: "users",
@@ -18,6 +19,9 @@ export class User extends Model {
     
     @HasMany(() => Message)
         messages!: Message[];
+    
+    @HasMany(() => Subscription)
+        subscriptions!: Subscription[];
 
     @PrimaryKey
     @Column({

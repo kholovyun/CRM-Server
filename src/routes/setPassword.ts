@@ -1,8 +1,11 @@
 import express, { Request, Response } from "express";
 import sendMail from "../lib/mailer";
 import jwt from "jsonwebtoken";
+import morganMiddleware from "../config/morganMiddleware";
 
 const router = express.Router();
+
+router.use(morganMiddleware);
 
 router.post("/set-password", (req: Request, res: Response) => {
     try {

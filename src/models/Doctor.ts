@@ -19,7 +19,7 @@ export class Doctor extends Model {
     @HasMany(() => Parent)
         parents!: Parent[];
         
-    @BelongsTo(() => User)
+    @BelongsTo(() => User, { onDelete: "no action", foreignKey: "userId" })
         users!: User;
 
     @PrimaryKey

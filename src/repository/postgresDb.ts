@@ -21,6 +21,10 @@ import Logger from "../lib/logger";
 import jwt from "jsonwebtoken";
 import ISetPasswordData from "../interfaces/ISetPasswordData";
 import { IEmailFromTokem } from "../interfaces/IEmailFromTokem";
+import IParentGetDto from "../interfaces/IParent/IParentGetDto";
+import { Parent } from "../models/Parent";
+import { Subscription } from "../models/Subscription";
+import IParentCreateDto from "../interfaces/IParent/IParentCreateDto";
 
 dotenv.config();
 
@@ -246,7 +250,7 @@ export class PostgresDB {
                 {include: {
                     model: User,
                     as: "users",
-                    attributes:["name", "patronim", "surname"]
+                    attributes: ["name", "patronim", "surname", "email", "phone"]
                 }});
             if (!doctor) throw new Error("Врач не найден.");
             if (foundUser.role === ERoles.ADMIN || String(foundUser.id) === String(doctor.userId)) {
@@ -256,9 +260,16 @@ export class PostgresDB {
                 };
             }
             if (!doctor.isActive) throw new Error("Врач не найден.");
+            const doctorForParent: IDoctorGetDto | null = await Doctor.findByPk(id,
+                {include: {
+                    model: User,
+                    as: "users",
+                    attributes: ["name", "patronim", "surname"]
+                }});
+            if (!doctorForParent) throw new Error("Врач не найден.");
             return {
                 status: StatusCodes.OK,
-                result: doctor
+                result: doctorForParent
             };      
         } catch (err: unknown) {
             const error = err as Error;
@@ -347,6 +358,128 @@ export class PostgresDB {
             } else if (error.message === "Врач не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.BAD_REQUEST,
+                    result: error.message
+                };
+            }
+        }
+    };
+
+    // В ТЗ Пациенты/ у нас Родители (PARENTS)
+    public getParents = async (userId: string): Promise<IResponse<IParentGetDto[] | string>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.role !== ERoles.ADMIN) 
+                throw new Error("У Вас нет прав доступа.");
+            const foundParents = await Parent.findAll({
+                include: {
+                    model: User,
+                    as: "users",
+                    attributes:["name", "patronim", "surname", "email", "phone"]
+                },
+                order: [
+                    [{ model: User, as: "users" }, "surname", "ASC"]
+                ],
+                raw: true,
+                // limit: Какая пагинация будет???
+            });
+            return {
+                status: StatusCodes.OK,
+                result: foundParents
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.INTERNAL_SERVER_ERROR,
+                    result: error.message
+                };
+            }   
+        }
+    };
+
+    public getParentById = async (userId: string, id: string): Promise<IResponse<IParentGetDto | string>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser) throw new Error("Вы не идентифицированы.");
+            const parent: IParentGetDto | null = await Parent.findByPk(id,
+                {include: [{
+                    model: User,
+                    as: "users",
+                    attributes:["name", "patronim", "surname", "phone"],
+                    include: [{
+                        model: Subscription,
+                        as: "subscriptions",
+                        attributes: ["end_date"]
+                    }]
+                }]});
+            if (!parent) throw new Error("Родитель пациента не найден.");
+            if (foundUser.role === ERoles.ADMIN) {
+                return {
+                    status: StatusCodes.OK,
+                    result: parent
+                };    
+            }
+            if (String(foundUser.id) !== String(parent.userId))
+                throw new Error("У Вас нет прав доступа.");
+            return {
+                status: StatusCodes.OK,
+                result: parent
+            };    
+        } catch (err: unknown) {
+            const error = err as Error;
+            if (error.message === "Вы не идентифицированы." || error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else if (error.message === "Родитель пациента не найден.") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.INTERNAL_SERVER_ERROR,
+                    result: error.message
+                };
+            }   
+        }
+    };
+
+    public createParent = async (userId: string, parent: IParentCreateDto): Promise<IResponse<IParentGetDto | string>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.role !== ERoles.ADMIN) 
+                throw new Error("У Вас нет прав доступа.");
+            const exsistedParent = await Parent.findOne({
+                where: {
+                    userId: parent.userId
+                }
+            });
+            if (exsistedParent) throw new Error("Таблица «Родитель» для этого пользователя уже создана.");
+            const newParent: IParentGetDto = await Parent.create({...parent});
+            await Subscription.create({
+                userId: newParent.userId
+            });
+            return {
+                status: StatusCodes.CREATED,
+                result: newParent
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
                     result: error.message
                 };
             } else {
