@@ -4,9 +4,10 @@ import { UsersService, usersService } from "../services/usersService";
 import IUserGetDtoWithToken from "../interfaces/IUser/IUserGetDtoWithToken";
 import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
 import { StatusCodes } from "http-status-codes";
-import { auth } from "../middleware/auth";
 import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import morganMiddleware from "../config/morganMiddleware";
+import { permission } from "../middleware/permission";
+import { ERoles } from "../enums/ERoles";
 
 export class UsersController {
     private service: UsersService;
@@ -16,10 +17,10 @@ export class UsersController {
         this.router.use(morganMiddleware);
         this.router.post("/", this.register);
         this.router.post("/login", this.login);
-        this.router.get("/token", auth, this.checkToken);
-        this.router.get("/", auth, this.getUsers);
-        this.router.get("/:id", auth, this.getUserById);
-        this.router.patch("/", auth, this.editUser);
+        this.router.get("/token", permission(), this.checkToken);
+        this.router.get("/", permission([ERoles.ADMIN]), this.getUsers);
+        this.router.get("/:id", permission(), this.getUserById);
+        this.router.patch("/", permission(), this.editUser);
         this.router.patch("/set-password", this.setPassword);
         this.service = usersService;
     }

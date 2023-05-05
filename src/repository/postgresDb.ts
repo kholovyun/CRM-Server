@@ -115,7 +115,14 @@ export class PostgresDB {
             const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
 
             delete user.dataValues.password;
-            const userWithToken: IUserGetDtoWithToken = { ...user.dataValues, token: generateJWT({ id: user.dataValues.id, email: user.dataValues.email }) };
+            const userWithToken: IUserGetDtoWithToken = {
+                ...user.dataValues, 
+                token: generateJWT({
+                    id: user.dataValues.id, 
+                    email: user.dataValues.email, 
+                    role: user.dataValues.role
+                }) 
+            };
 
             return {
                 status: StatusCodes.CREATED,
