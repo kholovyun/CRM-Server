@@ -27,21 +27,23 @@ export class Subscription extends Model {
 
     @Column({
         type: DataType.STRING(256),
-        allowNull: false
+        allowNull: false,
+        defaultValue: "-"
     })
         type!: string;
 
     @Column({
-        field: "start_date",
-        type: DataType.DATE,
-        allowNull: false
+        type: DataType.DECIMAL(10,2),
+        allowNull: false,
+        defaultValue: 0.00
     })
-        startDate!: Date;
+        sum!: number;
 
     @Column({
         field: "end_date",
         type: DataType.DATE,
-        allowNull: false
+        allowNull: false,
+        defaultValue: DataType.NOW
     })
         endDate!: Date;
 }
