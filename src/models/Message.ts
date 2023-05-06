@@ -30,6 +30,7 @@ export class Message extends Model {
         field: "created_at",
         type: DataType.DATE,
         allowNull: false,
+        defaultValue: DataType.NOW
     })
         createdAt!: Date;
 

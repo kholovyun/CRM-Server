@@ -3,6 +3,7 @@ import { User } from "./User";
 import { Diploma } from "./Diploma";
 import { Question } from "./Question";
 import { Parent } from "./Parent";
+import { Recommendation } from "./Recommendation";
 
 @Table({
     tableName: "doctors",
@@ -11,15 +12,18 @@ import { Parent } from "./Parent";
 
 export class Doctor extends Model {
     @HasMany(() => Diploma)
-        diplomas!: Diploma[];
+        diplomas!: Diploma[]; 
 
     @HasMany(() => Question)
         questions!: Question[];
 
     @HasMany(() => Parent)
         parents!: Parent[];
+    
+    @HasMany(() => Recommendation)
+        recommendations!: Recommendation[];
         
-    @BelongsTo(() => User, { onDelete: "no action", foreignKey: "userId" })
+    @BelongsTo(() => User)
         users!: User;
 
     @PrimaryKey
@@ -76,6 +80,13 @@ export class Doctor extends Model {
         defaultValue: false
     })
         isActive!: boolean;
+    
+    @Column({
+        type: DataType.DECIMAL(10,2),
+        allowNull: false,
+        defaultValue: 0.00
+    })
+        price!: number;
 
     @Column({        
         type: DataType.STRING,

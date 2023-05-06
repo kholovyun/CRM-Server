@@ -4,6 +4,7 @@ import { Doctor } from "./Doctor";
 import { Parent } from "./Parent";
 import { Message } from "./Message";
 import { Subscription } from "./Subscription";
+import { Review } from "./Review";
 
 @Table({
     tableName: "users",
@@ -19,9 +20,15 @@ export class User extends Model {
     
     @HasMany(() => Message)
         messages!: Message[];
+        
+    @HasMany(() => Review)
+        reviews!: Review[];
     
-    @HasMany(() => Subscription)
+    @HasMany(() => Subscription, "userId")
         subscriptions!: Subscription[];
+
+    @HasMany(() => Subscription, "payedBy")
+        payers!: Subscription[];
 
     @PrimaryKey
     @Column({
@@ -74,5 +81,13 @@ export class User extends Model {
         type: DataType.STRING(256),
         allowNull: true
     })
-        patronim!: string;    
+        patronim!: string;
+    
+    @Column({
+        field: "is_blocked",
+        type: DataType.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    })
+        isBlocked!: boolean;
 }

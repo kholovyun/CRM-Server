@@ -16,10 +16,10 @@ export class Parent extends Model {
     @HasMany(() => Question)
         question!: Question[];
 
-    @BelongsTo(() => User, { onDelete: "no action", foreignKey: "userId" })
+    @BelongsTo(() => User)
         users!: User;
 
-    @BelongsTo(() => Doctor, { onDelete: "no action", foreignKey: "doctorId" })
+    @BelongsTo(() => Doctor)
         doctors!: Doctor;
 
     @PrimaryKey
