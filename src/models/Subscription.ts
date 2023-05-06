@@ -7,8 +7,11 @@ import { User } from "./User";
 })
 
 export class Subscription extends Model {
-    @BelongsTo(() => User)
+    @BelongsTo(() => User, "userId")
         users!: User;
+
+    @BelongsTo(() => User, "payed_by")
+        payers!: User;
 
     @PrimaryKey
     @Column({
@@ -24,6 +27,14 @@ export class Subscription extends Model {
         allowNull: false
     })
         userId!: string;
+    
+    @ForeignKey(() => User)
+    @Column({
+        type: DataType.UUID,
+        field: "payed_by",
+        allowNull: false
+    })
+        payedBy!: string;
 
     @Column({
         type: DataType.STRING(256),

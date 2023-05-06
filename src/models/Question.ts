@@ -62,6 +62,14 @@ export class Question extends Model {
         isClosed!: boolean;
     
     @Column({
+        field: "created_at",
+        type: DataType.DATE,
+        allowNull: false,
+        defaultValue: DataType.NOW
+    })
+        createdAt!: Date;
+    
+    @Column({
         type: DataType.STRING(256),
         allowNull: false
     })

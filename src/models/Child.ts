@@ -98,6 +98,12 @@ export class Child extends Model {
         weight!: number;
 
     @Column({
+        type: DataType.STRING(256),
+        allowNull: true
+    })
+        patronim!: string;
+
+    @Column({
         field: "is_active",
         type: DataType.BOOLEAN,
         allowNull: false,
