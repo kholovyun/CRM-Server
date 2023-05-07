@@ -1,4 +1,4 @@
-# back
+# ESDP-AJS-10-TEAM-1-BACK
 
 
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab.com/ajs-10/back.git
+git remote add origin https://gitlab.com/AttractorSchool/esdp-ajs-10-team-1-back.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab.com/ajs-10/back/-/settings/integrations)
+- [ ] [Set up project integrations](https://gitlab.com/AttractorSchool/esdp-ajs-10-team-1-back/-/settings/integrations)
 
 ## Collaborate with your team
 
