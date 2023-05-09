@@ -25,6 +25,8 @@ import IParentGetDto from "../interfaces/IParent/IParentGetDto";
 import { Parent } from "../models/Parent";
 import { Subscription } from "../models/Subscription";
 import IParentCreateDto from "../interfaces/IParent/IParentCreateDto";
+import sendMail from "../lib/mailer";
+import { IMessage } from "../interfaces/IMessage";
 
 dotenv.config();
 
@@ -113,7 +115,10 @@ export class PostgresDB {
             // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
             console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
             const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
-
+            const email = userDto.email;
+            const token = jwt.sign({ email: email }, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
+            const url = `http://localhost:8000/send-set-password-link?token=${token}`;
+            await sendMail(url, email);
             delete user.dataValues.password;
             const userWithToken: IUserGetDtoWithToken = {
                 ...user.dataValues,
@@ -137,7 +142,7 @@ export class PostgresDB {
         }
     };
 
-    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | string>> => {
+    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | IMessage>> => {
         try {
             const foundUser = await User.findOne({ where: { email: userDto.email } });
 
@@ -147,7 +152,7 @@ export class PostgresDB {
             if (!isMatch) throw new Error("Wrong password!");
             const user = foundUser.dataValues;
             delete user.password;
-            const userWithToken: IUserGetDtoWithToken = { ...user, token: generateJWT({ id: user.id, email: user.email }) };
+            const userWithToken: IUserGetDtoWithToken = { ...user, token: generateJWT({ id: user.id, email: user.email, role: user.role }) };
 
             return {
                 status: StatusCodes.OK,
@@ -157,7 +162,7 @@ export class PostgresDB {
             const error = err as Error;
             return {
                 status: StatusCodes.UNAUTHORIZED,
-                result: error.message,
+                result: { message: error.message },
             };
         }
     };
@@ -186,27 +191,23 @@ export class PostgresDB {
         }
     };
 
-    public setPassword = async (data: ISetPasswordData): Promise<IResponse<string>> => {
+    public setPassword = async (data: ISetPasswordData): Promise<IResponse<IMessage>> => {
         try {
             const dataFromToken = jwt.verify(data.token, `${process.env.MAIL_KEY}`) as IEmailFromTokem;
-            if (!dataFromToken) {
-                throw new Error(ReasonPhrases.UNAUTHORIZED);
-            } else {
-                if (!data.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) throw new Error("Invalid password");
-                const foundUser = await User.findOne({ where: { email: dataFromToken.email } });
-                const newPassword = await generateHash(data.password);
-                await User.update({ password: newPassword }, { where: { id: foundUser?.dataValues.id }, returning: true });
-                return {
-                    status: StatusCodes.OK,
-                    result: "Password is changed"
-                };
-            }
-
+            if (!dataFromToken) throw new Error(ReasonPhrases.UNAUTHORIZED);
+            if (!data.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) throw new Error("Invalid password");
+            const foundUser = await User.findOne({ where: { email: dataFromToken.email } });
+            const newPassword = await generateHash(data.password);
+            await User.update({ password: newPassword }, { where: { id: foundUser?.dataValues.id }, returning: true });
+            return {
+                status: StatusCodes.OK,
+                result: { message: "Password is changed" }
+            };
         } catch (err: unknown) {
             const error = err as Error;
             return {
                 status: StatusCodes.BAD_REQUEST,
-                result: error.message
+                result: { message: error.message }
             };
         }
     };

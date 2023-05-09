@@ -8,6 +8,7 @@ import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import morganMiddleware from "../config/morganMiddleware";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
+import { IMessage } from "../interfaces/IMessage";
 
 export class UsersController {
     private service: UsersService;
@@ -45,7 +46,7 @@ export class UsersController {
     };
 
     private login = async (req: Request, res: Response): Promise<void> => {
-        const response: IResponse<IUserGetDtoWithToken | string> = await this.service.login(req.body);
+        const response: IResponse<IUserGetDtoWithToken | IMessage> = await this.service.login(req.body);
         res.status(response.status).send(response.result);
     };
 
@@ -57,7 +58,7 @@ export class UsersController {
     };
 
     private setPassword = async (req: Request, res: Response): Promise<void> => {
-        const response: IResponse<string> = await this.service.setPassword(req.body);
+        const response: IResponse<IMessage> = await this.service.setPassword(req.body);
         res.status(response.status).send(response.result);
     };
 
