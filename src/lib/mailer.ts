@@ -16,7 +16,7 @@ oAuth2_client.setCredentials({
     refresh_token: process.env.REFRESH_TOKEN,
 });
 
-const sendMail = async (password: string, recipient: string) => {
+const sendMail = async (link: string, recipient: string) => {
     const accessToken: string = (await oAuth2_client.getAccessToken()) as string;
 
     const nodemailerOptions: SMTPTransport.Options = {
@@ -34,12 +34,12 @@ const sendMail = async (password: string, recipient: string) => {
     const transport = nodemailer.createTransport(nodemailerOptions);
 
     const mail_options = {
-        from: `From Alen Bolatov ${myGmail}`,
+        from: `Doctors Service ${myGmail}`,
         to: recipient,
-        subject: "Сообщение от меня",
+        subject: "Установка нового пароля",
         template: "email",
         context: {
-            msg: `Ссылка для установки пароля: ${password}`,
+            msg: `Ссылка для установки пароля: ${link}`,
         },
     };
 
@@ -55,9 +55,9 @@ const sendMail = async (password: string, recipient: string) => {
 
     transport.sendMail(mail_options, (error, result) => {
         if (error) {
-            console.log(error);
+            console.log(`EMAIL TRANSPORT ERROR ${error}`);
         } else {
-            console.log(result);
+            console.log(`EMAIL TRANSPORT RESULT ${result}`);
         }
         transport.close();
     });

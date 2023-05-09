@@ -25,6 +25,8 @@ import IParentGetDto from "../interfaces/IParent/IParentGetDto";
 import { Parent } from "../models/Parent";
 import { Subscription } from "../models/Subscription";
 import IParentCreateDto from "../interfaces/IParent/IParentCreateDto";
+import sendMail from "../lib/mailer";
+import { IMessage } from "../interfaces/IMessage";
 
 dotenv.config();
 
@@ -113,15 +115,18 @@ export class PostgresDB {
             // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
             console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
             const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
-
+            const email = userDto.email;
+            const token = jwt.sign({ email: email }, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
+            const url = `http://localhost:8000/send-set-password-link?token=${token}`;
+            await sendMail(url, email);
             delete user.dataValues.password;
             const userWithToken: IUserGetDtoWithToken = {
-                ...user.dataValues, 
+                ...user.dataValues,
                 token: generateJWT({
-                    id: user.dataValues.id, 
-                    email: user.dataValues.email, 
+                    id: user.dataValues.id,
+                    email: user.dataValues.email,
                     role: user.dataValues.role
-                }) 
+                })
             };
 
             return {
@@ -137,7 +142,7 @@ export class PostgresDB {
         }
     };
 
-    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | string>> => {
+    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | IMessage>> => {
         try {
             const foundUser = await User.findOne({ where: { email: userDto.email } });
 
@@ -147,7 +152,7 @@ export class PostgresDB {
             if (!isMatch) throw new Error("Wrong password!");
             const user = foundUser.dataValues;
             delete user.password;
-            const userWithToken: IUserGetDtoWithToken = { ...user, token: generateJWT({ id: user.id, email: user.email }) };
+            const userWithToken: IUserGetDtoWithToken = { ...user, token: generateJWT({ id: user.id, email: user.email, role: user.role }) };
 
             return {
                 status: StatusCodes.OK,
@@ -157,7 +162,7 @@ export class PostgresDB {
             const error = err as Error;
             return {
                 status: StatusCodes.UNAUTHORIZED,
-                result: error.message,
+                result: { message: error.message },
             };
         }
     };
@@ -186,27 +191,23 @@ export class PostgresDB {
         }
     };
 
-    public setPassword = async (data: ISetPasswordData): Promise<IResponse<string>> => {
+    public setPassword = async (data: ISetPasswordData): Promise<IResponse<IMessage>> => {
         try {
-            const dataFromToken = jwt.verify(data.token, "key1") as IEmailFromTokem;
-            if (!dataFromToken) {
-                throw new Error(ReasonPhrases.UNAUTHORIZED);
-            } else {
-                if (!data.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) throw new Error("Invalid password");
-                const foundUser = await User.findOne({where: {email: dataFromToken.email}});
-                const newPassword = await generateHash(data.password);
-                await User.update({password: newPassword}, { where: { id: foundUser?.dataValues.id }, returning: true });
-                return {
-                    status: StatusCodes.OK,
-                    result: "Password is changed"
-                };
-            }
-            
+            const dataFromToken = jwt.verify(data.token, `${process.env.MAIL_KEY}`) as IEmailFromTokem;
+            if (!dataFromToken) throw new Error(ReasonPhrases.UNAUTHORIZED);
+            if (!data.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) throw new Error("Invalid password");
+            const foundUser = await User.findOne({ where: { email: dataFromToken.email } });
+            const newPassword = await generateHash(data.password);
+            await User.update({ password: newPassword }, { where: { id: foundUser?.dataValues.id }, returning: true });
+            return {
+                status: StatusCodes.OK,
+                result: { message: "Password is changed" }
+            };
         } catch (err: unknown) {
             const error = err as Error;
             return {
                 status: StatusCodes.BAD_REQUEST,
-                result: error.message
+                result: { message: error.message }
             };
         }
     };
@@ -215,13 +216,13 @@ export class PostgresDB {
     public getDoctors = async (userId: string): Promise<IResponse<IDoctorGetDto[] | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role !== ERoles.ADMIN) 
+            if (!foundUser || foundUser.role !== ERoles.ADMIN)
                 throw new Error("У Вас нет прав доступа.");
             const foundDoctors = await Doctor.findAll({
                 include: {
                     model: User,
                     as: "users",
-                    attributes:["name", "patronim", "surname", "email", "phone"]
+                    attributes: ["name", "patronim", "surname", "email", "phone"]
                 },
                 order: [
                     [{ model: User, as: "users" }, "surname", "ASC"]
@@ -245,7 +246,7 @@ export class PostgresDB {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
                     result: error.message
                 };
-            }   
+            }
         }
     };
 
@@ -254,11 +255,13 @@ export class PostgresDB {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error("Вы не идентифицированы.");
             const doctor: IDoctorGetDto | null = await Doctor.findByPk(id,
-                {include: {
-                    model: User,
-                    as: "users",
-                    attributes: ["name", "patronim", "surname", "email", "phone"]
-                }});
+                {
+                    include: {
+                        model: User,
+                        as: "users",
+                        attributes: ["name", "patronim", "surname", "email", "phone"]
+                    }
+                });
             if (!doctor) throw new Error("Врач не найден.");
             if (foundUser.role === ERoles.ADMIN || String(foundUser.id) === String(doctor.userId)) {
                 return {
@@ -268,16 +271,18 @@ export class PostgresDB {
             }
             if (!doctor.isActive) throw new Error("Врач не найден.");
             const doctorForParent: IDoctorGetDto | null = await Doctor.findByPk(id,
-                {include: {
-                    model: User,
-                    as: "users",
-                    attributes: ["name", "patronim", "surname"]
-                }});
+                {
+                    include: {
+                        model: User,
+                        as: "users",
+                        attributes: ["name", "patronim", "surname"]
+                    }
+                });
             if (!doctorForParent) throw new Error("Врач не найден.");
             return {
                 status: StatusCodes.OK,
                 result: doctorForParent
-            };      
+            };
         } catch (err: unknown) {
             const error = err as Error;
             if (error.message === "Вы не идентифицированы.") {
@@ -295,14 +300,14 @@ export class PostgresDB {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
                     result: error.message
                 };
-            }   
+            }
         }
     };
 
     public createDoctor = async (userId: string, doctor: IDoctorCreateDto): Promise<IResponse<IDoctorGetDto | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role !== ERoles.ADMIN) 
+            if (!foundUser || foundUser.role !== ERoles.ADMIN)
                 throw new Error("У Вас нет прав доступа.");
             const exsistedDoctor = await Doctor.findOne({
                 where: {
@@ -310,9 +315,9 @@ export class PostgresDB {
                 }
             });
             if (exsistedDoctor) throw new Error("Таблица врач для этого пользователя уже создана.");
-            if (doctor.photo === "") throw new Error("Фото обязательно"); 
+            if (doctor.photo === "") throw new Error("Фото обязательно");
             // на фронте поставить дефолтное изображение. Эта ошибка только для постмана. Можно и на бэке вставить путь
-            const newDoctor: IDoctorGetDto = await Doctor.create({...doctor});
+            const newDoctor: IDoctorGetDto = await Doctor.create({ ...doctor });
             return {
                 status: StatusCodes.CREATED,
                 result: newDoctor
@@ -336,21 +341,21 @@ export class PostgresDB {
     public editDoctor = async (userId: string, searchId: string, doctor: IDoctorUpdateDto): Promise<IResponse<IDoctorGetDto | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role === ERoles.PARENT) 
+            if (!foundUser || foundUser.role === ERoles.PARENT)
                 throw new Error("У Вас нет прав доступа.");
             const foundDoctor: IDoctorGetDto | null = await Doctor.findByPk(searchId);
             if (!foundDoctor) throw new Error("Врач не найден.");
             if (foundUser.role === ERoles.DOCTOR && String(foundUser.id) !== String(foundDoctor.userId)) {
                 throw new Error("У Вас нет прав доступа.");
             }
-            if (doctor.photo === "") throw new Error("Фото обязательно"); 
+            if (doctor.photo === "") throw new Error("Фото обязательно");
             // на фронте поставить дефолтное изображение. Эта ошибка только для постмана. Можно и на бэке вставить путь
             const updatedDoctor = await Doctor.update(
                 { ...doctor },
-                { 
+                {
                     where: { id: foundDoctor.id },
                     returning: true
-                }).then((result) => { return result[1][0]; });            
+                }).then((result) => { return result[1][0]; });
             return {
                 status: StatusCodes.OK,
                 result: updatedDoctor
@@ -380,13 +385,13 @@ export class PostgresDB {
     public getParents = async (userId: string): Promise<IResponse<IParentGetDto[] | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role !== ERoles.ADMIN) 
+            if (!foundUser || foundUser.role !== ERoles.ADMIN)
                 throw new Error("У Вас нет прав доступа.");
             const foundParents = await Parent.findAll({
                 include: {
                     model: User,
                     as: "users",
-                    attributes:["name", "patronim", "surname", "email", "phone"]
+                    attributes: ["name", "patronim", "surname", "email", "phone"]
                 },
                 order: [
                     [{ model: User, as: "users" }, "surname", "ASC"]
@@ -410,7 +415,7 @@ export class PostgresDB {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
                     result: error.message
                 };
-            }   
+            }
         }
     };
 
@@ -419,29 +424,31 @@ export class PostgresDB {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error("Вы не идентифицированы.");
             const parent: IParentGetDto | null = await Parent.findByPk(id,
-                {include: [{
-                    model: User,
-                    as: "users",
-                    attributes:["name", "patronim", "surname", "phone"],
+                {
                     include: [{
-                        model: Subscription,
-                        as: "subscriptions",
-                        attributes: ["end_date"]
+                        model: User,
+                        as: "users",
+                        attributes: ["name", "patronim", "surname", "phone"],
+                        include: [{
+                            model: Subscription,
+                            as: "subscriptions",
+                            attributes: ["end_date"]
+                        }]
                     }]
-                }]});
+                });
             if (!parent) throw new Error("Родитель пациента не найден.");
             if (foundUser.role === ERoles.ADMIN) {
                 return {
                     status: StatusCodes.OK,
                     result: parent
-                };    
+                };
             }
             if (String(foundUser.id) !== String(parent.userId))
                 throw new Error("У Вас нет прав доступа.");
             return {
                 status: StatusCodes.OK,
                 result: parent
-            };    
+            };
         } catch (err: unknown) {
             const error = err as Error;
             if (error.message === "Вы не идентифицированы." || error.message === "У Вас нет прав доступа.") {
@@ -459,14 +466,14 @@ export class PostgresDB {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
                     result: error.message
                 };
-            }   
+            }
         }
     };
 
     public createParent = async (userId: string, parent: IParentCreateDto): Promise<IResponse<IParentGetDto | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role !== ERoles.ADMIN) 
+            if (!foundUser || foundUser.role !== ERoles.ADMIN)
                 throw new Error("У Вас нет прав доступа.");
             const exsistedParent = await Parent.findOne({
                 where: {
@@ -474,7 +481,7 @@ export class PostgresDB {
                 }
             });
             if (exsistedParent) throw new Error("Таблица «Родитель» для этого пользователя уже создана.");
-            const newParent: IParentGetDto = await Parent.create({...parent});
+            const newParent: IParentGetDto = await Parent.create({ ...parent });
             await Subscription.create({
                 userId: newParent.userId
             });

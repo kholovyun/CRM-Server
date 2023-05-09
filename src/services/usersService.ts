@@ -1,3 +1,4 @@
+import { IMessage } from "../interfaces/IMessage";
 import IResponse from "../interfaces/IResponse";
 import ISetPasswordData from "../interfaces/ISetPasswordData";
 import IUserCreateDto from "../interfaces/IUser/IUserCreateDto";
@@ -24,7 +25,7 @@ export class UsersService {
         return await this.repository.getUserByid(userId);
     };
 
-    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | string>> => {
+    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | IMessage>> => {
         return await this.repository.login(userDto);
     };
 
@@ -32,7 +33,7 @@ export class UsersService {
         return await this.repository.editUser(userDto, userId);
     };
 
-    public setPassword = async (data: ISetPasswordData): Promise<IResponse<IUserGetDto | string>> => {
+    public setPassword = async (data: ISetPasswordData): Promise<IResponse<IMessage>> => {
         return await this.repository.setPassword(data);
     };
 }

@@ -1,4 +1,4 @@
 export default interface ISetPasswordData {
-    token: string
-    password: string
+    password: string,
+    token: string,
 }
