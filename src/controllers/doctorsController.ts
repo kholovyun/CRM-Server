@@ -42,9 +42,9 @@ export class DoctorsController {
 
     private getDoctors = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string };
+        const user = req.dataFromToken as { id: string; email: string, role: string };
         const response: IResponse<IDoctorGetDto[] | string> = await this.service.getDoctors(
-            user.id
+            user.id, req.params.offset, req.params.limit
         );
         res.status(response.status).send(response.result);
     };
