@@ -8,6 +8,7 @@ import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import morganMiddleware from "../config/morganMiddleware";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
+import { IMessage } from "../interfaces/IMessage";
 
 export class UsersController {
     private service: UsersService;
@@ -21,7 +22,8 @@ export class UsersController {
         this.router.get("/", permission([ERoles.ADMIN]), this.getUsers);
         this.router.get("/:id", permission(), this.getUserById);
         this.router.patch("/", permission(), this.editUser);
-        this.router.patch("/set-password", this.setPassword);
+        this.router.post("/set-password", this.setPassword);
+        this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.blockUser);
         this.service = usersService;
     }
 
@@ -45,7 +47,7 @@ export class UsersController {
     };
 
     private login = async (req: Request, res: Response): Promise<void> => {
-        const response: IResponse<IUserGetDtoWithToken | string> = await this.service.login(req.body);
+        const response: IResponse<IUserGetDtoWithToken | IMessage> = await this.service.login(req.body);
         res.status(response.status).send(response.result);
     };
 
@@ -57,12 +59,19 @@ export class UsersController {
     };
 
     private setPassword = async (req: Request, res: Response): Promise<void> => {
-        const response: IResponse<IUserGetDto | string> = await this.service.setPassword(req.body);
+        const response: IResponse<IMessage> = await this.service.setPassword(req.body);
         res.status(response.status).send(response.result);
     };
 
     private checkToken = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         res.status(StatusCodes.OK).send(req.dataFromToken);
+    };
+
+    private blockUser = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as {id: string, email: string, role: string};
+        const response = await this.service.blockUser(user.id, req.params.id);
+        res.status(response.status).send(response.result);
     };
 }
