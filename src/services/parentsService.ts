@@ -20,6 +20,10 @@ export class ParentsService {
     public createParent = async (userId: string, parent: IParentCreateDto): Promise<IResponse<IParentGetDto | string>> => {
         return await this.repository.createParent(userId, parent);
     };
+
+    public activateParent = async (userId: string, parentId: string): Promise<IResponse<IParentGetDto | string>> => {
+        return await this.repository.activateParent(userId, parentId);
+    };
 }
 
 export const parentsService = new ParentsService();

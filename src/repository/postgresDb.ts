@@ -212,6 +212,45 @@ export class PostgresDB {
         }
     };
 
+    public blockUser = async (adminId: string, userId:string): Promise<IResponse<IUserGetDto | string>> => {
+        try {
+            const foundAdmin = await User.findByPk(adminId);
+            if (!foundAdmin || foundAdmin.isBlocked) 
+                throw new Error("У Вас нет прав доступа.");
+            const foundUser: IUserGetDto | null = await User.findByPk(userId);
+            if(!foundUser) throw new Error("Пользователь с таким ID не найден.");
+            if(foundUser.role === ERoles.SUPERADMIN) throw new Error("Супер админ не может быть удален.");
+            const updatedUser = await User.update(
+                {isBlocked: foundUser.isBlocked ? false : true },
+                {
+                    where: { id: foundUser.id },
+                    returning: true
+                }).then((result) => { return result[1][0]; });
+            return {
+                status: StatusCodes.OK,
+                result: updatedUser
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                }; 
+            } else if (error.message === "Пользователь с таким ID не найден.") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.BAD_REQUEST,
+                    result: error.message
+                };
+            }   
+        }
+    };
+
     // Врачи (DOCTORS)
     public getDoctors = async (userId: string): Promise<IResponse<IDoctorGetDto[] | string>> => {
         try {
@@ -381,6 +420,44 @@ export class PostgresDB {
         }
     };
 
+    public activateDoctor = async (userId: string, doctorId: string): Promise<IResponse<IDoctorGetDto | string>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.isBlocked) 
+                throw new Error("У Вас нет прав доступа.");
+            const foundDoctor: IDoctorGetDto | null = await Doctor.findByPk(doctorId);
+            if (!foundDoctor) throw new Error("Врач не найден.");
+            const updatedDoctor = await Doctor.update(
+                { isActive: foundDoctor.isActive ? false : true},
+                { 
+                    where: {id: foundDoctor.id },
+                    returning: true 
+                }).then((result) => { return result[1][0]; });
+            return {
+                status: StatusCodes.OK,
+                result: updatedDoctor
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else if (error.message === "Врач не найден.") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.BAD_REQUEST,
+                    result: error.message
+                };
+            }
+        }
+    };
+
     // В ТЗ Пациенты/ у нас Родители (PARENTS)
     public getParents = async (userId: string): Promise<IResponse<IParentGetDto[] | string>> => {
         try {
@@ -494,6 +571,44 @@ export class PostgresDB {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.BAD_REQUEST,
+                    result: error.message
+                };
+            }
+        }
+    };
+
+    public activateParent = async (userId: string, parentId: string): Promise<IResponse<IParentGetDto | string>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.isBlocked) 
+                throw new Error("У Вас нет прав доступа.");
+            const foundParent: IParentGetDto | null = await Parent.findByPk(parentId);
+            if (!foundParent) throw new Error("Родитель не найден.");
+            const updatedParent: IParentGetDto = await Parent.update(
+                { isActive: foundParent.isActive ? false : true},
+                { 
+                    where: {id: foundParent.id },
+                    returning: true 
+                }).then((result) => { return result[1][0]; });
+            return {
+                status: StatusCodes.OK,
+                result: updatedParent
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else if (error.message === "Родитель не найден.") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
                     result: error.message
                 };
             } else {

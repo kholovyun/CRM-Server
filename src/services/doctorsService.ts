@@ -26,6 +26,10 @@ export class DoctorsService {
     public editDoctor = async (userId: string, searchId: string, doctor: IDoctorUpdateDto): Promise<IResponse<IDoctorGetDto | string>> => {
         return await this.repository.editDoctor(userId, searchId, doctor);
     };
+
+    public activateDoctor = async (userId: string, doctorId: string): Promise<IResponse<IDoctorGetDto | string>> => {
+        return await this.repository.activateDoctor(userId, doctorId);
+    };
 }
 
 export const doctorsService = new DoctorsService();

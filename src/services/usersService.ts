@@ -36,6 +36,10 @@ export class UsersService {
     public setPassword = async (data: ISetPasswordData): Promise<IResponse<IMessage>> => {
         return await this.repository.setPassword(data);
     };
+
+    public blockUser = async (adminId: string, userId:string): Promise<IResponse<IUserGetDto | string>> => {
+        return await this.repository.blockUser(adminId, userId);
+    };
 }
 
 export const usersService = new UsersService();
