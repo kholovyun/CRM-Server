@@ -23,6 +23,7 @@ export class UsersController {
         this.router.get("/:id", permission(), this.getUserById);
         this.router.patch("/", permission(), this.editUser);
         this.router.post("/set-password", this.setPassword);
+        this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.blockUser);
         this.service = usersService;
     }
 
@@ -65,5 +66,12 @@ export class UsersController {
     private checkToken = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         res.status(StatusCodes.OK).send(req.dataFromToken);
+    };
+
+    private blockUser = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as {id: string, email: string, role: string};
+        const response = await this.service.blockUser(user.id, req.params.id);
+        res.status(response.status).send(response.result);
     };
 }

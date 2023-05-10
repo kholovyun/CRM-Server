@@ -8,4 +8,5 @@ export default interface IUserGetDto {
     name: string
     surname: string
     patronim: string
+    isBlocked: boolean
 }
