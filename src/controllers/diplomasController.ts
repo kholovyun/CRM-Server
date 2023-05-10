@@ -14,19 +14,21 @@ export class DiplomasControllers {
     constructor() {
         this.service = diplomasService;
         this.router = express.Router();
-        // this.router.get("/", permission([ERoles.SUPERADMIN, ERoles.ADMIN, ERoles.DOCTOR]), this.getDiplomasByDoctor);
-        this.router.post("/",permission([ERoles.DOCTOR]), this.createDiploma);
-        // this.router.delete("/:id", this.deleteDiploma);
+        this.router.get("/", permission([ERoles.DOCTOR, ERoles.DOCTOR, ERoles.ADMIN, ERoles.PARENT]), this.getDiplomasByDoctor);
+        this.router.post("/", permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.DOCTOR]), this.createDiploma);
+        this.router.delete("/",permission([ERoles.DOCTOR]), this.deleteDiploma);
     }
 
     public getRouter = (): Router => {
         return this.router;
     };
 
-    // private getDiplomasByDoctor = async (req: Request, res: Response): Promise<void> => {
-    //     const response: IResponse<IDiplomGetDto[] | string> = await this.service.getDiplomasByDoctor(req.query.doctor_id);
-    //     res.status(response.status).send(response.result);
-    // };
+    private getDiplomasByDoctor = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as IUserGetDto;
+        const response: IResponse<IDiplomGetDto[] | string> = await this.service.getDiplomasByDoctor(user.id, req.body.doctorId);
+        res.status(response.status).send(response.result);
+    };
 
     private createDiploma = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
@@ -35,8 +37,10 @@ export class DiplomasControllers {
         res.status(response.status).send(response.result);
     };
 
-    // private deleteDiploma = async (req: Request, res: Response): Promise<void> => {
-    //     const response: IResponse<IDiplomGetDto | string | number> = await this.service.deleteDiploma(req.params.id);
-    //     res.status(response.status).send(response.result);
-    // };
+    private deleteDiploma = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as IUserGetDto;
+        const response: IResponse<IDiplomGetDto | string | number> = await this.service.deleteDiploma(user.id, req.body.diplomaId);
+        res.status(response.status).send(response.result);
+    };
 }

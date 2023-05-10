@@ -9,17 +9,17 @@ export class DiplomasService {
         this.repository = postgresDB;
     }
 
-    // public getDiplomasByDoctor = async (doctorId: string): Promise<IResponse<IDiplomGetDto[] | string>> => {
-    //     return await this.repository.getDiplomasByDoctor(doctorId);
-    // };
+    public getDiplomasByDoctor = async (userId: string,doctorId: string): Promise<IResponse<IDiplomGetDto[] | string>> => {
+        return await this.repository.getDiplomasByDoctor(userId, doctorId);
+    };
 
     public createDiploma = async (userId: string, diploma: IDiplomaCreateDto): Promise<IResponse<IDiplomGetDto | string>> => {
         return await this.repository.createDiploma(userId, diploma);
     };
 
-    // public deleteDiploma = async(diplomId: string): Promise<IResponse<IDiplomGetDto | string | number>> => {
-    //     return await this.repository.deleteDiploma(diplomId);
-    // };
+    public deleteDiploma = async(userId: string, diplomaId: string): Promise<IResponse<IDiplomGetDto | string | number>> => {
+        return await this.repository.deleteDiploma(userId, diplomaId);
+    };
 }
 
 export const diplomasService = new DiplomasService();

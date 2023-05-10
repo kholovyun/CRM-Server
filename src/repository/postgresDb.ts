@@ -503,11 +503,13 @@ export class PostgresDB {
 
     //Дипломы (Diplomas)
 
-    public getDiplomasByDoctor = async (doctorId: string) => {
+    public getDiplomasByDoctor = async (userId: string, doctorId: string) => {
         try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser) throw new Error("У вас нет прав доступа");
             const doctor = await Doctor.findByPk(doctorId);
-            if (!doctor) throw new Error("По введенному id доктор не существует!");
-            const foundDiplom: IDiplomGetDto[] | undefined = await Diploma.findAll({where: {doctorId: doctorId}});
+            if (!doctor) throw new Error("Доктор не найден");
+            const foundDiplom: IDiplomGetDto[] | undefined = await Diploma.findAll({where: {doctorId: doctor.id}});
             if (!foundDiplom) throw new Error("Дипломы не найдены");
             return {
                 status: StatusCodes.OK,
@@ -515,31 +517,20 @@ export class PostgresDB {
             };
         } catch(err: unknown) {
             const error = err as Error;
-            if (error.message === "Дипломы не найдены") {
-                return {
-                    status: StatusCodes.NOT_FOUND,
-                    result: error.message
-                };
-            } else if (error.message === "По введенному id доктор не существует!"){
-                return {
-                    status: StatusCodes.NOT_FOUND,
-                    result: error.message
-                };
-            } else {
-                return {
-                    status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: error.message
-                };
-            }   
+            return {
+                status: StatusCodes.BAD_REQUEST,
+                result: error.message
+            };
         }
     };
 
     public createDiploma = async (userId: string, diplom: IDiplomCreateDto) => {
         try {
-            const doctor = await Doctor.findOne({where: {userId: userId}});
-            Logger.info(doctor);
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.role === ERoles.PARENT) throw new Error("У вас нет прав доступа");
+            const doctor = await Doctor.findByPk(diplom.doctorId);
             if (!doctor) throw new Error("Доктор не найден");
-            const newDiploma: IDiplomGetDto = await Diploma.create({...diplom, doctorId: doctor.dataValues.id});
+            const newDiploma: IDiplomGetDto = await Diploma.create({...diplom});
             return {
                 status: StatusCodes.OK,
                 result: newDiploma
@@ -554,28 +545,23 @@ export class PostgresDB {
         }
     };
 
-    public deleteDiploma = async (diplomId: string) => {
+    public deleteDiploma = async (userId: string,diplomaId: string) => {
         try {
-            const diplom = await Diploma.findByPk(diplomId);
-            if(!diplom) throw new Error("Диплом не найден");
-            const deleteDiplom = await Diploma.destroy({where: {id: diplomId}});
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.role !== ERoles.DOCTOR) throw new Error("У вас нет прав доступа");
+            const diploma = await Diploma.findByPk(diplomaId);
+            if(!diploma) throw new Error("Диплом не найден");
+            const deleteDiplom = await Diploma.destroy({where: {id: diplomaId}});
             return {
                 status: StatusCodes.OK,
-                result: deleteDiplom
+                result: "Диплом удален!"
             };
         } catch(err: unknown) {
             const error = err as Error;
-            if (error.message === "Диплом не найден") {
-                return {
-                    status: StatusCodes.NOT_FOUND,
-                    result: error.message
-                };
-            } else {
-                return {
-                    status: StatusCodes.BAD_REQUEST,
-                    result: error.message
-                };
-            }
+            return {
+                status: StatusCodes.BAD_REQUEST,
+                result: error.message
+            };
         }
     };
 }
