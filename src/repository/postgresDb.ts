@@ -26,8 +26,8 @@ import { Parent } from "../models/Parent";
 import { Subscription } from "../models/Subscription";
 import IParentCreateDto from "../interfaces/IParent/IParentCreateDto";
 import { Diploma } from "../models/Diploma";
-import IDiplomCreateDto from "../interfaces/IDiplom/IDiplomCreateDto";
-import IDiplomGetDto from "../interfaces/IDiplom/IDiplomGetDto";
+import IDiplomaCreateDto from "../interfaces/IDiploma/IDiplomaCreateDto";
+import IDiplomaGetDto from "../interfaces/IDiploma/IDiplomaGetDto";
 
 dotenv.config();
 
@@ -503,13 +503,21 @@ export class PostgresDB {
 
     //Дипломы (Diplomas)
 
-    public getDiplomasByDoctor = async (userId: string, doctorId: string) => {
+    public getDiplomasByDoctor = async (userId: string, doctorId?: string) => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error("У вас нет прав доступа");
-            const doctor = await Doctor.findByPk(doctorId);
+            
+            let doctor;
+            if (foundUser.dataValues.role === ERoles.DOCTOR) {
+                doctor = await Doctor.findOne({where: {userId: foundUser.dataValues.id}});
+            } else {
+                doctor = await Doctor.findByPk(doctorId);
+            }
+
             if (!doctor) throw new Error("Доктор не найден");
-            const foundDiplom: IDiplomGetDto[] | undefined = await Diploma.findAll({where: {doctorId: doctor.id}});
+
+            const foundDiplom: IDiplomaGetDto[] | undefined = await Diploma.findAll({where: {doctorId: doctor.id}});
             if (!foundDiplom) throw new Error("Дипломы не найдены");
             return {
                 status: StatusCodes.OK,
@@ -524,18 +532,24 @@ export class PostgresDB {
         }
     };
 
-    public createDiploma = async (userId: string, diplom: IDiplomCreateDto) => {
+    public createDiploma = async (userId: string, diploma: IDiplomaCreateDto) => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role === ERoles.PARENT) throw new Error("У вас нет прав доступа");
-            const doctor = await Doctor.findByPk(diplom.doctorId);
+            if (!foundUser) throw new Error("У вас нет прав доступа");
+
+            let doctor;
+            if (foundUser.dataValues.role === ERoles.DOCTOR) {
+                doctor = await Doctor.findOne({where: {userId: foundUser.dataValues.id}});
+            } else {
+                doctor = await Doctor.findByPk(diploma.doctorId);
+            }
+            
             if (!doctor) throw new Error("Доктор не найден");
-            const newDiploma: IDiplomGetDto = await Diploma.create({...diplom});
+            const newDiploma: IDiplomaGetDto = await Diploma.create({...diploma, doctorId: doctor.dataValues.id});
             return {
                 status: StatusCodes.OK,
                 result: newDiploma
             };
-
         } catch(err: unknown) {
             const error = err as Error;
             return {

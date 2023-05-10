@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from "express";
 import { DiplomasService, diplomasService } from "../services/diplomasService";
 import IResponse from "../interfaces/IResponse";
-import IDiplomGetDto from "../interfaces/IDiplom/IDiplomGetDto";
+import IDiplomaGetDto from "../interfaces/IDiploma/IDiplomaGetDto";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
@@ -26,21 +26,21 @@ export class DiplomasControllers {
     private getDiplomasByDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
-        const response: IResponse<IDiplomGetDto[] | string> = await this.service.getDiplomasByDoctor(user.id, req.body.doctorId);
+        const response: IResponse<IDiplomaGetDto[] | string> = await this.service.getDiplomasByDoctor(user.id, req.query.doctorId as string);
         res.status(response.status).send(response.result);
     };
 
     private createDiploma = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
-        const response: IResponse<IDiplomGetDto | string> = await this.service.createDiploma(user.id, req.body);
+        const response: IResponse<IDiplomaGetDto | string> = await this.service.createDiploma(user.id, req.body);
         res.status(response.status).send(response.result);
     };
 
     private deleteDiploma = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
-        const response: IResponse<IDiplomGetDto | string | number> = await this.service.deleteDiploma(user.id, req.body.diplomaId);
+        const response: IResponse<IDiplomaGetDto | string | number> = await this.service.deleteDiploma(user.id, req.body.diplomaId);
         res.status(response.status).send(response.result);
     };
 }
