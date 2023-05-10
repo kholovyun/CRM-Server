@@ -7,6 +7,7 @@ import { postgresDB } from "./repository/postgresDb";
 import { UsersController } from "./controllers/usersController";
 import { DoctorsController } from "./controllers/doctorsController";
 import { ParentsController } from "./controllers/parentsController";
+import { DiplomasControllers } from "./controllers/diplomasController";
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ class App {
             this.app.use("/users", new UsersController().getRouter());
             this.app.use("/doctors", new DoctorsController().getRouter());
             this.app.use("/parents", new ParentsController().getRouter());
+            this.app.use("/diplomas", new DiplomasControllers().getRouter());
         } catch (err: unknown) {
             const error = err as Error;
             Logger.error(`Server error: ${error.message}`);

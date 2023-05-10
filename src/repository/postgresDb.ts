@@ -25,6 +25,9 @@ import IParentGetDto from "../interfaces/IParent/IParentGetDto";
 import { Parent } from "../models/Parent";
 import { Subscription } from "../models/Subscription";
 import IParentCreateDto from "../interfaces/IParent/IParentCreateDto";
+import { Diploma } from "../models/Diploma";
+import IDiplomCreateDto from "../interfaces/IDiplom/IDiplomCreateDto";
+import IDiplomGetDto from "../interfaces/IDiplom/IDiplomGetDto";
 
 dotenv.config();
 
@@ -487,6 +490,84 @@ export class PostgresDB {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.BAD_REQUEST,
+                    result: error.message
+                };
+            }
+        }
+    };
+
+    //Дипломы (Diplomas)
+
+    public getDiplomasByDoctor = async (doctorId: string) => {
+        try {
+            const doctor = await Doctor.findByPk(doctorId);
+            if (!doctor) throw new Error("По введенному id доктор не существует!");
+            const foundDiplom: IDiplomGetDto[] | undefined = await Diploma.findAll({where: {doctorId: doctorId}});
+            if (!foundDiplom) throw new Error("Дипломы не найдены");
+            return {
+                status: StatusCodes.OK,
+                result: foundDiplom
+            };
+        } catch(err: unknown) {
+            const error = err as Error;
+            if (error.message === "Дипломы не найдены") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
+                    result: error.message
+                };
+            } else if (error.message === "По введенному id доктор не существует!"){
+                return {
+                    status: StatusCodes.NOT_FOUND,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.INTERNAL_SERVER_ERROR,
+                    result: error.message
+                };
+            }   
+        }
+    };
+
+    public createDiploma = async (userId: string, diplom: IDiplomCreateDto) => {
+        try {
+            const doctor = await Doctor.findOne({where: {userId: userId}});
+            Logger.info(doctor);
+            if (!doctor) throw new Error("Доктор не найден");
+            const newDiploma: IDiplomGetDto = await Diploma.create({...diplom, doctorId: doctor.dataValues.id});
+            return {
+                status: StatusCodes.OK,
+                result: newDiploma
+            };
+
+        } catch(err: unknown) {
+            const error = err as Error;
+            return {
+                status: StatusCodes.BAD_REQUEST,
+                result: error.message
+            };
+        }
+    };
+
+    public deleteDiploma = async (diplomId: string) => {
+        try {
+            const diplom = await Diploma.findByPk(diplomId);
+            if(!diplom) throw new Error("Диплом не найден");
+            const deleteDiplom = await Diploma.destroy({where: {id: diplomId}});
+            return {
+                status: StatusCodes.OK,
+                result: deleteDiplom
+            };
+        } catch(err: unknown) {
+            const error = err as Error;
+            if (error.message === "Диплом не найден") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
                     result: error.message
                 };
             } else {
