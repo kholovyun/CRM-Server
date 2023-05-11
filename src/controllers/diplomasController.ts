@@ -6,6 +6,20 @@ import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
 import IUserGetDto from "../interfaces/IUser/IUserGetDto";
+import { config } from "../index.config";
+import multer from "multer";
+import shortid from "shortid";
+
+const storage = multer.diskStorage({
+    destination(req, file, callback) {
+        callback(null, config.doctorsDiplomas);
+    },
+    filename(req, file, callback) {
+        callback(null, `${shortid()}${file.originalname}`);
+    },
+});
+
+const upload = multer({ storage });
 
 export class DiplomasControllers {
     private service: DiplomasService;
@@ -14,9 +28,9 @@ export class DiplomasControllers {
     constructor() {
         this.service = diplomasService;
         this.router = express.Router();
-        this.router.get("/", permission([ERoles.DOCTOR, ERoles.DOCTOR, ERoles.ADMIN, ERoles.PARENT]), this.getDiplomasByDoctor);
-        this.router.post("/", permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.DOCTOR]), this.createDiploma);
-        this.router.delete("/",permission([ERoles.DOCTOR]), this.deleteDiploma);
+        this.router.get("/:id", permission([ERoles.DOCTOR, ERoles.DOCTOR, ERoles.ADMIN, ERoles.PARENT]), this.getDiplomasByDoctor);
+        this.router.post("/", [permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.SUPERADMIN]), upload.single("url")], this.createDiploma);
+        this.router.delete("/:id", permission([ERoles.DOCTOR]), this.deleteDiploma);
     }
 
     public getRouter = (): Router => {
@@ -26,21 +40,23 @@ export class DiplomasControllers {
     private getDiplomasByDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
-        const response: IResponse<IDiplomaGetDto[] | string> = await this.service.getDiplomasByDoctor(user.id, req.query.doctorId as string);
+        const response: IResponse<IDiplomaGetDto[] | string> = await this.service.getDiplomasByDoctor(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private createDiploma = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as IUserGetDto;
-        const response: IResponse<IDiplomaGetDto | string> = await this.service.createDiploma(user.id, req.body);
+        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const diploma = req.body;
+        diploma.url = req.file ? req.file.filename : "";
+        const response: IResponse<IDiplomaGetDto | string> = await this.service.createDiploma(user.id, diploma);
         res.status(response.status).send(response.result);
     };
 
     private deleteDiploma = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
-        const response: IResponse<IDiplomaGetDto | string | number> = await this.service.deleteDiploma(user.id, req.body.diplomaId);
+        const response: IResponse<IDiplomaGetDto | string> = await this.service.deleteDiploma(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 }
