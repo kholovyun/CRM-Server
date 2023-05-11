@@ -118,9 +118,9 @@ export class PostgresDB {
             // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
             console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
             const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
-            const email = userDto.email;
-            const token = jwt.sign({ email: email }, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
-            const url = `http://localhost:8000/send-set-password-link?token=${token}`;
+            const email = { email: userDto.email };
+            const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
+            const url = `http://localhost:5173/reset-password?token=${token}`;
             await sendMail(url, email);
             delete user.dataValues.password;
             const userWithToken: IUserGetDtoWithToken = {
@@ -215,16 +215,16 @@ export class PostgresDB {
         }
     };
 
-    public blockUser = async (adminId: string, userId:string): Promise<IResponse<IUserGetDto | string>> => {
+    public blockUser = async (adminId: string, userId: string): Promise<IResponse<IUserGetDto | string>> => {
         try {
             const foundAdmin = await User.findByPk(adminId);
-            if (!foundAdmin || foundAdmin.isBlocked) 
+            if (!foundAdmin || foundAdmin.isBlocked)
                 throw new Error("У Вас нет прав доступа.");
             const foundUser: IUserGetDto | null = await User.findByPk(userId);
-            if(!foundUser) throw new Error("Пользователь с таким ID не найден.");
-            if(foundUser.role === ERoles.SUPERADMIN) throw new Error("Супер админ не может быть удален.");
+            if (!foundUser) throw new Error("Пользователь с таким ID не найден.");
+            if (foundUser.role === ERoles.SUPERADMIN) throw new Error("Супер админ не может быть удален.");
             const updatedUser = await User.update(
-                {isBlocked: foundUser.isBlocked ? false : true },
+                { isBlocked: foundUser.isBlocked ? false : true },
                 {
                     where: { id: foundUser.id },
                     returning: true
@@ -239,7 +239,7 @@ export class PostgresDB {
                 return {
                     status: StatusCodes.FORBIDDEN,
                     result: error.message
-                }; 
+                };
             } else if (error.message === "Пользователь с таким ID не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
@@ -250,7 +250,7 @@ export class PostgresDB {
                     status: StatusCodes.BAD_REQUEST,
                     result: error.message
                 };
-            }   
+            }
         }
     };
 
@@ -426,15 +426,15 @@ export class PostgresDB {
     public activateDoctor = async (userId: string, doctorId: string): Promise<IResponse<IDoctorGetDto | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.isBlocked) 
+            if (!foundUser || foundUser.isBlocked)
                 throw new Error("У Вас нет прав доступа.");
             const foundDoctor: IDoctorGetDto | null = await Doctor.findByPk(doctorId);
             if (!foundDoctor) throw new Error("Врач не найден.");
             const updatedDoctor = await Doctor.update(
-                { isActive: foundDoctor.isActive ? false : true},
-                { 
-                    where: {id: foundDoctor.id },
-                    returning: true 
+                { isActive: foundDoctor.isActive ? false : true },
+                {
+                    where: { id: foundDoctor.id },
+                    returning: true
                 }).then((result) => { return result[1][0]; });
             return {
                 status: StatusCodes.OK,
@@ -588,15 +588,15 @@ export class PostgresDB {
     public activateParent = async (userId: string, parentId: string): Promise<IResponse<IParentGetDto | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.isBlocked) 
+            if (!foundUser || foundUser.isBlocked)
                 throw new Error("У Вас нет прав доступа.");
             const foundParent: IParentGetDto | null = await Parent.findByPk(parentId);
             if (!foundParent) throw new Error("Родитель не найден.");
             const updatedParent: IParentGetDto = await Parent.update(
-                { isActive: foundParent.isActive ? false : true},
-                { 
-                    where: {id: foundParent.id },
-                    returning: true 
+                { isActive: foundParent.isActive ? false : true },
+                {
+                    where: { id: foundParent.id },
+                    returning: true
                 }).then((result) => { return result[1][0]; });
             return {
                 status: StatusCodes.OK,
@@ -622,29 +622,29 @@ export class PostgresDB {
             }
         }
     };
-        //Дипломы (Diplomas)
+    //Дипломы (Diplomas)
 
     public getDiplomasByDoctor = async (userId: string, doctorId?: string) => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error("У вас нет прав доступа");
-            
+
             let doctor;
             if (foundUser.dataValues.role === ERoles.DOCTOR) {
-                doctor = await Doctor.findOne({where: {userId: foundUser.dataValues.id}});
+                doctor = await Doctor.findOne({ where: { userId: foundUser.dataValues.id } });
             } else {
                 doctor = await Doctor.findByPk(doctorId);
             }
 
             if (!doctor) throw new Error("Доктор не найден");
 
-            const foundDiplom: IDiplomaGetDto[] | undefined = await Diploma.findAll({where: {doctorId: doctor.id}});
+            const foundDiplom: IDiplomaGetDto[] | undefined = await Diploma.findAll({ where: { doctorId: doctor.id } });
             if (!foundDiplom) throw new Error("Дипломы не найдены");
             return {
                 status: StatusCodes.OK,
                 result: foundDiplom
             };
-        } catch(err: unknown) {
+        } catch (err: unknown) {
             const error = err as Error;
             return {
                 status: StatusCodes.BAD_REQUEST,
@@ -660,18 +660,18 @@ export class PostgresDB {
 
             let doctor;
             if (foundUser.dataValues.role === ERoles.DOCTOR) {
-                doctor = await Doctor.findOne({where: {userId: foundUser.dataValues.id}});
+                doctor = await Doctor.findOne({ where: { userId: foundUser.dataValues.id } });
             } else {
                 doctor = await Doctor.findByPk(diploma.doctorId);
             }
-            
+
             if (!doctor) throw new Error("Доктор не найден");
-            const newDiploma: IDiplomaGetDto = await Diploma.create({...diploma, doctorId: doctor.dataValues.id});
+            const newDiploma: IDiplomaGetDto = await Diploma.create({ ...diploma, doctorId: doctor.dataValues.id });
             return {
                 status: StatusCodes.OK,
                 result: newDiploma
             };
-        } catch(err: unknown) {
+        } catch (err: unknown) {
             const error = err as Error;
             return {
                 status: StatusCodes.BAD_REQUEST,
@@ -680,18 +680,18 @@ export class PostgresDB {
         }
     };
 
-    public deleteDiploma = async (userId: string,diplomaId: string) => {
+    public deleteDiploma = async (userId: string, diplomaId: string) => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.role !== ERoles.DOCTOR) throw new Error("У вас нет прав доступа");
             const diploma = await Diploma.findByPk(diplomaId);
-            if(!diploma) throw new Error("Диплом не найден");
-            const deleteDiplom = await Diploma.destroy({where: {id: diplomaId}});
+            if (!diploma) throw new Error("Диплом не найден");
+            await Diploma.destroy({ where: { id: diplomaId } });
             return {
                 status: StatusCodes.OK,
                 result: "Диплом удален!"
             };
-        } catch(err: unknown) {
+        } catch (err: unknown) {
             const error = err as Error;
             return {
                 status: StatusCodes.BAD_REQUEST,

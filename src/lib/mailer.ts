@@ -1,45 +1,32 @@
-import nodemailer from "nodemailer";
-import path from "path";
-import { google } from "googleapis";
-import hbs from "nodemailer-express-handlebars";
-import * as SMTPTransport from "nodemailer/lib/smtp-transport";
 import { NodemailerExpressHandlebarsOptions } from "nodemailer-express-handlebars";
+import { IEmailFromTokem } from "../interfaces/IEmailFromTokem";
+import hbs from "nodemailer-express-handlebars";
+import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import path from "path";
 
 dotenv.config();
 
-const oAuth2 = google.auth.OAuth2;
-const oAuth2_client = new oAuth2(process.env.CLIENT_ID, process.env.CLIENT_SECRET);
-const myGmail = "testteamtest22@gmail.com";
+const myEmail = "testteamtest22@mail.ru";
 
-oAuth2_client.setCredentials({
-    refresh_token: process.env.REFRESH_TOKEN,
-});
-
-const sendMail = async (link: string, recipient: string) => {
-    const accessToken: string = (await oAuth2_client.getAccessToken()) as string;
-
-    const nodemailerOptions: SMTPTransport.Options = {
-        service: "gmail",
+const sendMail = async (link: string, recipient: IEmailFromTokem) => {
+    const transporter = nodemailer.createTransport({
+        host: "smtp.mail.ru",
+        port: 465,
+        secure: true,
         auth: {
-            type: "OAuth2",
-            user: myGmail,
-            clientId: process.env.CLIENT_ID,
-            refreshToken: process.env.REFRESH_TOKEN,
-            accessToken,
-            clientSecret: process.env.CLIENT_SECRET,
+            user: myEmail,
+            pass: "yVvG2Z8nA7vJCPnjFGt2"
         },
-    };
+    });
 
-    const transport = nodemailer.createTransport(nodemailerOptions);
-
-    const mail_options = {
-        from: `Doctors Service ${myGmail}`,
-        to: recipient,
-        subject: "Установка нового пароля",
+    const mailOptions = {
+        from: `Doctors Service ${myEmail}`,
+        to: recipient.email,
+        subject: "Восстановление пароля",
         template: "email",
         context: {
-            msg: `Ссылка для установки пароля: ${link}`,
+            msg: `Ссылка для установки пароля2: ${link}`,
         },
     };
 
@@ -51,15 +38,15 @@ const sendMail = async (link: string, recipient: string) => {
         viewPath: path.resolve("./src/views/"),
     };
 
-    transport.use("compile", hbs(handlebarOptions));
+    transporter.use("compile", hbs(handlebarOptions));
 
-    transport.sendMail(mail_options, (error, result) => {
+    transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.log(`EMAIL TRANSPORT ERROR ${error}`);
+            console.log(error);
         } else {
-            console.log(`EMAIL TRANSPORT RESULT ${result}`);
+            console.log("Сообщение отправлено: " + info.response);
         }
-        transport.close();
+        transporter.close();
     });
 };
 
