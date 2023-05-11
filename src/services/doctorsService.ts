@@ -11,8 +11,8 @@ export class DoctorsService {
         this.repository = postgresDB;
     }
 
-    public getDoctors = async (userId: string): Promise<IResponse<IDoctorGetDto[] | string>> => {
-        return await this.repository.getDoctors(userId);
+    public getDoctors = async (userId: string, offset: string, limit: string): Promise<IResponse<IDoctorGetDto[] | string>> => {
+        return await this.repository.getDoctors(userId, offset, limit);
     };
 
     public getDoctorById = async (userId: string, id: string): Promise<IResponse<IDoctorGetDto | string>> => {

@@ -9,8 +9,8 @@ export class ParentsService {
         this.repository = postgresDB;
     }
 
-    public getParents = async (userId: string): Promise<IResponse<IParentGetDto[] | string>> => {
-        return await this.repository.getParents(userId);
+    public getParents = async (userId: string, offset: string, limit: string): Promise<IResponse<IParentGetDto[] | string>> => {
+        return await this.repository.getParents(userId, offset, limit);
     };
 
     public getParentById = async (userId: string, id: string): Promise<IResponse<IParentGetDto | string>> => {

@@ -71,9 +71,11 @@ export class PostgresDB {
     };
 
     // ПОЛЬЗОВАТЕЛИ
-
-    public getUsers = async (): Promise<IResponse<IUserGetDto[] | string>> => {
+    public getUsers = async (userId: string): Promise<IResponse<IUserGetDto[] | string>> => {
         try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.isBlocked)
+                throw new Error("У Вас нет прав доступа.");
             const foundUsers = await User.findAll({ raw: true });
             return {
                 status: StatusCodes.OK,
@@ -81,27 +83,54 @@ export class PostgresDB {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            return {
-                status: StatusCodes.BAD_REQUEST,
-                result: error.message,
-            };
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.INTERNAL_SERVER_ERROR,
+                    result: error.message
+                };
+            }
         }
     };
 
-    public getUserByid = async (userId: string): Promise<IResponse<IUserGetDto | string>> => {
+    public getUserByid = async (seekerId: string, userId: string): Promise<IResponse<IUserGetDto | string>> => {
         try {
+            const foundSeeker = await User.findByPk(seekerId);
+            if (!foundSeeker || foundSeeker.isBlocked && foundSeeker.role !== ERoles.PARENT)
+                throw new Error("У Вас нет прав доступа.");
+            if (foundSeeker.role === ERoles.PARENT) {
+                const foundParent = await Parent.findOne({where: {userId: foundSeeker.id}});
+                if (!foundParent || foundParent.userId !== userId)
+                    throw new Error("У Вас нет прав доступа.");
+            }
             const foundUser = await User.findByPk(userId);
-            if (!foundUser) throw new Error("User is not found");
+            if (!foundUser) throw new Error("Пользователь не найден.");
             return {
                 status: StatusCodes.OK,
                 result: foundUser
             };
         } catch (err: unknown) {
             const error = err as Error;
-            return {
-                status: StatusCodes.NOT_FOUND,
-                result: error.message,
-            };
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else if (error.message === "Пользователь не найден.") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.INTERNAL_SERVER_ERROR,
+                    result: error.message
+                };
+            }
         }
     };
 
@@ -112,7 +141,7 @@ export class PostgresDB {
                     email: userDto.email
                 }
             });
-            if (userExists) throw new Error("User by this email already exists");
+            if (userExists) throw new Error("Пользователь с таким email уже зарегистрирован.");
 
             const primaryPassword: string = shortid.generate();
             // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
@@ -122,6 +151,17 @@ export class PostgresDB {
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
             const url = `http://localhost:5173/reset-password?token=${token}`;
             await sendMail(url, email);
+            if (user.role === ERoles.DOCTOR) {
+                const newDoctor: IDoctorCreateDto = {
+                    userId: user.id,
+                    speciality: "-",
+                    experience: 0,
+                    placeOfWork: "-",
+                    photo: "default_doctor_photo.jpg",
+                    isActive: true
+                };
+                await Doctor.create({ ...newDoctor });
+            }
             delete user.dataValues.password;
             const userWithToken: IUserGetDtoWithToken = {
                 ...user.dataValues,
@@ -149,13 +189,14 @@ export class PostgresDB {
         try {
             const foundUser = await User.findOne({ where: { email: userDto.email } });
 
-            if (!foundUser) throw new Error("User is not found!");
+            if (!foundUser) throw new Error("Пользователь не найден!");
 
             const isMatch: boolean = await checkPassword(userDto.password, foundUser);
-            if (!isMatch) throw new Error("Wrong password!");
+            if (!isMatch) throw new Error("Пароли не совпадают!");
             const user = foundUser.dataValues;
             delete user.password;
-            const userWithToken: IUserGetDtoWithToken = { ...user, token: generateJWT({ id: user.id, email: user.email, role: user.role }) };
+            const userWithToken: IUserGetDtoWithToken = 
+                { ...user, token: generateJWT({ id: user.id, email: user.email, role: user.role }) };
 
             return {
                 status: StatusCodes.OK,
@@ -173,7 +214,8 @@ export class PostgresDB {
     public editUser = async (userDto: IUserCreateDto & { password?: string }, userId: string): Promise<IResponse<IUserGetDto | string>> => {
         try {
             if (userDto.password) {
-                if (!userDto.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) throw new Error("Invalid password");
+                if (!userDto.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) 
+                    throw new Error("Введён некорректный пароль.");
                 userDto.password = await generateHash(userDto.password);
             }
             const user = await User.update(userDto, { where: { id: userId }, returning: true }).then((result) => {
@@ -198,13 +240,14 @@ export class PostgresDB {
         try {
             const dataFromToken = jwt.verify(data.token, `${process.env.MAIL_KEY}`) as IEmailFromTokem;
             if (!dataFromToken) throw new Error(ReasonPhrases.UNAUTHORIZED);
-            if (!data.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) throw new Error("Invalid password");
+            if (!data.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) 
+                throw new Error("Введён некорректный пароль.");
             const foundUser = await User.findOne({ where: { email: dataFromToken.email } });
             const newPassword = await generateHash(data.password);
             await User.update({ password: newPassword }, { where: { id: foundUser?.dataValues.id }, returning: true });
             return {
                 status: StatusCodes.OK,
-                result: { message: "Password is changed" }
+                result: { message: "Пароль изменён." }
             };
         } catch (err: unknown) {
             const error = err as Error;
@@ -255,22 +298,23 @@ export class PostgresDB {
     };
 
     // Врачи (DOCTORS)
-    public getDoctors = async (userId: string): Promise<IResponse<IDoctorGetDto[] | string>> => {
+    public getDoctors = async (userId: string, offset: string, limit: string): Promise<IResponse<IDoctorGetDto[] | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role !== ERoles.ADMIN)
+            if (!foundUser || foundUser.isBlocked)
                 throw new Error("У Вас нет прав доступа.");
             const foundDoctors = await Doctor.findAll({
                 include: {
                     model: User,
                     as: "users",
-                    attributes: ["name", "patronim", "surname", "email", "phone"]
+                    attributes: ["name", "patronim", "surname", "email", "phone", "isBlocked"]
                 },
                 order: [
                     [{ model: User, as: "users" }, "surname", "ASC"]
                 ],
                 raw: true,
-                // limit: Какая пагинация будет???
+                limit: parseInt(limit),
+                offset: parseInt(offset)
             });
             return {
                 status: StatusCodes.OK,
@@ -349,7 +393,7 @@ export class PostgresDB {
     public createDoctor = async (userId: string, doctor: IDoctorCreateDto): Promise<IResponse<IDoctorGetDto | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role !== ERoles.ADMIN)
+            if (!foundUser || foundUser.isBlocked)
                 throw new Error("У Вас нет прав доступа.");
             const exsistedDoctor = await Doctor.findOne({
                 where: {
@@ -357,8 +401,9 @@ export class PostgresDB {
                 }
             });
             if (exsistedDoctor) throw new Error("Таблица врач для этого пользователя уже создана.");
-            if (doctor.photo === "") throw new Error("Фото обязательно");
-            // на фронте поставить дефолтное изображение. Эта ошибка только для постмана. Можно и на бэке вставить путь
+            if (doctor.photo === "") {
+                doctor.photo = "default_doctor_photo.jpg";
+            }
             const newDoctor: IDoctorGetDto = await Doctor.create({ ...doctor });
             return {
                 status: StatusCodes.CREATED,
@@ -383,15 +428,16 @@ export class PostgresDB {
     public editDoctor = async (userId: string, searchId: string, doctor: IDoctorUpdateDto): Promise<IResponse<IDoctorGetDto | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role === ERoles.PARENT)
+            if (!foundUser || foundUser.isBlocked)
                 throw new Error("У Вас нет прав доступа.");
             const foundDoctor: IDoctorGetDto | null = await Doctor.findByPk(searchId);
             if (!foundDoctor) throw new Error("Врач не найден.");
             if (foundUser.role === ERoles.DOCTOR && String(foundUser.id) !== String(foundDoctor.userId)) {
                 throw new Error("У Вас нет прав доступа.");
             }
-            if (doctor.photo === "") throw new Error("Фото обязательно");
-            // на фронте поставить дефолтное изображение. Эта ошибка только для постмана. Можно и на бэке вставить путь
+            if (doctor.photo === "") {
+                doctor.photo = "default_doctor_photo.jpg";
+            }
             const updatedDoctor = await Doctor.update(
                 { ...doctor },
                 {
@@ -426,15 +472,15 @@ export class PostgresDB {
     public activateDoctor = async (userId: string, doctorId: string): Promise<IResponse<IDoctorGetDto | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.isBlocked)
+            if (!foundUser || foundUser.isBlocked) 
                 throw new Error("У Вас нет прав доступа.");
             const foundDoctor: IDoctorGetDto | null = await Doctor.findByPk(doctorId);
             if (!foundDoctor) throw new Error("Врач не найден.");
             const updatedDoctor = await Doctor.update(
-                { isActive: foundDoctor.isActive ? false : true },
-                {
-                    where: { id: foundDoctor.id },
-                    returning: true
+                { isActive: foundDoctor.isActive ? false : true},
+                { 
+                    where: {id: foundDoctor.id },
+                    returning: true 
                 }).then((result) => { return result[1][0]; });
             return {
                 status: StatusCodes.OK,
@@ -462,22 +508,23 @@ export class PostgresDB {
     };
 
     // В ТЗ Пациенты/ у нас Родители (PARENTS)
-    public getParents = async (userId: string): Promise<IResponse<IParentGetDto[] | string>> => {
+    public getParents = async (userId: string, offset: string, limit: string): Promise<IResponse<IParentGetDto[] | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role !== ERoles.ADMIN)
+            if (!foundUser || foundUser.isBlocked)
                 throw new Error("У Вас нет прав доступа.");
             const foundParents = await Parent.findAll({
                 include: {
                     model: User,
                     as: "users",
-                    attributes: ["name", "patronim", "surname", "email", "phone"]
+                    attributes: ["name", "patronim", "surname", "email", "phone", "isBlocked"]
                 },
                 order: [
                     [{ model: User, as: "users" }, "surname", "ASC"]
                 ],
                 raw: true,
-                // limit: Какая пагинация будет???
+                limit: parseInt(limit),
+                offset: parseInt(offset)
             });
             return {
                 status: StatusCodes.OK,
@@ -517,13 +564,14 @@ export class PostgresDB {
                     }]
                 });
             if (!parent) throw new Error("Родитель пациента не найден.");
-            if (foundUser.role === ERoles.ADMIN) {
+            if (foundUser.role === ERoles.ADMIN || foundUser.role === ERoles.SUPERADMIN) {
                 return {
                     status: StatusCodes.OK,
                     result: parent
                 };
             }
-            if (String(foundUser.id) !== String(parent.userId))
+            if (foundUser.role === ERoles.DOCTOR && String(foundUser.id) !== String(parent.doctorId) || 
+                String(foundUser.id) !== String(parent.userId)) 
                 throw new Error("У Вас нет прав доступа.");
             return {
                 status: StatusCodes.OK,
@@ -553,7 +601,7 @@ export class PostgresDB {
     public createParent = async (userId: string, parent: IParentCreateDto): Promise<IResponse<IParentGetDto | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role !== ERoles.ADMIN)
+            if (!foundUser || foundUser.isBlocked)
                 throw new Error("У Вас нет прав доступа.");
             const exsistedParent = await Parent.findOne({
                 where: {
@@ -588,15 +636,15 @@ export class PostgresDB {
     public activateParent = async (userId: string, parentId: string): Promise<IResponse<IParentGetDto | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.isBlocked)
+            if (!foundUser || foundUser.isBlocked) 
                 throw new Error("У Вас нет прав доступа.");
             const foundParent: IParentGetDto | null = await Parent.findByPk(parentId);
             if (!foundParent) throw new Error("Родитель не найден.");
             const updatedParent: IParentGetDto = await Parent.update(
-                { isActive: foundParent.isActive ? false : true },
-                {
-                    where: { id: foundParent.id },
-                    returning: true
+                { isActive: foundParent.isActive ? false : true},
+                { 
+                    where: {id: foundParent.id },
+                    returning: true 
                 }).then((result) => { return result[1][0]; });
             return {
                 status: StatusCodes.OK,
@@ -622,81 +670,128 @@ export class PostgresDB {
             }
         }
     };
-    //Дипломы (Diplomas)
 
-    public getDiplomasByDoctor = async (userId: string, doctorId?: string) => {
+    //Дипломы (Diplomas)
+    public getDiplomasByDoctor = async (userId: string, doctorId: string): Promise<IResponse<IDiplomaGetDto[] | string>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser) throw new Error("У вас нет прав доступа");
-
-            let doctor;
-            if (foundUser.dataValues.role === ERoles.DOCTOR) {
-                doctor = await Doctor.findOne({ where: { userId: foundUser.dataValues.id } });
-            } else {
-                doctor = await Doctor.findByPk(doctorId);
+            if (!foundUser) throw new Error("У Вас нет прав доступа.");
+            
+            const foundDoctor = await Doctor.findByPk(doctorId);
+            if (!foundDoctor) throw new Error("Врач, чьи дипломы Вы запрашиваете не найден.");
+            
+            if (foundUser.role === ERoles.DOCTOR && String(foundUser.id) !== String(foundDoctor.userId))
+                throw new Error("У Вас нет прав доступа.");
+            if (foundUser.role === ERoles.PARENT) {
+                const foundParent = await Parent.findOne({
+                    where: {userId: foundUser.id, doctorId: doctorId}
+                });
+                if(!foundParent) throw new Error("У Вас нет прав доступа.");
             }
-
-            if (!doctor) throw new Error("Доктор не найден");
-
-            const foundDiplom: IDiplomaGetDto[] | undefined = await Diploma.findAll({ where: { doctorId: doctor.id } });
-            if (!foundDiplom) throw new Error("Дипломы не найдены");
+            const diplomas = await Diploma.findAll({
+                where: {doctorId: doctorId},
+                raw: true
+            });            
             return {
                 status: StatusCodes.OK,
-                result: foundDiplom
+                result: diplomas
             };
-        } catch (err: unknown) {
+        } catch(err: unknown) {
             const error = err as Error;
-            return {
-                status: StatusCodes.BAD_REQUEST,
-                result: error.message
-            };
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else if (error.message === "Врач, чьи дипломы Вы запрашиваете не найден.") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.INTERNAL_SERVER_ERROR,
+                    result: error.message
+                };
+            }
         }
     };
 
     public createDiploma = async (userId: string, diploma: IDiplomaCreateDto) => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser) throw new Error("У вас нет прав доступа");
+            if (!foundUser || foundUser.isBlocked) throw new Error("У Вас нет прав доступа.");
 
-            let doctor;
-            if (foundUser.dataValues.role === ERoles.DOCTOR) {
-                doctor = await Doctor.findOne({ where: { userId: foundUser.dataValues.id } });
-            } else {
-                doctor = await Doctor.findByPk(diploma.doctorId);
+            if (foundUser.role === ERoles.DOCTOR) {
+                const foundDoctor = await Doctor.findOne({
+                    where: {userId: foundUser.id}
+                });
+                if (!foundDoctor || diploma.doctorId !== foundDoctor.id ) 
+                    throw new Error("У Вас нет прав доступа.");
             }
 
-            if (!doctor) throw new Error("Доктор не найден");
-            const newDiploma: IDiplomaGetDto = await Diploma.create({ ...diploma, doctorId: doctor.dataValues.id });
+            if (diploma.url === "") throw new Error("Изображение обязательно.");
+
+            const newDiploma: IDiplomaGetDto = await Diploma.create({...diploma});
             return {
                 status: StatusCodes.OK,
                 result: newDiploma
             };
-        } catch (err: unknown) {
+        } catch(err: unknown) {
             const error = err as Error;
-            return {
-                status: StatusCodes.BAD_REQUEST,
-                result: error.message
-            };
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.BAD_REQUEST,
+                    result: error.message
+                };
+            }
         }
     };
 
     public deleteDiploma = async (userId: string, diplomaId: string) => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.role !== ERoles.DOCTOR) throw new Error("У вас нет прав доступа");
+            if (!foundUser || foundUser.isBlocked) throw new Error("У Вас нет прав доступа.");
+            
             const diploma = await Diploma.findByPk(diplomaId);
-            if (!diploma) throw new Error("Диплом не найден");
-            await Diploma.destroy({ where: { id: diplomaId } });
+            if (!diploma) throw new Error("Диплом не найден.");
+
+            if (foundUser.role === ERoles.DOCTOR) {
+                const foundDoctor = await Doctor.findOne({
+                    where: {userId: foundUser.id}
+                });
+                if (!foundDoctor || diploma.doctorId !== foundDoctor.id ) 
+                    throw new Error("У Вас нет прав доступа.");
+            }
+            
+            await Diploma.destroy({where: {id: diplomaId}});
             return {
                 status: StatusCodes.OK,
                 result: "Диплом удален!"
             };
-        } catch (err: unknown) {
+        } catch(err: unknown) {
             const error = err as Error;
-            return {
-                status: StatusCodes.BAD_REQUEST,
-                result: error.message
-            };
+            if (error.message === "У Вас нет прав доступа.") {
+                return {
+                    status: StatusCodes.FORBIDDEN,
+                    result: error.message
+                };
+            } else if (error.message === "Диплом не найден.") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
+                    result: error.message
+                };
+            } else {
+                return {
+                    status: StatusCodes.INTERNAL_SERVER_ERROR,
+                    result: error.message
+                };
+            }
         }
     };
 }

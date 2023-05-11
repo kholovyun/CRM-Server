@@ -51,7 +51,7 @@ export class DoctorsController {
 
     private getDoctorById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string };
+        const user = req.dataFromToken as { id: string; email: string, role: string };
         const response: IResponse<IDoctorGetDto | string> = await this.service.getDoctorById(
             user.id,
             req.params.id
@@ -61,22 +61,22 @@ export class DoctorsController {
 
     private createDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string };
+        const user = req.dataFromToken as { id: string; email: string, role: string };
         const doctor = req.body;
         doctor.photo = req.file ? req.file.filename : "";
         const response = await this.service.createDoctor(user.id, doctor);
-        res.send(response);
+        res.status(response.status).send(response);
     };
 
     private editDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string };
+        const user = req.dataFromToken as { id: string; email: string, role: string };
         const doctor = req.body;
         if (req.file && req.file.filename) {
             doctor.photo = req.file.filename;
         }
         const response = await this.service.editDoctor(user.id, req.params.id, doctor);
-        res.send(response);
+        res.status(response.status).send(response);
     };
 
     private activateDoctor = async (expressReq: Request, res: Response): Promise<void> => {
@@ -85,5 +85,4 @@ export class DoctorsController {
         const response = await this.service.activateDoctor(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
-
 }

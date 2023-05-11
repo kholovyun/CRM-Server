@@ -19,7 +19,7 @@ export class UsersController {
         this.router.post("/", this.register);
         this.router.post("/login", this.login);
         this.router.get("/token", permission(), this.checkToken);
-        this.router.get("/", permission([ERoles.ADMIN]), this.getUsers);
+        this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getUsers);
         this.router.get("/:id", permission(), this.getUserById);
         this.router.patch("/", permission(), this.editUser);
         this.router.post("/set-password", this.setPassword);
@@ -31,13 +31,17 @@ export class UsersController {
         return this.router;
     };
 
-    private getUsers = async (req: Request, res: Response): Promise<void> => {
-        const response: IResponse<IUserGetDto[] | string> = await this.service.getUsers();
+    private getUsers = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const response: IResponse<IUserGetDto[] | string> = await this.service.getUsers(user.id);
         res.status(response.status).send(response.result);
     };
 
-    private getUserById = async (req: Request, res: Response): Promise<void> => {
-        const response: IResponse<IUserGetDto | string> = await this.service.getUserByid(req.params.id);
+    private getUserById = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const response: IResponse<IUserGetDto | string> = await this.service.getUserByid(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
