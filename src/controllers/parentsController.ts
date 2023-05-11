@@ -29,7 +29,7 @@ export class ParentsController {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string };
         const response: IResponse<IParentGetDto[] | string> = await this.service.getParents(
-            user.id
+            user.id, req.params.offset, req.params.limit
         );
         res.status(response.status).send(response.result);
     };
@@ -48,7 +48,7 @@ export class ParentsController {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string };
         const response = await this.service.createParent(user.id, req.body);
-        res.send(response);
+        res.status(response.status).send(response);
     };
 
     private activateParent = async (expressReq: Request, res: Response): Promise<void> => {
