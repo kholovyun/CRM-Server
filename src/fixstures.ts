@@ -2,13 +2,11 @@ import { ERoles } from "./enums/ERoles";
 import { Doctor } from "./models/Doctor";
 import { Parent } from "./models/Parent";
 import { User } from "./models/User";
-import { PostgresDB } from "./repository/postgresDb";
 import { Message } from "./models/Message";
 import { Review } from "./models/Review";
 import { Subscription } from "./models/Subscription";
 import Logger from "./lib/logger";
 
-const db = new PostgresDB();
 const userFixture = {
     user1: {
         role: ERoles.ADMIN,
@@ -79,13 +77,13 @@ const userFixture = {
 
 export const createUserFixtures = async (): Promise<void> => {
     try {
-        await Doctor.destroy({where : {}});
-        await Parent.destroy({where : {}});
-        await Message.destroy({where : {}});
-        await Review.destroy({where : {}});
-        await Subscription.destroy({where : {}});
-        await Review.destroy({where : {}});
-        await User.destroy({where : {}});
+        await Doctor.destroy({ where: {} });
+        await Parent.destroy({ where: {} });
+        await Message.destroy({ where: {} });
+        await Review.destroy({ where: {} });
+        await Subscription.destroy({ where: {} });
+        await Review.destroy({ where: {} });
+        await User.destroy({ where: {} });
         await User.bulkCreate([
             {
                 ...userFixture.user1,
