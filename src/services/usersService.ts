@@ -17,12 +17,12 @@ export class UsersService {
         return await this.repository.register(userDto);
     };
 
-    public getUsers = async (): Promise<IResponse<IUserGetDto[] | string>> => {
-        return await this.repository.getUsers();
+    public getUsers = async (userId: string): Promise<IResponse<IUserGetDto[] | string>> => {
+        return await this.repository.getUsers(userId);
     };
 
-    public getUserByid = async (userId: string): Promise<IResponse<IUserGetDto | string>> => {
-        return await this.repository.getUserByid(userId);
+    public getUserByid = async (seekerId: string, userId: string): Promise<IResponse<IUserGetDto | string>> => {
+        return await this.repository.getUserByid(seekerId, userId);
     };
 
     public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | IMessage>> => {
