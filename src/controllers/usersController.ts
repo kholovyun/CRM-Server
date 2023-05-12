@@ -1,6 +1,5 @@
 import express, { Request, Response, Router } from "express";
 import IResponse from "../interfaces/IResponse";
-import { UsersService, usersService } from "../services/usersService";
 import IUserGetDtoWithToken from "../interfaces/IUser/IUserGetDtoWithToken";
 import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
 import { StatusCodes } from "http-status-codes";
@@ -9,9 +8,10 @@ import morganMiddleware from "../config/morganMiddleware";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import { IMessage } from "../interfaces/IMessage";
+import { UsersDb, usersDb } from "../repository/supDb/usersDb";
 
 export class UsersController {
-    private service: UsersService;
+    private repository: UsersDb;
     private router: Router;
     constructor() {
         this.router = express.Router();
@@ -24,7 +24,7 @@ export class UsersController {
         this.router.patch("/", permission(), this.editUser);
         this.router.post("/set-password", this.setPassword);
         this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.blockUser);
-        this.service = usersService;
+        this.repository = usersDb;
     }
 
     public getRouter = (): Router => {
@@ -34,36 +34,36 @@ export class UsersController {
     private getUsers = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IUserGetDto[] | string> = await this.service.getUsers(user.id);
+        const response: IResponse<IUserGetDto[] | string> = await this.repository.getUsers(user.id);
         res.status(response.status).send(response.result);
     };
 
     private getUserById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IUserGetDto | string> = await this.service.getUserByid(user.id, req.params.id);
+        const response: IResponse<IUserGetDto | string> = await this.repository.getUserByid(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private register = async (req: Request, res: Response): Promise<void> => {
-        const response: IResponse<IUserGetDtoWithToken | string> = await this.service.register(req.body);
+        const response: IResponse<IUserGetDtoWithToken | string> = await this.repository.register(req.body);
         res.status(response.status).send(response.result);
     };
 
     private login = async (req: Request, res: Response): Promise<void> => {
-        const response: IResponse<IUserGetDtoWithToken | IMessage> = await this.service.login(req.body);
+        const response: IResponse<IUserGetDtoWithToken | IMessage> = await this.repository.login(req.body);
         res.status(response.status).send(response.result);
     };
 
     private editUser = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
-        const response: IResponse<IUserGetDto | string> = await this.service.editUser(req.body, user.id);
+        const response: IResponse<IUserGetDto | string> = await this.repository.editUser(req.body, user.id);
         res.status(response.status).send(response.result);
     };
 
     private setPassword = async (req: Request, res: Response): Promise<void> => {
-        const response: IResponse<IMessage> = await this.service.setPassword(req.body);
+        const response: IResponse<IMessage> = await this.repository.setPassword(req.body);
         res.status(response.status).send(response.result);
     };
 
@@ -75,7 +75,7 @@ export class UsersController {
     private blockUser = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as {id: string, email: string, role: string};
-        const response = await this.service.blockUser(user.id, req.params.id);
+        const response = await this.repository.blockUser(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 }
