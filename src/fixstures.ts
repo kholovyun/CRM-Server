@@ -6,9 +6,14 @@ import { Message } from "./models/Message";
 import { Review } from "./models/Review";
 import { Subscription } from "./models/Subscription";
 import Logger from "./lib/logger";
+import { PostgresDB } from "./repository/postgresDb";
+import uuid from "react-uuid";
+
+const db = PostgresDB;
 
 const userFixture = {
     user1: {
+        id: uuid(),
         role: ERoles.ADMIN,
         email: "bumerboy86@gmail.com",
         phone: "123456789",
@@ -18,6 +23,7 @@ const userFixture = {
         isBlocked: false,
     },
     user2: {
+        id: uuid(),
         role: ERoles.SUPERADMIN,
         email: "kholov.yunus@gmail.com",
         phone: "987654321",
@@ -27,6 +33,7 @@ const userFixture = {
         isBlocked: true,
     },
     user3: {
+        id: uuid(),
         role: ERoles.DOCTOR,
         email: "doc@gmail.com",
         phone: "987654321",
@@ -36,6 +43,7 @@ const userFixture = {
         isBlocked: true,
     },
     user4: {
+        id: uuid(),
         role: ERoles.DOCTOR,
         email: "doc2@gmail.com",
         phone: "987654321",
@@ -45,6 +53,7 @@ const userFixture = {
         isBlocked: true,
     },
     user5: {
+        id: uuid(),
         role: ERoles.PARENT,
         email: "daddy@gmail.com",
         phone: "987654321",
@@ -54,6 +63,7 @@ const userFixture = {
         isBlocked: true,
     },
     user6: {
+        id: uuid(),
         role: ERoles.PARENT,
         email: "uncle@gmail.com",
         phone: "987654321",
@@ -63,6 +73,7 @@ const userFixture = {
         isBlocked: true,
     },
     user7: {
+        id: uuid(),
         role: ERoles.PARENT,
         email: "mommy@gmail.com",
         phone: "987654321",
@@ -74,6 +85,32 @@ const userFixture = {
 
 };
 
+const docFixture = {
+    doc1: {
+        id: uuid(),
+        userId: userFixture.user3.id,
+        photo: "https://avatars.mds.yandex.net/i?id=893c6424064159fb13cbbac1f374561e-5157058-images-thumbs&n=13",
+        speciality: "Дефектология",
+        place_of_work: "Темирязева 100",
+        experience: 20,
+        isActive: true,
+        price: 10000,
+        achievements: "Лучший дефектолог в мире",
+        degree: "Проффессор"
+    },
+    doc2: {
+        id: uuid(),
+        userId: userFixture.user4.id,
+        photo: "https://avatars.mds.yandex.net/i?id=893c6424064159fb13cbbac1f374561e-5157058-images-thumbs&n=13",
+        speciality: "Стоматолог",
+        place_of_work: "Абая 10",
+        experience: 23,
+        isActive: true,
+        price: 20000,
+        achievements: "Лучший стоматолог в мире",
+        degree: "Доцент"
+    },
+};
 
 export const createUserFixtures = async (): Promise<void> => {
     try {
@@ -105,6 +142,15 @@ export const createUserFixtures = async (): Promise<void> => {
             },
             {
                 ...userFixture.user7
+            },
+        ]);
+
+        await Doctor.bulkCreate([
+            {
+                ...docFixture.doc1,
+            },
+            {
+                ...docFixture.doc2,
             },
         ]);
         Logger.info("Фикстуры созданы");
