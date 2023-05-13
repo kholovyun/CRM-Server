@@ -9,6 +9,7 @@ import { config } from "../index.config";
 import multer from "multer";
 import shortid from "shortid";
 import { DiplomasDb, diplomasDb } from "../repository/supDb/diplomasDb";
+import IError from "../interfaces/IError";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -40,7 +41,7 @@ export class DiplomasControllers {
     private getDiplomasByDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
-        const response: IResponse<IDiplomaGetDto[] | string> = await this.repository.getDiplomasByDoctor(user.id, req.params.id);
+        const response: IResponse<IDiplomaGetDto[] | IError> = await this.repository.getDiplomasByDoctor(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
@@ -49,14 +50,14 @@ export class DiplomasControllers {
         const user = req.dataFromToken as { id: string; email: string, role: string };
         const diploma = req.body;
         diploma.url = req.file ? req.file.filename : "";
-        const response: IResponse<IDiplomaGetDto | string> = await this.repository.createDiploma(user.id, diploma);
+        const response: IResponse<IDiplomaGetDto | IError> = await this.repository.createDiploma(user.id, diploma);
         res.status(response.status).send(response.result);
     };
 
     private deleteDiploma = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
-        const response: IResponse<IDiplomaGetDto | string> = await this.repository.deleteDiploma(user.id, req.params.id);
+        const response: IResponse<string | IError> = await this.repository.deleteDiploma(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 }

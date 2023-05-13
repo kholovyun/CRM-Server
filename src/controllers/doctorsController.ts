@@ -9,6 +9,7 @@ import morganMiddleware from "../config/morganMiddleware";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import { DoctorsDb, doctorsDb } from "../repository/supDb/doctorsDb";
+import IError from "../interfaces/IError";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -43,7 +44,7 @@ export class DoctorsController {
     private getDoctors = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IDoctorGetDto[] | string> = await this.repository.getDoctors(
+        const response: IResponse<IDoctorGetDto[] | IError> = await this.repository.getDoctors(
             user.id, req.params.offset, req.params.limit
         );
         res.status(response.status).send(response.result);
@@ -52,7 +53,7 @@ export class DoctorsController {
     private getDoctorById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IDoctorGetDto | string> = await this.repository.getDoctorById(
+        const response: IResponse<IDoctorGetDto | IError> = await this.repository.getDoctorById(
             user.id,
             req.params.id
         );
@@ -64,7 +65,7 @@ export class DoctorsController {
         const user = req.dataFromToken as { id: string; email: string, role: string };
         const doctor = req.body;
         doctor.photo = req.file ? req.file.filename : "";
-        const response = await this.repository.createDoctor(user.id, doctor);
+        const response: IResponse<IDoctorGetDto | IError> = await this.repository.createDoctor(user.id, doctor);
         res.status(response.status).send(response);
     };
 
@@ -75,14 +76,14 @@ export class DoctorsController {
         if (req.file && req.file.filename) {
             doctor.photo = req.file.filename;
         }
-        const response = await this.repository.editDoctor(user.id, req.params.id, doctor);
+        const response: IResponse<IDoctorGetDto | IError> = await this.repository.editDoctor(user.id, req.params.id, doctor);
         res.status(response.status).send(response);
     };
 
     private activateDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as {id: string, email: string};
-        const response = await this.repository.activateDoctor(user.id, req.params.id);
+        const response: IResponse<IDoctorGetDto | IError> = await this.repository.activateDoctor(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 }

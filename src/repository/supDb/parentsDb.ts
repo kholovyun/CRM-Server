@@ -6,10 +6,11 @@ import { User } from "../../models/User";
 import { Subscription } from "../../models/Subscription";
 import { ERoles } from "../../enums/ERoles";
 import IParentCreateDto from "../../interfaces/IParent/IParentCreateDto";
+import IError from "../../interfaces/IError";
 
 
 export class ParentsDb {
-    public getParents = async (userId: string, offset: string, limit: string): Promise<IResponse<IParentGetDto[] | string>> => {
+    public getParents = async (userId: string, offset: string, limit: string): Promise<IResponse<IParentGetDto[] | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
@@ -36,18 +37,24 @@ export class ParentsDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
     };
 
-    public getParentById = async (userId: string, id: string): Promise<IResponse<IParentGetDto | string>> => {
+    public getParentById = async (userId: string, id: string): Promise<IResponse<IParentGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error("Вы не идентифицированы.");
@@ -83,23 +90,32 @@ export class ParentsDb {
             if (error.message === "Вы не идентифицированы." || error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else if (error.message === "Родитель пациента не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
     };
 
-    public createParent = async (userId: string, parent: IParentCreateDto): Promise<IResponse<IParentGetDto | string>> => {
+    public createParent = async (userId: string, parent: IParentCreateDto): Promise<IResponse<IParentGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
@@ -123,18 +139,24 @@ export class ParentsDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.BAD_REQUEST,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
     };
 
-    public activateParent = async (userId: string, parentId: string): Promise<IResponse<IParentGetDto | string>> => {
+    public activateParent = async (userId: string, parentId: string): Promise<IResponse<IParentGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) 
@@ -156,17 +178,26 @@ export class ParentsDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else if (error.message === "Родитель не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.BAD_REQUEST,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
