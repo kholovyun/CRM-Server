@@ -18,9 +18,10 @@ import { IMessage } from "../../interfaces/IMessage";
 import { checkPassword } from "../../helpers/checkPassword";
 import ISetPasswordData from "../../interfaces/ISetPasswordData";
 import { IEmailFromTokem } from "../../interfaces/IEmailFromTokem";
+import IError from "../../interfaces/IError";
 
 export class UsersDb {
-    public getUsers = async (userId: string): Promise<IResponse<IUserGetDto[] | string>> => {
+    public getUsers = async (userId: string): Promise<IResponse<IUserGetDto[] | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
@@ -35,18 +36,24 @@ export class UsersDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
     };
 
-    public getUserByid = async (seekerId: string, userId: string): Promise<IResponse<IUserGetDto | string>> => {
+    public getUserByid = async (seekerId: string, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
         try {
             const foundSeeker = await User.findByPk(seekerId);
             if (!foundSeeker || foundSeeker.isBlocked && foundSeeker.role !== ERoles.PARENT)
@@ -67,23 +74,32 @@ export class UsersDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else if (error.message === "Пользователь не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
     };
 
-    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDtoWithToken | string>> => {
+    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
         try {
             const userExists = await User.findOne({
                 where: {
@@ -106,7 +122,7 @@ export class UsersDb {
                     speciality: "-",
                     experience: 0,
                     placeOfWork: "-",
-                    photo: "default_doctor_photo.jpg",
+                    photo: "default-photo.svg",
                     isActive: true
                 };
                 await Doctor.create({ ...newDoctor });
@@ -129,12 +145,15 @@ export class UsersDb {
             const error = err as Error;
             return {
                 status: StatusCodes.BAD_REQUEST,
-                result: error.message,
+                result: { 
+                    status: "error",
+                    message: error.message
+                }
             };
         }
     };
 
-    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | IMessage>> => {
+    public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
         try {
             const foundUser = await User.findOne({ where: { email: userDto.email } });
 
@@ -153,14 +172,27 @@ export class UsersDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            return {
-                status: StatusCodes.UNAUTHORIZED,
-                result: { message: error.message },
-            };
+            if (error.message === "Пользователь не найден!") {
+                return {
+                    status: StatusCodes.NOT_FOUND,
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
+                };
+            } else {
+                return {
+                    status: StatusCodes.BAD_REQUEST,
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
+                };
+            }            
         }
     };
 
-    public editUser = async (userDto: IUserCreateDto & { password?: string }, userId: string): Promise<IResponse<IUserGetDto | string>> => {
+    public editUser = async (userDto: IUserCreateDto & { password?: string }, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
         try {
             if (userDto.password) {
                 if (!userDto.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) 
@@ -180,7 +212,10 @@ export class UsersDb {
             const error = err as Error;
             return {
                 status: StatusCodes.BAD_REQUEST,
-                result: error.message
+                result: { 
+                    status: "error",
+                    message: error.message
+                }
             };
         }
     };
@@ -207,7 +242,7 @@ export class UsersDb {
         }
     };
 
-    public blockUser = async (adminId: string, userId: string): Promise<IResponse<IUserGetDto | string>> => {
+    public blockUser = async (adminId: string, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
         try {
             const foundAdmin = await User.findByPk(adminId);
             if (!foundAdmin || foundAdmin.isBlocked)
@@ -230,17 +265,26 @@ export class UsersDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else if (error.message === "Пользователь с таким ID не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.BAD_REQUEST,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }

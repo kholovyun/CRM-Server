@@ -7,9 +7,10 @@ import IDiplomaGetDto from "../../interfaces/IDiploma/IDiplomaGetDto";
 import IDiplomaCreateDto from "../../interfaces/IDiploma/IDiplomaCreateDto";
 import { Parent } from "../../models/Parent";
 import IResponse from "../../interfaces/IResponse";
+import IError from "../../interfaces/IError";
 
 export class DiplomasDb {
-    public getDiplomasByDoctor = async (userId: string, doctorId: string): Promise<IResponse<IDiplomaGetDto[] | string>> => {
+    public getDiplomasByDoctor = async (userId: string, doctorId: string): Promise<IResponse<IDiplomaGetDto[] | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error("У Вас нет прав доступа.");
@@ -38,23 +39,32 @@ export class DiplomasDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else if (error.message === "Врач, чьи дипломы Вы запрашиваете не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
     };
 
-    public createDiploma = async (userId: string, diploma: IDiplomaCreateDto) => {
+    public createDiploma = async (userId: string, diploma: IDiplomaCreateDto): Promise<IResponse<IDiplomaGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error("У Вас нет прав доступа.");
@@ -79,18 +89,24 @@ export class DiplomasDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.BAD_REQUEST,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
     };
 
-    public deleteDiploma = async (userId: string, diplomaId: string) => {
+    public deleteDiploma = async (userId: string, diplomaId: string): Promise<IResponse<string | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error("У Вас нет прав доступа.");
@@ -116,17 +132,26 @@ export class DiplomasDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else if (error.message === "Диплом не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }

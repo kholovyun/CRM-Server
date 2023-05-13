@@ -6,6 +6,7 @@ import morganMiddleware from "../config/morganMiddleware";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import { ParentsDb, parentsDb } from "../repository/supDb/parentsDb";
+import IError from "../interfaces/IError";
 
 export class ParentsController {
     private repository: ParentsDb;
@@ -28,7 +29,7 @@ export class ParentsController {
     private getParents = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string };
-        const response: IResponse<IParentGetDto[] | string> = await this.repository.getParents(
+        const response: IResponse<IParentGetDto[] | IError> = await this.repository.getParents(
             user.id, req.params.offset, req.params.limit
         );
         res.status(response.status).send(response.result);
@@ -37,7 +38,7 @@ export class ParentsController {
     private getParentById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string };
-        const response: IResponse<IParentGetDto | string> = await this.repository.getParentById(
+        const response: IResponse<IParentGetDto | IError> = await this.repository.getParentById(
             user.id,
             req.params.id
         );
@@ -47,14 +48,14 @@ export class ParentsController {
     private createParent = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string };
-        const response = await this.repository.createParent(user.id, req.body);
+        const response: IResponse<IParentGetDto | IError> = await this.repository.createParent(user.id, req.body);
         res.status(response.status).send(response);
     };
 
     private activateParent = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as {id: string, email: string};
-        const response = await this.repository.activateParent(user.id, req.params.id);
+        const response: IResponse<IParentGetDto | IError> = await this.repository.activateParent(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 }

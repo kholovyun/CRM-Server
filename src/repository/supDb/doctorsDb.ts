@@ -6,10 +6,11 @@ import { User } from "../../models/User";
 import { ERoles } from "../../enums/ERoles";
 import IDoctorCreateDto from "../../interfaces/IDoctor/IDoctorCreateDto";
 import IDoctorUpdateDto from "../../interfaces/IDoctor/IDoctorUpdateDto";
+import IError from "../../interfaces/IError";
 
 
 export class DoctorsDb {
-    public getDoctors = async (userId: string, offset: string, limit: string): Promise<IResponse<IDoctorGetDto[] | string>> => {
+    public getDoctors = async (userId: string, offset: string, limit: string): Promise<IResponse<IDoctorGetDto[] | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
@@ -36,18 +37,24 @@ export class DoctorsDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
     };
 
-    public getDoctorById = async (userId: string, id: string): Promise<IResponse<IDoctorGetDto | string>> => {
+    public getDoctorById = async (userId: string, id: string): Promise<IResponse<IDoctorGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error("Вы не идентифицированы.");
@@ -85,23 +92,32 @@ export class DoctorsDb {
             if (error.message === "Вы не идентифицированы.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else if (error.message === "Врач не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
     };
 
-    public createDoctor = async (userId: string, doctor: IDoctorCreateDto): Promise<IResponse<IDoctorGetDto | string>> => {
+    public createDoctor = async (userId: string, doctor: IDoctorCreateDto): Promise<IResponse<IDoctorGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
@@ -125,18 +141,24 @@ export class DoctorsDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.BAD_REQUEST,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
     };
 
-    public editDoctor = async (userId: string, searchId: string, doctor: IDoctorUpdateDto): Promise<IResponse<IDoctorGetDto | string>> => {
+    public editDoctor = async (userId: string, searchId: string, doctor: IDoctorUpdateDto): Promise<IResponse<IDoctorGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
@@ -147,7 +169,7 @@ export class DoctorsDb {
                 throw new Error("У Вас нет прав доступа.");
             }
             if (doctor.photo === "") {
-                doctor.photo = "default_doctor_photo.jpg";
+                doctor.photo = "default-photo.svg";
             }
             const updatedDoctor = await Doctor.update(
                 { ...doctor },
@@ -164,23 +186,32 @@ export class DoctorsDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else if (error.message === "Врач не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.BAD_REQUEST,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
     };
 
-    public activateDoctor = async (userId: string, doctorId: string): Promise<IResponse<IDoctorGetDto | string>> => {
+    public activateDoctor = async (userId: string, doctorId: string): Promise<IResponse<IDoctorGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) 
@@ -202,17 +233,26 @@ export class DoctorsDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else if (error.message === "Врач не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             } else {
                 return {
                     status: StatusCodes.BAD_REQUEST,
-                    result: error.message
+                    result: { 
+                        status: "error",
+                        message: error.message
+                    }
                 };
             }
         }
