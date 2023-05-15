@@ -36,7 +36,7 @@ export class UsersDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: { 
+                    result: {
                         status: "error",
                         message: error.message
                     }
@@ -44,7 +44,7 @@ export class UsersDb {
             } else {
                 return {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: { 
+                    result: {
                         status: "error",
                         message: error.message
                     }
@@ -59,7 +59,7 @@ export class UsersDb {
             if (!foundSeeker || foundSeeker.isBlocked && foundSeeker.role !== ERoles.PARENT)
                 throw new Error("У Вас нет прав доступа.");
             if (foundSeeker.role === ERoles.PARENT) {
-                const foundParent = await Parent.findOne({where: {userId: foundSeeker.id}});
+                const foundParent = await Parent.findOne({ where: { userId: foundSeeker.id } });
                 if (!foundParent || foundParent.userId !== userId)
                     throw new Error("У Вас нет прав доступа.");
             }
@@ -74,7 +74,7 @@ export class UsersDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: { 
+                    result: {
                         status: "error",
                         message: error.message
                     }
@@ -82,7 +82,7 @@ export class UsersDb {
             } else if (error.message === "Пользователь не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: { 
+                    result: {
                         status: "error",
                         message: error.message
                     }
@@ -90,7 +90,7 @@ export class UsersDb {
             } else {
                 return {
                     status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: { 
+                    result: {
                         status: "error",
                         message: error.message
                     }
@@ -107,15 +107,19 @@ export class UsersDb {
                 }
             });
             if (userExists) throw new Error("Пользователь с таким email уже зарегистрирован.");
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const email: IEmailFromTokem = { email: userDto.email };
+            if (!emailRegex.test(userDto.email)) {
+                throw new Error("Неправильный формат email-адреса");
+            }
 
             const primaryPassword: string = shortid.generate();
             // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
             console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
             const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
-            const email = { email: userDto.email };
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
             const url = `http://localhost:5173/reset-password?token=${token}`;
-            await sendMail(url, email);
+            await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
             if (user.role === ERoles.DOCTOR) {
                 const newDoctor: IDoctorCreateDto = {
                     userId: user.id,
@@ -145,7 +149,7 @@ export class UsersDb {
             const error = err as Error;
             return {
                 status: StatusCodes.BAD_REQUEST,
-                result: { 
+                result: {
                     status: "error",
                     message: error.message
                 }
@@ -160,10 +164,10 @@ export class UsersDb {
             if (!foundUser) throw new Error("Пользователь не найден!");
 
             const isMatch: boolean = await checkPassword(userDto.password, foundUser);
-            if (!isMatch) throw new Error("Пароли не совпадают!");
+            if (!isMatch) throw new Error("Пароль указан не верно!");
             const user = foundUser.dataValues;
             delete user.password;
-            const userWithToken: IUserGetDtoWithToken = 
+            const userWithToken: IUserGetDtoWithToken =
                 { ...user, token: generateJWT({ id: user.id, email: user.email, role: user.role }) };
 
             return {
@@ -175,7 +179,7 @@ export class UsersDb {
             if (error.message === "Пользователь не найден!") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: { 
+                    result: {
                         status: "error",
                         message: error.message
                     }
@@ -183,19 +187,19 @@ export class UsersDb {
             } else {
                 return {
                     status: StatusCodes.BAD_REQUEST,
-                    result: { 
+                    result: {
                         status: "error",
                         message: error.message
                     }
                 };
-            }            
+            }
         }
     };
 
     public editUser = async (userDto: IUserCreateDto & { password?: string }, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
         try {
             if (userDto.password) {
-                if (!userDto.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) 
+                if (!userDto.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/))
                     throw new Error("Введён некорректный пароль.");
                 userDto.password = await generateHash(userDto.password);
             }
@@ -212,7 +216,7 @@ export class UsersDb {
             const error = err as Error;
             return {
                 status: StatusCodes.BAD_REQUEST,
-                result: { 
+                result: {
                     status: "error",
                     message: error.message
                 }
@@ -224,7 +228,7 @@ export class UsersDb {
         try {
             const dataFromToken = jwt.verify(data.token, `${process.env.MAIL_KEY}`) as IEmailFromTokem;
             if (!dataFromToken) throw new Error(ReasonPhrases.UNAUTHORIZED);
-            if (!data.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/)) 
+            if (!data.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/))
                 throw new Error("Введён некорректный пароль.");
             const foundUser = await User.findOne({ where: { email: dataFromToken.email } });
             const newPassword = await generateHash(data.password);
@@ -265,7 +269,7 @@ export class UsersDb {
             if (error.message === "У Вас нет прав доступа.") {
                 return {
                     status: StatusCodes.FORBIDDEN,
-                    result: { 
+                    result: {
                         status: "error",
                         message: error.message
                     }
@@ -273,7 +277,7 @@ export class UsersDb {
             } else if (error.message === "Пользователь с таким ID не найден.") {
                 return {
                     status: StatusCodes.NOT_FOUND,
-                    result: { 
+                    result: {
                         status: "error",
                         message: error.message
                     }
@@ -281,7 +285,7 @@ export class UsersDb {
             } else {
                 return {
                     status: StatusCodes.BAD_REQUEST,
-                    result: { 
+                    result: {
                         status: "error",
                         message: error.message
                     }
