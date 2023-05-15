@@ -8,4 +8,12 @@ export default interface IDoctorGetDto {
     isActive: boolean
     achievments?: string
     degree?: string
+    users: {
+        name: string
+        surname: string
+        patronim?: string
+        email: string
+        phone: string
+        isBlocked: boolean
+    }
 }
