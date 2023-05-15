@@ -9,8 +9,8 @@ export const permission = (roles?: ERoles[]) => {
         const req = expressReq as IRequestWithTokenData;
         if (req.method === "OPTIONS") next();
         try {
-            const data = jwt.verify(req.get("Authorization") || "", process.env.SECRET_KEY || "") as {role: ERoles};
-            if (roles && !roles.includes(data.role)) throw new Error("You don't have any permission");
+            const data = jwt.verify(req.get("Authorization") || "", process.env.SECRET_KEY || "") as {id: string, email: string, role: ERoles};
+            if (roles && !roles.includes(data.role)) throw new Error("У Вас нет прав доступа.");
             req.dataFromToken = data;
             next();
         } catch (err: unknown){
