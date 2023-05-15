@@ -24,7 +24,7 @@ export class UsersController {
         this.router.get("/:id", permission(), this.getUserById);
         this.router.patch("/", permission(), this.editUser);
         this.router.post("/set-password", this.setPassword);
-        this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.blockUser);
+        this.router.patch("/block/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.blockUser);
         this.repository = usersDb;
     }
 
