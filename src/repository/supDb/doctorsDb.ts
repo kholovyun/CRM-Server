@@ -24,7 +24,6 @@ export class DoctorsDb {
                 order: [
                     [{ model: User, as: "users" }, "surname", "ASC"]
                 ],
-                raw: true,
                 limit: parseInt(limit),
                 offset: parseInt(offset)
             });

@@ -4,4 +4,12 @@ export default interface IParentGetDto {
     doctorId: string
     registerDate: Date
     isActive: boolean
+    users: {
+        name: string
+        surname: string
+        patronim?: string
+        email: string
+        phone: string
+        isBlocked: boolean
+    }
 }
