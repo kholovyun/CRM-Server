@@ -1,32 +1,33 @@
 import { NodemailerExpressHandlebarsOptions } from "nodemailer-express-handlebars";
-import { IEmailFromTokem } from "../interfaces/IEmailFromTokem";
 import hbs from "nodemailer-express-handlebars";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import path from "path";
+import { IMail } from "../interfaces/IMail";
 
 dotenv.config();
 
-const myEmail = "testteamtest22@mail.ru";
+// const myEmail = "testteamtest22@mail.ru";
+const myEmail = "bumer_boy86@mail.ru";
 
-const sendMail = async (link: string, recipient: IEmailFromTokem) => {
+const sendMail = async (data: IMail) => {
     const transporter = nodemailer.createTransport({
         host: "smtp.mail.ru",
         port: 465,
         secure: true,
         auth: {
             user: myEmail,
-            pass: "yVvG2Z8nA7vJCPnjFGt2"
+            pass: process.env.CLIENT_SECRET
         },
     });
 
     const mailOptions = {
-        from: `Doctors Service ${myEmail}`,
-        to: recipient.email,
-        subject: "Восстановление пароля",
+        from: `'Заботик' Мед.Сервис ${myEmail}`,
+        to: data.recipient,
+        subject: data.theme,
         template: "email",
         context: {
-            msg: `Ссылка для установки пароля2: ${link}`,
+            msg: data.link,
         },
     };
 
