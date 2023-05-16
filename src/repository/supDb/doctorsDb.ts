@@ -1,4 +1,4 @@
-import { StatusCodes } from "http-status-codes";
+import { ReasonPhrases, StatusCodes, getStatusCode } from "http-status-codes";
 import IDoctorGetDto from "../../interfaces/IDoctor/IDoctorGetDto";
 import IResponse from "../../interfaces/IResponse";
 import { Doctor } from "../../models/Doctor";
@@ -7,6 +7,7 @@ import { ERoles } from "../../enums/ERoles";
 import IDoctorCreateDto from "../../interfaces/IDoctor/IDoctorCreateDto";
 import IDoctorUpdateDto from "../../interfaces/IDoctor/IDoctorUpdateDto";
 import IError from "../../interfaces/IError";
+import Logger from "../../lib/logger";
 
 
 export class DoctorsDb {
@@ -115,6 +116,42 @@ export class DoctorsDb {
             }
         }
     };
+
+
+    public getDoctorByUserId = async (userId: string): Promise<IResponse<IDoctorGetDto | IError>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser) throw new Error(ReasonPhrases.FORBIDDEN);
+            const doctor: IDoctorGetDto | null = await Doctor.findOne(
+                {
+                    where: {userId: userId},
+                    include: {
+                        model: User,
+                        as: "users",
+                        attributes: ["name", "patronim", "surname", "email", "phone"]
+                    }
+                });
+
+            if (!doctor || !doctor.isActive) throw new Error(ReasonPhrases.NOT_FOUND);
+            return {
+                status: StatusCodes.OK,
+                result: doctor
+            };  
+
+        } catch (err: unknown) {
+            const error = err as Error;
+            return {
+                status: (error.message === ReasonPhrases.NOT_FOUND || error.message === ReasonPhrases.FORBIDDEN
+                    ? getStatusCode(error.message) : StatusCodes.INTERNAL_SERVER_ERROR),
+                result: { 
+                    status: "error",
+                    message: error.message === ReasonPhrases.NOT_FOUND ? "Врач не найден." 
+                        : error.message === ReasonPhrases.FORBIDDEN ? "Вы не идентифицированы." : error.message
+                }
+            };
+        }
+    };
+    
 
     public createDoctor = async (userId: string, doctor: IDoctorCreateDto): Promise<IResponse<IDoctorGetDto | IError>> => {
         try {
