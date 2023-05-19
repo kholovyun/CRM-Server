@@ -10,7 +10,6 @@ import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import { DoctorsDb, doctorsDb } from "../repository/supDb/doctorsDb";
 import IError from "../interfaces/IError";
-import Logger from "../lib/logger";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {

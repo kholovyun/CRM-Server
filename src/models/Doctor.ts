@@ -77,7 +77,7 @@ export class Doctor extends Model {
         field: "is_active",
         type: DataType.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: true
     })
         isActive!: boolean;
     
