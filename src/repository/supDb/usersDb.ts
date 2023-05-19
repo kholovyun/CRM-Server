@@ -19,13 +19,16 @@ import { checkPassword } from "../../helpers/checkPassword";
 import ISetPasswordData from "../../interfaces/ISetPasswordData";
 import { IEmailFromTokem } from "../../interfaces/IEmailFromTokem";
 import IError from "../../interfaces/IError";
+import { passwordValidation } from "../../helpers/passwordValidation";
+import { EErrorMessages } from "../../enums/EErrorMessages";
+import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 
 export class UsersDb {
     public getUsers = async (userId: string): Promise<IResponse<IUserGetDto[] | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error(EErrorMessages.NO_ACCESS);
             const foundUsers = await User.findAll({ raw: true });
             return {
                 status: StatusCodes.OK,
@@ -57,7 +60,7 @@ export class UsersDb {
         try {
             const foundSeeker = await User.findByPk(seekerId);
             if (!foundSeeker || foundSeeker.isBlocked && foundSeeker.role !== ERoles.PARENT)
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error();
             if (foundSeeker.role === ERoles.PARENT) {
                 const foundParent = await Parent.findOne({ where: { userId: foundSeeker.id } });
                 if (!foundParent || foundParent.userId !== userId)
@@ -71,31 +74,14 @@ export class UsersDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "У Вас нет прав доступа.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: {
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else if (error.message === "Пользователь не найден.") {
-                return {
-                    status: StatusCodes.NOT_FOUND,
-                    result: {
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: {
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 
@@ -106,11 +92,11 @@ export class UsersDb {
                     email: userDto.email
                 }
             });
-            if (userExists) throw new Error("Пользователь с таким email уже зарегистрирован.");
+            if (userExists) throw new Error(EErrorMessages.USER_ALREADY_EXISTS);
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const email: IEmailFromTokem = { email: userDto.email };
             if (!emailRegex.test(userDto.email)) {
-                throw new Error("Неправильный формат email-адреса");
+                throw new Error(EErrorMessages.WRONG_MAIL_FOTMAT);
             }
 
             const primaryPassword: string = shortid.generate();
@@ -161,10 +147,10 @@ export class UsersDb {
         try {
             const foundUser = await User.findOne({ where: { email: userDto.email } });
 
-            if (!foundUser) throw new Error("Пользователь не найден!");
+            if (!foundUser) throw new Error(EErrorMessages.USER_NOT_FOUND);
 
             const isMatch: boolean = await checkPassword(userDto.password, foundUser);
-            if (!isMatch) throw new Error("Пароль указан не верно!");
+            if (!isMatch) throw new Error(EErrorMessages.WRONG_PASSWORD);
             const user = foundUser.dataValues;
             delete user.password;
             const userWithToken: IUserGetDtoWithToken =
@@ -176,31 +162,21 @@ export class UsersDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "Пользователь не найден!") {
-                return {
-                    status: StatusCodes.NOT_FOUND,
-                    result: {
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.BAD_REQUEST,
-                    result: {
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 
     public editUser = async (userDto: IUserCreateDto & { password?: string }, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
         try {
             if (userDto.password) {
-                if (!userDto.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/))
-                    throw new Error("Введён некорректный пароль.");
+                passwordValidation(userDto.password);
                 userDto.password = await generateHash(userDto.password);
             }
             const user = await User.update(userDto, { where: { id: userId }, returning: true }).then((result) => {
@@ -228,8 +204,7 @@ export class UsersDb {
         try {
             const dataFromToken = jwt.verify(data.token, `${process.env.MAIL_KEY}`) as IEmailFromTokem;
             if (!dataFromToken) throw new Error(ReasonPhrases.UNAUTHORIZED);
-            if (!data.password?.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*[^a-zA-Z0-9]).{6,10}$/))
-                throw new Error("Введён некорректный пароль.");
+            passwordValidation(data.password);
             const foundUser = await User.findOne({ where: { email: dataFromToken.email } });
             const newPassword = await generateHash(data.password);
             await User.update({ password: newPassword }, { where: { id: foundUser?.dataValues.id }, returning: true });
@@ -250,10 +225,10 @@ export class UsersDb {
         try {
             const foundAdmin = await User.findByPk(adminId);
             if (!foundAdmin || foundAdmin.isBlocked)
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error(EErrorMessages.NO_ACCESS);
             const foundUser: IUserGetDto | null = await User.findByPk(userId);
-            if (!foundUser) throw new Error("Пользователь с таким ID не найден.");
-            if (foundUser.role === ERoles.SUPERADMIN) throw new Error("Супер админ не может быть удален.");
+            if (!foundUser) throw new Error(EErrorMessages.USER_NOT_FOUND_BY_ID);
+            if (foundUser.role === ERoles.SUPERADMIN) throw new Error(EErrorMessages.SUPERADMIN_CANT_BE_DELETED);
             const updatedUser = await User.update(
                 { isBlocked: foundUser.isBlocked ? false : true },
                 {
@@ -266,31 +241,14 @@ export class UsersDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "У Вас нет прав доступа.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: {
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else if (error.message === "Пользователь с таким ID не найден.") {
-                return {
-                    status: StatusCodes.NOT_FOUND,
-                    result: {
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.BAD_REQUEST,
-                    result: {
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 }

@@ -7,7 +7,6 @@ import { ERoles } from "../../enums/ERoles";
 import IDoctorCreateDto from "../../interfaces/IDoctor/IDoctorCreateDto";
 import IDoctorUpdateDto from "../../interfaces/IDoctor/IDoctorUpdateDto";
 import IError from "../../interfaces/IError";
-import Logger from "../../lib/logger";
 
 
 export class DoctorsDb {
