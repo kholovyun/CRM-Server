@@ -36,23 +36,14 @@ export class UsersDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "У Вас нет прав доступа.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: {
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: {
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 
@@ -64,10 +55,10 @@ export class UsersDb {
             if (foundSeeker.role === ERoles.PARENT) {
                 const foundParent = await Parent.findOne({ where: { userId: foundSeeker.id } });
                 if (!foundParent || foundParent.userId !== userId)
-                    throw new Error("У Вас нет прав доступа.");
+                    throw new Error(EErrorMessages.NO_ACCESS);
             }
             const foundUser = await User.findByPk(userId);
-            if (!foundUser) throw new Error("Пользователь не найден.");
+            if (!foundUser) throw new Error(EErrorMessages.USER_NOT_FOUND);
             return {
                 status: StatusCodes.OK,
                 result: foundUser
