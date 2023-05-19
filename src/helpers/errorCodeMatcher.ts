@@ -25,4 +25,6 @@ export const errorCodesMathcher: ErrorObject = {
     [EErrorMessages.USER_ALREADY_EXISTS] : StatusCodes.BAD_REQUEST,
     [EErrorMessages.SUPERADMIN_CANT_BE_DELETED] : StatusCodes.BAD_REQUEST,
     [EErrorMessages.NO_PASSWORD] : StatusCodes.BAD_REQUEST,
+    [EErrorMessages.DOCTOR_DIPLOMA_NOT_FOUND] : StatusCodes.NOT_FOUND,
+    [EErrorMessages.IMAGE_SHOUD_BE_PRESENT] : StatusCodes.BAD_REQUEST,
 };
