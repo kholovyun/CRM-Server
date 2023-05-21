@@ -35,7 +35,8 @@ export class UsersController {
     private getUsers = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IUserGetDto[] | IError> = await this.repository.getUsers(user.id);
+        const response: IResponse<IUserGetDto[] | IError> = await this.repository.getUsers(
+            user.id, String(req.query.offset), String(req.query.limit), String(req.query.filter));
         res.status(response.status).send(response.result);
     };
 

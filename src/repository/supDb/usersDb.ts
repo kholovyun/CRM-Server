@@ -22,14 +22,37 @@ import IError from "../../interfaces/IError";
 import { passwordValidation } from "../../helpers/passwordValidation";
 import { EErrorMessages } from "../../enums/EErrorMessages";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
+import { Op } from "sequelize";
 
 export class UsersDb {
-    public getUsers = async (userId: string): Promise<IResponse<IUserGetDto[] | IError>> => {
+    public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): Promise<IResponse<IUserGetDto[] | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);
-            const foundUsers = await User.findAll({ raw: true });
+            let foundUsers: IUserGetDto[] = [];
+            if (filter && filter === "admins") {
+                foundUsers = await User.findAll({ 
+                    where: {
+                        role: {
+                            [Op.or]: [ERoles.ADMIN, ERoles.SUPERADMIN]
+                        }
+                    },
+                    order: [
+                        ["surname", "ASC"]
+                    ],
+                    limit: parseInt(limit),
+                    offset: parseInt(offset) 
+                });
+            } else {
+                foundUsers = await User.findAll({
+                    order: [
+                        ["surname", "ASC"]
+                    ], 
+                    limit: parseInt(limit),
+                    offset: parseInt(offset) 
+                });
+            }            
             return {
                 status: StatusCodes.OK,
                 result: foundUsers
