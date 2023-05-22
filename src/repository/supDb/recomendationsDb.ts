@@ -69,7 +69,7 @@ export class RecomendationsDb {
         }
     };
 
-    public editRecomendation = async (userId: string, upgradedRecomendation: IRecomendationCreateDto): Promise<IResponse<IRecomendationCreateDto | IError>> => {
+    public editRecomendation = async (userId: string, recomendationId : string,upgradedRecomendation: IRecomendationCreateDto): Promise<IResponse<IRecomendationCreateDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -80,13 +80,21 @@ export class RecomendationsDb {
                 });
                 if (!foundDoctor || upgradedRecomendation.doctorId !== foundDoctor.id ) 
                     throw new Error(EErrorMessages.NO_ACCESS);
-                const editedRecomeddation: IRecomendationCreateDto = await Recommendation.create({...upgradedRecomendation});
+                const editedRecomeddation: IRecomendationCreateDto = await Recommendation.update({...upgradedRecomendation},
+                    {
+                        where: { id: recomendationId },
+                        returning: true
+                    }).then((result) => { return result[1][0]; });
                 return {
                     status: StatusCodes.OK,
                     result: editedRecomeddation
                 };
             } else if (foundUser.role === ERoles.ADMIN || ERoles.SUPERADMIN) {
-                const editedRecomeddation: IRecomendationCreateDto = await Recommendation.create({...upgradedRecomendation});
+                const editedRecomeddation: IRecomendationCreateDto = await Recommendation.update({...upgradedRecomendation},
+                    {
+                        where: { id: recomendationId },
+                        returning: true
+                    }).then((result) => { return result[1][0]; });
                 return {
                     status: StatusCodes.OK,
                     result: editedRecomeddation

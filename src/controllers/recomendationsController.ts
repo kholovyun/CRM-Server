@@ -65,7 +65,7 @@ export class RecomendationsControllers {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
         const upgradedRecomendation = req.body;
-        const response: IResponse<IRecomendationCreateDto | IError> = await this.repository.editRecomendation(user.id, upgradedRecomendation);
+        const response: IResponse<IRecomendationCreateDto | IError> = await this.repository.editRecomendation(user.id, req.params.id , upgradedRecomendation);
         res.status(response.status).send(response.result);
     };
 }
