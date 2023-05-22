@@ -14,7 +14,7 @@ import IRecomendationCreateDto from "../interfaces/IRecomendation/IRecomendation
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
-        callback(null, config.doctorsDiplomas);
+        callback(null, config.docRecomends);
     },
     filename(req, file, callback) {
         callback(null, `${shortid()}${file.originalname}`);
