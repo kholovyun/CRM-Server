@@ -18,5 +18,6 @@ export enum EErrorMessages {
     USER_ALREADY_EXISTS = "Пользователь с таким email уже зарегистрирован.",
     WRONG_MAIL_FOTMAT = "Неправильный формат email-адреса",
     DOCTOR_DIPLOMA_NOT_FOUND = "Врач, чьи дипломы Вы запрашиваете не найден.",
-    IMAGE_SHOUD_BE_PRESENT = "Изображение обязательно."
+    IMAGE_SHOUD_BE_PRESENT = "Изображение обязательно.",
+    NO_RECOMENDATIONS_FOUND = "Рекомендации не найдены."
 }

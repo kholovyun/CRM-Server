@@ -27,4 +27,5 @@ export const errorCodesMathcher: ErrorObject = {
     [EErrorMessages.NO_PASSWORD] : StatusCodes.BAD_REQUEST,
     [EErrorMessages.DOCTOR_DIPLOMA_NOT_FOUND] : StatusCodes.NOT_FOUND,
     [EErrorMessages.IMAGE_SHOUD_BE_PRESENT] : StatusCodes.BAD_REQUEST,
+    [EErrorMessages.NO_RECOMENDATIONS_FOUND] : StatusCodes.NOT_FOUND,
 };
