@@ -6,12 +6,12 @@ import IResponse from "../../interfaces/IResponse";
 import IError from "../../interfaces/IError";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 import { EErrorMessages } from "../../enums/EErrorMessages";
-import IRecomendationCetDto from "../../interfaces/IRecomendation/IRecomendationGetDto";
 import { Recommendation } from "../../models/Recommendation";
 import IRecomendationCreateDto from "../../interfaces/IRecomendation/IRecomendationCreateDto";
+import IRecomendationGetDto from "../../interfaces/IRecomendation/IRecomendationGetDto";
 
 export class RecomendationsDb {
-    public getRecomendationsByDoctor = async (doctorId: string): Promise<IResponse<IRecomendationCetDto[] | IError>> => {
+    public getRecomendationsByDoctor = async (doctorId: string): Promise<IResponse<IRecomendationGetDto[] | IError>> => {
         try {
             const foundDoctor = await Doctor.findByPk(doctorId);
             if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);

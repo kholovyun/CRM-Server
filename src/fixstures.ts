@@ -9,6 +9,8 @@ import Logger from "./lib/logger";
 import { PostgresDB } from "./repository/postgresDb";
 import uuid from "react-uuid";
 import { Recommendation } from "./models/Recommendation";
+import { Child } from "./models/Child";
+import { NewbornData } from "./models/NewbornData";
 
 const db = PostgresDB;
 
@@ -31,7 +33,7 @@ const userFixture = {
         name: "Jane",
         surname: "Doe",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
-        isBlocked: true,
+        isBlocked: false,
     },
     user3: {
         id: uuid(),
@@ -204,6 +206,8 @@ const recomendationsFix = {
 
 export const createUserFixtures = async (): Promise<void> => {
     try {
+        await NewbornData.destroy({where: {}});
+        await Child.destroy({where: {}});
         await Recommendation.destroy({ where: {} });
         await Doctor.destroy({ where: {} });
         await Parent.destroy({ where: {} });

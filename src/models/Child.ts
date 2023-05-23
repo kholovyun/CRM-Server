@@ -87,12 +87,14 @@ export class Child extends Model {
 
     @Column({
         type: DataType.INTEGER,
+        defaultValue: 0,
         allowNull: false
     })
         height!: number;
 
     @Column({
         type: DataType.DECIMAL(6, 3),
+        defaultValue: 0,
         allowNull: false
     })
         weight!: number;
