@@ -8,7 +8,7 @@ import morganMiddleware from "../config/morganMiddleware";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import { IMessage } from "../interfaces/IMessage";
-import { UsersDb, usersDb } from "../repository/supDb/usersDb";
+import { UsersDb, usersDb } from "../repository/subDb/usersDb";
 import IError from "../interfaces/IError";
 
 export class UsersController {
