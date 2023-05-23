@@ -24,7 +24,8 @@ export class DoctorsDb {
                     attributes: ["name", "patronim", "surname", "email", "phone", "isBlocked"]
                 },
                 order: [
-                    [{ model: User, as: "users" }, "surname", "ASC"]
+                    [{ model: User, as: "users" }, "surname", "ASC"],
+                    [{ model: User, as: "users"}, "name", "ASC"]
                 ],
                 limit: parseInt(limit),
                 offset: parseInt(offset)
