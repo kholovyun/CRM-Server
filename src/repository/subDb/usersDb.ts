@@ -30,6 +30,7 @@ import { Child } from "../../models/Child";
 import IParentGetDto from "../../interfaces/IParent/IParentGetDto";
 import IChildGetDto from "../../interfaces/IChild/IChildGetDto";
 import { NewbornData } from "../../models/NewbornData";
+import IUserUpdateDto from "../../interfaces/IUser/IUserUpdateDto";
 
 export class UsersDb {
     public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): Promise<IResponse<IUserGetDto[] | IError>> => {
@@ -272,14 +273,21 @@ export class UsersDb {
         }
     };
 
-    public editUser = async (userDto: IUserCreateDto & { password?: string }, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
+    public editUser = async (editorId: string, userId: string, userDto: IUserUpdateDto, ): Promise<IResponse<IUserGetDto | IError>> => {
         try {
-            if (userDto.password) {
-                passwordValidation(userDto.password);
-                userDto.password = await generateHash(userDto.password);
-            }
-            const user = await User.update(userDto, { where: { id: userId }, returning: true }).then((result) => {
-                delete result[1][0].dataValues.password;
+            const foundUser = await User.findByPk(editorId);
+            if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
+
+            if ((foundUser.role === ERoles.DOCTOR ||
+                foundUser.role === ERoles.PARENT) && 
+                foundUser.id !== userId) throw new Error(EErrorMessages.NO_ACCESS);
+            
+            // if (foundUser.role === ERoles.PARENT && foundUser.id !== userId) throw new Error(EErrorMessages.NO_ACCESS);
+            
+            const fieldsToExclude = ["id", "password", "email", "role", "isBlocked"];    
+            const myFields = Object.keys(userDto).filter(field => !fieldsToExclude.includes(field));
+
+            const user = await User.update(userDto, { where: { id: userId }, fields: myFields, returning: true }).then((result) => {
                 return result[1][0];
             });
 
