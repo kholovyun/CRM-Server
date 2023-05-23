@@ -18,6 +18,7 @@ export class UsersController {
         this.router = express.Router();
         this.router.use(morganMiddleware);
         this.router.post("/", this.register);
+        this.router.post("/parent/:id", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.SUPERADMIN]), this.registerParent);
         this.router.post("/login", this.login);
         this.router.get("/token", permission(), this.checkToken);
         this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getUsers);
@@ -49,6 +50,11 @@ export class UsersController {
 
     private register = async (req: Request, res: Response): Promise<void> => {
         const response: IResponse<IUserGetDtoWithToken | IError> = await this.repository.register(req.body);
+        res.status(response.status).send(response.result);
+    };
+
+    private registerParent = async (req: Request, res: Response): Promise<void> => {
+        const response: IResponse<IUserGetDtoWithToken | IError> = await this.repository.registerParent(req.body, req.params.id);
         res.status(response.status).send(response.result);
     };
 

@@ -23,6 +23,14 @@ import { passwordValidation } from "../../helpers/passwordValidation";
 import { EErrorMessages } from "../../enums/EErrorMessages";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 import { Op } from "sequelize";
+import IParentCreateDto from "../../interfaces/IParent/IParentCreateDto";
+import IChildCreateDto from "../../interfaces/IChild/IChildCreateDto";
+import { ESex } from "../../enums/ESex";
+import { Child } from "../../models/Child";
+import IParentGetDto from "../../interfaces/IParent/IParentGetDto";
+import IChildGetDto from "../../interfaces/IChild/IChildGetDto";
+import { NewbornData } from "../../models/NewbornData";
+import INewBornDataCreateDto from "../../interfaces/IChild/INewBornData/INewBornDataCreateDto";
 
 export class UsersDb {
     public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): Promise<IResponse<IUserGetDto[] | IError>> => {
@@ -131,6 +139,108 @@ export class UsersDb {
                 };
                 await Doctor.create({ ...newDoctor });
             }
+            delete user.dataValues.password;
+            const userWithToken: IUserGetDtoWithToken = {
+                ...user.dataValues,
+                token: generateJWT({
+                    id: user.dataValues.id,
+                    email: user.dataValues.email,
+                    role: user.dataValues.role
+                })
+            };
+
+            return {
+                status: StatusCodes.CREATED,
+                result: userWithToken
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            return {
+                status: StatusCodes.BAD_REQUEST,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
+        }
+    };
+
+    public registerParent = async (userDto: IUserCreateDto, doctorId: string): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
+        try {
+            const userExists = await User.findOne({
+                where: {
+                    email: userDto.email
+                }
+            });
+            if (userExists) throw new Error(EErrorMessages.USER_ALREADY_EXISTS);
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const email: IEmailFromTokem = { email: userDto.email };
+            if (!emailRegex.test(userDto.email)) {
+                throw new Error(EErrorMessages.WRONG_MAIL_FOTMAT);
+            }
+
+            const primaryPassword: string = shortid.generate();
+            // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
+            console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
+            const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
+            const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
+            const url = `http://localhost:5173/reset-password?token=${token}`;
+            await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
+            const newParent: IParentCreateDto = {
+                userId: user.id,
+                isActive: true,
+                doctorId: doctorId,
+                registerDate: new Date(Date.now())
+            };
+            const parentUser: IParentGetDto = await Parent.create({ ...newParent });
+            const child: IChildCreateDto = {
+                parentId: parentUser.id,
+                photo: "https://www.cdc.gov/ncbddd/childdevelopment/positiveparenting/images/toddler-boy-jean-shorts-300px.jpg?_=24427",
+                name: `Dodo  ${Math.floor(Math.random() * 100)})`,
+                surname: "Doe",
+                dateOfBirth: new Date(+(new Date()) - Math.floor(Math.random()*10000000000)),
+                sex: ESex.FEMALE,
+                height: 90,
+                weight: 3.5,
+                isActive: true,
+            };
+            const createdChild: IChildGetDto = await Child.create({...child});
+
+            const newbornData: INewBornDataCreateDto = {
+                childId: createdChild.id,
+                dischargedDate: new Date(),
+                pregnancyN: Math.floor(Math.random() * 10),
+                pregnancyDescript: "Описание случайной беременности",
+                birthN: Math.floor(Math.random() * 5),
+                gestAge: Math.floor(Math.random() * 40),
+                period1: Math.floor(Math.random() * 10),
+                period2: Math.floor(Math.random() * 10),
+                amnAbsPeriod: Math.floor(Math.random() * 10),
+                amnDescript: "Описание случайного амниотического пузыря",
+                anesthesia: "Случайное наркозное средство",
+                postBirthPeriod: "Случайный послеродовой период",
+                motherState: "Состояние матери",
+                birthWeight: Math.random() * 5 + 2.5,
+                birthHeight: Math.floor(Math.random() * 50) + 40,
+                newbornState: "Состояние новорожденного",
+                apgarScore: "что то",
+                reanimation: "Случайная реанимация",
+                breastTry: Math.random() < 0.5,
+                feeding: "кормление",
+                diagnosis: "диагноз",
+                examination: "обследование",
+                treatment: " лечение",
+                eyes: "Состояние глаз",
+                reflexes: "Рефлексы",
+                skin: "Состояние кожи",
+                organs: "Состояние органов",
+                stool: "Описание стула",
+                diuresis: "Диурез",
+                umbilicalCord: "Состояние пуповины",
+                examed_by: "Исследователь",
+            };
+
+            await NewbornData.create({...newbornData});
             delete user.dataValues.password;
             const userWithToken: IUserGetDtoWithToken = {
                 ...user.dataValues,

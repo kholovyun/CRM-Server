@@ -9,6 +9,8 @@ import Logger from "./lib/logger";
 import { PostgresDB } from "./repository/postgresDb";
 import uuid from "react-uuid";
 import { Recommendation } from "./models/Recommendation";
+import { Child } from "./models/Child";
+import { NewbornData } from "./models/NewbornData";
 
 const db = PostgresDB;
 
@@ -204,6 +206,8 @@ const recomendationsFix = {
 
 export const createUserFixtures = async (): Promise<void> => {
     try {
+        await NewbornData.destroy({where: {}});
+        await Child.destroy({where: {}});
         await Recommendation.destroy({ where: {} });
         await Doctor.destroy({ where: {} });
         await Parent.destroy({ where: {} });
