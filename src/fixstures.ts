@@ -43,7 +43,7 @@ const userFixture = {
         name: "Lopez",
         surname: "Doe",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
-        isBlocked: true,
+        isBlocked: false,
     },
     user4: {
         id: uuid(),
@@ -53,7 +53,7 @@ const userFixture = {
         name: "Reno",
         surname: "Doe",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
-        isBlocked: true,
+        isBlocked: false,
     },
     user5: {
         id: uuid(),
@@ -63,7 +63,7 @@ const userFixture = {
         name: "Zack",
         surname: "Doe",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
-        isBlocked: true,
+        isBlocked: false,
     },
     user6: {
         id: uuid(),
@@ -73,7 +73,7 @@ const userFixture = {
         name: "Ed",
         surname: "Doe",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
-        isBlocked: true,
+        isBlocked: false,
     },
     user7: {
         id: uuid(),
@@ -83,7 +83,7 @@ const userFixture = {
         name: "Lony",
         surname: "Doe",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
-        isBlocked: true,
+        isBlocked: false,
     },
     user8: {
         id: uuid(),
@@ -122,7 +122,7 @@ const docFixture = {
     doc1: {
         id: uuid(),
         userId: userFixture.user3.id,
-        photo: "https://avatars.mds.yandex.net/i?id=893c6424064159fb13cbbac1f374561e-5157058-images-thumbs&n=13",
+        photo: "default-photo.svg",
         speciality: "Дефектология",
         placeOfWork : "Темирязева 100",
         experience: 20,
@@ -134,7 +134,7 @@ const docFixture = {
     doc2: {
         id: uuid(),
         userId: userFixture.user8.id,
-        photo: "https://avatars.mds.yandex.net/i?id=893c6424064159fb13cbbac1f374561e-5157058-images-thumbs&n=13",
+        photo: "default-photo.svg",
         speciality: "Дефектолог",
         placeOfWork : "Сатпаева 85",
         experience: 2,
@@ -146,7 +146,7 @@ const docFixture = {
     doc3: {
         id: uuid(),
         userId: userFixture.user4.id,
-        photo: "https://avatars.mds.yandex.net/i?id=893c6424064159fb13cbbac1f374561e-5157058-images-thumbs&n=13",
+        photo: "default-photo.svg",
         speciality: "Стоматолог",
         placeOfWork : "Абая 10",
         experience: 23,
@@ -158,7 +158,7 @@ const docFixture = {
     doc4: {
         id: uuid(),
         userId: userFixture.user9.id,
-        photo: "https://avatars.mds.yandex.net/i?id=893c6424064159fb13cbbac1f374561e-5157058-images-thumbs&n=13",
+        photo: "default-photo.svg",
         speciality: "Терапевт",
         placeOfWork : "Достык 150",
         experience: 11,
@@ -170,7 +170,7 @@ const docFixture = {
     doc5: {
         id: uuid(),
         userId: userFixture.user10.id,
-        photo: "https://avatars.mds.yandex.net/i?id=893c6424064159fb13cbbac1f374561e-5157058-images-thumbs&n=13",
+        photo: "default-photo.svg",
         speciality: "Стоматолог",
         placeOfWork : "Абая 10",
         experience: 1,
