@@ -205,7 +205,7 @@ export class UsersDb {
                 dateOfBirth: new Date(+(new Date()) - Math.floor(Math.random()*10000000000)),
                 sex: ESex.FEMALE,
                 height: 90,
-                weight: 3.5,
+                weight: 3,
                 isActive: true,
             };
             const createdChild: IChildGetDto = await Child.create({...child});

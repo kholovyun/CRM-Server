@@ -94,7 +94,7 @@ export class Child extends Model {
 
     @Column({
         type: DataType.DECIMAL(6, 3),
-        defaultValue: 4,
+        defaultValue: 3,
         allowNull: false
     })
         weight!: number;
