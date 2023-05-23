@@ -8,7 +8,7 @@ import IDoctorGetDto from "../interfaces/IDoctor/IDoctorGetDto";
 import morganMiddleware from "../config/morganMiddleware";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
-import { DoctorsDb, doctorsDb } from "../repository/supDb/doctorsDb";
+import { DoctorsDb, doctorsDb } from "../repository/subDb/doctorsDb";
 import IError from "../interfaces/IError";
 
 const storage = multer.diskStorage({
@@ -30,7 +30,6 @@ export class DoctorsController {
         this.router = express.Router();
         this.router.use(morganMiddleware);
         this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getDoctors);
-        this.router.get("/personal", permission([ERoles.DOCTOR]), this.getDoctorByUserId);
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getDoctorById);
         this.router.post("/", [permission([ERoles.ADMIN, ERoles.SUPERADMIN]), upload.single("photo")], this.createDoctor);
         this.router.put("/:id", [permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR]), upload.single("photo")], this.editDoctor);
@@ -54,10 +53,8 @@ export class DoctorsController {
     private getDoctorById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IDoctorGetDto | IError> = await this.repository.getDoctorById(
-            user.id,
-            req.params.id
-        );
+        const userId = user.role === ERoles.DOCTOR ? user.id : req.params.id;
+        const response: IResponse<IDoctorGetDto | IError> = await this.repository.getDoctorByUserId(userId);
         res.status(response.status).send(response.result);
     };
 
@@ -85,13 +82,6 @@ export class DoctorsController {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as {id: string, email: string};
         const response: IResponse<IDoctorGetDto | IError> = await this.repository.activateDoctor(user.id, req.params.id);
-        res.status(response.status).send(response.result);
-    };
-
-    private getDoctorByUserId = async (expressReq: Request, res: Response): Promise<void> => {
-        const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IDoctorGetDto | IError> = await this.repository.getDoctorByUserId(user.id);
         res.status(response.status).send(response.result);
     };
 }

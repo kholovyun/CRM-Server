@@ -5,7 +5,7 @@ import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
 import morganMiddleware from "../config/morganMiddleware";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
-import { ParentsDb, parentsDb } from "../repository/supDb/parentsDb";
+import { ParentsDb, parentsDb } from "../repository/subDb/parentsDb";
 import IError from "../interfaces/IError";
 
 export class ParentsController {
