@@ -30,6 +30,7 @@ export class DoctorsController {
         this.router = express.Router();
         this.router.use(morganMiddleware);
         this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getDoctors);
+        this.router.get("/personal", permission([ERoles.DOCTOR]), this.getDoctorByUserId);
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getDoctorById);
         this.router.post("/", [permission([ERoles.ADMIN, ERoles.SUPERADMIN]), upload.single("photo")], this.createDoctor);
         this.router.put("/:id", [permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR]), upload.single("photo")], this.editDoctor);
@@ -84,6 +85,13 @@ export class DoctorsController {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as {id: string, email: string};
         const response: IResponse<IDoctorGetDto | IError> = await this.repository.activateDoctor(user.id, req.params.id);
+        res.status(response.status).send(response.result);
+    };
+
+    private getDoctorByUserId = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const response: IResponse<IDoctorGetDto | IError> = await this.repository.getDoctorByUserId(user.id);
         res.status(response.status).send(response.result);
     };
 }

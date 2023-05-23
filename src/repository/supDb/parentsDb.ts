@@ -7,6 +7,8 @@ import { Subscription } from "../../models/Subscription";
 import { ERoles } from "../../enums/ERoles";
 import IParentCreateDto from "../../interfaces/IParent/IParentCreateDto";
 import IError from "../../interfaces/IError";
+import { EErrorMessages } from "../../enums/EErrorMessages";
+import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 
 
 export class ParentsDb {
@@ -14,7 +16,7 @@ export class ParentsDb {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error(EErrorMessages.NO_ACCESS);
             const foundParents = await Parent.findAll({
                 include: {
                     model: User,
@@ -33,30 +35,21 @@ export class ParentsDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "У Вас нет прав доступа.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 
     public getParentById = async (userId: string, id: string): Promise<IResponse<IParentGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser) throw new Error("Вы не идентифицированы.");
+            if (!foundUser) throw new Error(EErrorMessages.NOT_AUTHORIZED);
             const parent: IParentGetDto | null = await Parent.findByPk(id,
                 {
                     include: [{
@@ -70,7 +63,7 @@ export class ParentsDb {
                         }]
                     }]
                 });
-            if (!parent) throw new Error("Родитель пациента не найден.");
+            if (!parent) throw new Error(EErrorMessages.PARENT_NOT_FOUND);
             if (foundUser.role === ERoles.ADMIN || foundUser.role === ERoles.SUPERADMIN) {
                 return {
                     status: StatusCodes.OK,
@@ -79,38 +72,21 @@ export class ParentsDb {
             }
             if (foundUser.role === ERoles.DOCTOR && String(foundUser.id) !== String(parent.doctorId) || 
                 String(foundUser.id) !== String(parent.userId)) 
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error(EErrorMessages.NOT_AUTHORIZED);
             return {
                 status: StatusCodes.OK,
                 result: parent
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "Вы не идентифицированы." || error.message === "У Вас нет прав доступа.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else if (error.message === "Родитель пациента не найден.") {
-                return {
-                    status: StatusCodes.NOT_FOUND,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 
@@ -118,13 +94,13 @@ export class ParentsDb {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error(EErrorMessages.NO_ACCESS);
             const exsistedParent = await Parent.findOne({
                 where: {
                     userId: parent.userId
                 }
             });
-            if (exsistedParent) throw new Error("Таблица «Родитель» для этого пользователя уже создана.");
+            if (exsistedParent) throw new Error(EErrorMessages.PARENT_TABLE_ALREADY_EXISTS);
             const newParent: IParentGetDto = await Parent.create({ ...parent });
             await Subscription.create({
                 userId: newParent.userId
@@ -135,23 +111,14 @@ export class ParentsDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "У Вас нет прав доступа.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.BAD_REQUEST,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 
@@ -159,9 +126,9 @@ export class ParentsDb {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) 
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error(EErrorMessages.NO_ACCESS);
             const foundParent: IParentGetDto | null = await Parent.findByPk(parentId);
-            if (!foundParent) throw new Error("Родитель не найден.");
+            if (!foundParent) throw new Error(EErrorMessages.PARENT_NOT_FOUND);
             const updatedParent: IParentGetDto = await Parent.update(
                 { isActive: foundParent.isActive ? false : true},
                 { 
@@ -174,31 +141,14 @@ export class ParentsDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "У Вас нет прав доступа.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else if (error.message === "Родитель не найден.") {
-                return {
-                    status: StatusCodes.NOT_FOUND,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.BAD_REQUEST,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 

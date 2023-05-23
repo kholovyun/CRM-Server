@@ -7,6 +7,8 @@ import { ERoles } from "../../enums/ERoles";
 import IDoctorCreateDto from "../../interfaces/IDoctor/IDoctorCreateDto";
 import IDoctorUpdateDto from "../../interfaces/IDoctor/IDoctorUpdateDto";
 import IError from "../../interfaces/IError";
+import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
+import { EErrorMessages } from "../../enums/EErrorMessages";
 
 
 export class DoctorsDb {
@@ -14,7 +16,7 @@ export class DoctorsDb {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error(EErrorMessages.NO_ACCESS);
             const foundDoctors = await Doctor.findAll({
                 include: {
                     model: User,
@@ -22,7 +24,8 @@ export class DoctorsDb {
                     attributes: ["name", "patronim", "surname", "email", "phone", "isBlocked"]
                 },
                 order: [
-                    [{ model: User, as: "users" }, "surname", "ASC"]
+                    [{ model: User, as: "users" }, "surname", "ASC"],
+                    [{ model: User, as: "users"}, "name", "ASC"]
                 ],
                 limit: parseInt(limit),
                 offset: parseInt(offset)
@@ -33,30 +36,21 @@ export class DoctorsDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "У Вас нет прав доступа.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 
     public getDoctorById = async (userId: string, id: string): Promise<IResponse<IDoctorGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser) throw new Error("Вы не идентифицированы.");
+            if (!foundUser) throw new Error(EErrorMessages.NOT_AUTHORIZED);
             const doctor: IDoctorGetDto | null = await Doctor.findByPk(id,
                 {
                     include: {
@@ -65,14 +59,14 @@ export class DoctorsDb {
                         attributes: ["name", "patronim", "surname", "email", "phone"]
                     }
                 });
-            if (!doctor) throw new Error("Врач не найден.");
+            if (!doctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
             if (foundUser.role === ERoles.ADMIN || String(foundUser.id) === String(doctor.userId)) {
                 return {
                     status: StatusCodes.OK,
                     result: doctor
                 };
             }
-            if (!doctor.isActive) throw new Error("Врач не найден.");
+            if (!doctor.isActive) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
             const doctorForParent: IDoctorGetDto | null = await Doctor.findByPk(id,
                 {
                     include: {
@@ -81,52 +75,70 @@ export class DoctorsDb {
                         attributes: ["name", "patronim", "surname"]
                     }
                 });
-            if (!doctorForParent) throw new Error("Врач не найден.");
+            if (!doctorForParent) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
             return {
                 status: StatusCodes.OK,
                 result: doctorForParent
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "Вы не идентифицированы.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else if (error.message === "Врач не найден.") {
-                return {
-                    status: StatusCodes.NOT_FOUND,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.INTERNAL_SERVER_ERROR,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
+
+
+    public getDoctorByUserId = async (userId: string): Promise<IResponse<IDoctorGetDto | IError>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser) throw new Error(EErrorMessages.USER_NOT_FOUND);
+            const doctor: IDoctorGetDto | null = await Doctor.findOne(
+                {
+                    where: {userId: userId},
+                    include: {
+                        model: User,
+                        as: "users",
+                        attributes: ["name", "patronim", "surname", "email", "phone"]
+                    }
+                });
+
+            if (!doctor || !doctor.isActive) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
+            return {
+                status: StatusCodes.OK,
+                result: doctor
+            };  
+
+        } catch (err: unknown) {
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
+        }
+    };
+    
 
     public createDoctor = async (userId: string, doctor: IDoctorCreateDto): Promise<IResponse<IDoctorGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error(EErrorMessages.NO_ACCESS);
             const exsistedDoctor = await Doctor.findOne({
                 where: {
                     userId: doctor.userId
                 }
             });
-            if (exsistedDoctor) throw new Error("Таблица врач для этого пользователя уже создана.");
+            if (exsistedDoctor) throw new Error(EErrorMessages.DOCTOR_TABLE_ALREADY_EXISTS);
             if (doctor.photo === "") {
                 doctor.photo = "default_doctor_photo.jpg";
             }
@@ -137,23 +149,14 @@ export class DoctorsDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "У Вас нет прав доступа.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.BAD_REQUEST,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 
@@ -161,11 +164,11 @@ export class DoctorsDb {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error(EErrorMessages.NO_ACCESS);
             const foundDoctor: IDoctorGetDto | null = await Doctor.findByPk(searchId);
-            if (!foundDoctor) throw new Error("Врач не найден.");
+            if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
             if (foundUser.role === ERoles.DOCTOR && String(foundUser.id) !== String(foundDoctor.userId)) {
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error(EErrorMessages.NO_ACCESS);
             }
             if (doctor.photo === "") {
                 doctor.photo = "default-photo.svg";
@@ -182,31 +185,14 @@ export class DoctorsDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "У Вас нет прав доступа.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else if (error.message === "Врач не найден.") {
-                return {
-                    status: StatusCodes.NOT_FOUND,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.BAD_REQUEST,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 
@@ -214,9 +200,9 @@ export class DoctorsDb {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) 
-                throw new Error("У Вас нет прав доступа.");
+                throw new Error(EErrorMessages.NO_ACCESS);
             const foundDoctor: IDoctorGetDto | null = await Doctor.findByPk(doctorId);
-            if (!foundDoctor) throw new Error("Врач не найден.");
+            if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
             const updatedDoctor = await Doctor.update(
                 { isActive: foundDoctor.isActive ? false : true},
                 { 
@@ -229,31 +215,14 @@ export class DoctorsDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            if (error.message === "У Вас нет прав доступа.") {
-                return {
-                    status: StatusCodes.FORBIDDEN,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else if (error.message === "Врач не найден.") {
-                return {
-                    status: StatusCodes.NOT_FOUND,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            } else {
-                return {
-                    status: StatusCodes.BAD_REQUEST,
-                    result: { 
-                        status: "error",
-                        message: error.message
-                    }
-                };
-            }
+            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
         }
     };
 }
