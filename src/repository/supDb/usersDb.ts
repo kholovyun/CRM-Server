@@ -246,10 +246,10 @@ export class UsersDb {
         try {
             const foundUser = await User.findOne({ where: { email: userDto.email } });
 
-            if (!foundUser) throw new Error(EErrorMessages.USER_NOT_FOUND);
+            if (!foundUser) throw new Error(EErrorMessages.WRONG_PASS_OR_EMAIL);
 
             const isMatch: boolean = await checkPassword(userDto.password, foundUser);
-            if (!isMatch) throw new Error(EErrorMessages.WRONG_PASSWORD);
+            if (!isMatch) throw new Error(EErrorMessages.WRONG_PASS_OR_EMAIL);
             const user = foundUser.dataValues;
             delete user.password;
             const userWithToken: IUserGetDtoWithToken =
