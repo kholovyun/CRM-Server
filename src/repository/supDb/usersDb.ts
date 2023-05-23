@@ -30,7 +30,6 @@ import { Child } from "../../models/Child";
 import IParentGetDto from "../../interfaces/IParent/IParentGetDto";
 import IChildGetDto from "../../interfaces/IChild/IChildGetDto";
 import { NewbornData } from "../../models/NewbornData";
-import INewBornDataCreateDto from "../../interfaces/IChild/INewBornData/INewBornDataCreateDto";
 
 export class UsersDb {
     public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): Promise<IResponse<IUserGetDto[] | IError>> => {
@@ -165,8 +164,14 @@ export class UsersDb {
         }
     };
 
-    public registerParent = async (userDto: IUserCreateDto, doctorId: string): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
+    public registerParent = async (userDto: IUserCreateDto, doctorId: string, userId: string): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
         try {
+
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.isBlocked)
+                throw new Error(EErrorMessages.NO_ACCESS);
+            if(foundUser.role === ERoles.DOCTOR && doctorId !== foundUser.id) 
+                throw new Error(EErrorMessages.NO_ACCESS);
             const userExists = await User.findOne({
                 where: {
                     email: userDto.email
@@ -178,7 +183,6 @@ export class UsersDb {
             if (!emailRegex.test(userDto.email)) {
                 throw new Error(EErrorMessages.WRONG_MAIL_FOTMAT);
             }
-
             const primaryPassword: string = shortid.generate();
             // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
             console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
@@ -206,38 +210,9 @@ export class UsersDb {
             };
             const createdChild: IChildGetDto = await Child.create({...child});
 
-            const newbornData: INewBornDataCreateDto = {
+            const newbornData = {
                 childId: createdChild.id,
                 dischargedDate: new Date(),
-                pregnancyN: Math.floor(Math.random() * 10),
-                pregnancyDescript: "Описание случайной беременности",
-                birthN: Math.floor(Math.random() * 5),
-                gestAge: Math.floor(Math.random() * 40),
-                period1: Math.floor(Math.random() * 10),
-                period2: Math.floor(Math.random() * 10),
-                amnAbsPeriod: Math.floor(Math.random() * 10),
-                amnDescript: "Описание случайного амниотического пузыря",
-                anesthesia: "Случайное наркозное средство",
-                postBirthPeriod: "Случайный послеродовой период",
-                motherState: "Состояние матери",
-                birthWeight: Math.random() * 5 + 2.5,
-                birthHeight: Math.floor(Math.random() * 50) + 40,
-                newbornState: "Состояние новорожденного",
-                apgarScore: "что то",
-                reanimation: "Случайная реанимация",
-                breastTry: Math.random() < 0.5,
-                feeding: "кормление",
-                diagnosis: "диагноз",
-                examination: "обследование",
-                treatment: " лечение",
-                eyes: "Состояние глаз",
-                reflexes: "Рефлексы",
-                skin: "Состояние кожи",
-                organs: "Состояние органов",
-                stool: "Описание стула",
-                diuresis: "Диурез",
-                umbilicalCord: "Состояние пуповины",
-                examed_by: "Исследователь",
             };
 
             await NewbornData.create({...newbornData});

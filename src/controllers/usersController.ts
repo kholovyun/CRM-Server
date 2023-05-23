@@ -53,8 +53,10 @@ export class UsersController {
         res.status(response.status).send(response.result);
     };
 
-    private registerParent = async (req: Request, res: Response): Promise<void> => {
-        const response: IResponse<IUserGetDtoWithToken | IError> = await this.repository.registerParent(req.body, req.params.id);
+    private registerParent = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const response: IResponse<IUserGetDtoWithToken | IError> = await this.repository.registerParent(req.body, req.params.id, user.id);
         res.status(response.status).send(response.result);
     };
 
