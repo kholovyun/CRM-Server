@@ -166,7 +166,7 @@ export class UsersDb {
 
     public registerParent = async (userDto: IUserCreateDto, doctorId: string, userId: string): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
         try {
-
+            if(userDto.role !== ERoles.PARENT) throw new Error(EErrorMessages.NO_ACCESS);
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);

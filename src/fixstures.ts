@@ -33,7 +33,7 @@ const userFixture = {
         name: "Jane",
         surname: "Doe",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
-        isBlocked: true,
+        isBlocked: false,
     },
     user3: {
         id: uuid(),
