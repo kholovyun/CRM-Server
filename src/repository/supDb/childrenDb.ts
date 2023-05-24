@@ -19,22 +19,19 @@ export class ChildrenDb {
             if (foundUser.isBlocked && foundUser.role !== ERoles.PARENT) throw new Error(EErrorMessages.NO_ACCESS);
             const foundParent = await Parent.findOne({where: {id: parentId}});
 
-            if (!foundParent) {
-                throw new Error(EErrorMessages.PARENT_NOT_FOUND);
-            }
+            if (!foundParent) throw new Error(EErrorMessages.PARENT_NOT_FOUND);
+            
 
             if (foundUser.role === ERoles.PARENT) {
-                if (foundParent.userId !== userId) {
-                    throw new Error(EErrorMessages.NO_ACCESS);
-                }
+                if (foundParent.userId !== userId) throw new Error(EErrorMessages.NO_ACCESS);
             }
+                
                 
             if (foundUser.role === ERoles.DOCTOR) {
                 const foundDoctor = await Doctor.findOne({where: {userId}});
-                if (foundParent.doctorId !== foundDoctor?.id) {
-                    throw new Error(EErrorMessages.NO_ACCESS);
-                }
+                if (foundParent.doctorId !== foundDoctor?.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
+                
 
             const children = await Child.findAll({
                 where: { parentId: parentId },
@@ -60,37 +57,21 @@ export class ChildrenDb {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error(EErrorMessages.NO_ACCESS);
+            if (foundUser.isBlocked && foundUser.role !== ERoles.PARENT) throw new Error(EErrorMessages.NO_ACCESS);
 
             const child = await Child.findByPk(childId);
             if (!child) throw new Error(EErrorMessages.CHILD_NOT_FOUND);
-            
-            const foundParent = await Parent.findByPk(child.parentId);
-            if (!foundParent) throw new Error(EErrorMessages.PARENT_NOT_FOUND);
-
-            if (foundUser.role === ERoles.DOCTOR) {
-
-
-                const foundDoctor = await Doctor.findOne({where: {userId: foundUser.id}});
-                if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
-
-
-                if (foundParent?.doctorId !== foundDoctor.id) {
-                    throw new Error(EErrorMessages.NO_ACCESS);
-                }
-            }
 
             if (foundUser.role === ERoles.PARENT) {
-                if (foundParent.id !== child.parentId) {
-                    throw new Error(EErrorMessages.NO_ACCESS);
-                }
+                const foundParent = await Parent.findOne({where: {userId}});
+                if (foundParent?.id !== child.parentId) throw new Error(EErrorMessages.NO_ACCESS);
+            }            
 
+            if (foundUser.role === ERoles.DOCTOR) {
+                const foundDoctor = await Doctor.findOne({where: {userId}});
+                const foundParent = await Parent.findOne({where: {id: child.parentId}});
+                if (foundParent?.doctorId !== foundDoctor?.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
-
-            if (foundUser.role === ERoles.ADMIN || foundUser.role === ERoles.SUPERADMIN ) {
-                if (foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS); 
-            }
-            
-            
 
             return {
                 status: StatusCodes.OK,
@@ -156,12 +137,27 @@ export class ChildrenDb {
     ): Promise<IResponse<IChildGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
+            if (!foundUser) throw new Error(EErrorMessages.NO_ACCESS);
+            if (foundUser.isBlocked && foundUser.role !== ERoles.PARENT) throw new Error(EErrorMessages.NO_ACCESS);
             
-
-            const foundChild: IChildGetDto | null = await Child.findByPk(childId);
-            
+            const foundChild = await Child.findByPk(childId);
             if (!foundChild) throw new Error("Ребенок не найден.");
+
+
+            if (foundUser.role === ERoles.PARENT) {
+                const foundParent = await Parent.findOne({where: {user_id: userId}});
+                const foundChild = await Child.findOne({where: {id: childId}});
+                if (foundChild?.parentId !== foundParent?.id) throw new Error(EErrorMessages.NO_ACCESS);
+            }
+
+            if (foundUser.role === ERoles.DOCTOR) {
+                const foundDoctor = await Doctor.findOne({where: {user_id: userId}});
+                const foundParent = await Parent.findOne({where: {id: foundChild.parentId}});
+                if (foundParent?.doctorId !== foundDoctor?.id) {
+                    throw new Error(EErrorMessages.NO_ACCESS);
+                } 
+            }
+
 
             const updatedChild = await Child.update(
                 { ...child },
@@ -169,6 +165,7 @@ export class ChildrenDb {
             ).then((result) => {
                 return result[1][0];
             });
+            
             return {
                 status: StatusCodes.OK,
                 result: updatedChild,

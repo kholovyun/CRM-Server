@@ -16,10 +16,10 @@ export class childrenController {
     constructor() {
         this.router = express.Router();
         this.router.use(morganMiddleware);
-        this.router.get("/parent", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildrenByParentId);
+        this.router.get("/children", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildrenByParentId);
         this.router.post("/", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.createChild);
-        //this.router.get("/:id", permission(), this.getChildById);
-        //this.router.patch("/:id", permission(), this.editChild);
+        this.router.get("/child", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildById);
+        this.router.patch("/edit", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.editChild);
         this.repository = childrenDb;
     }
     public getRouter = (): Router => {
@@ -34,14 +34,14 @@ export class childrenController {
         res.status(response.status).send(response);
     };
 
-    //private getChildById = async (expressReq: Request, res: Response): Promise<void> => {
-    //    const req = expressReq as IRequestWithTokenData;
-    //    const user = req.dataFromToken as { id: string; email: string };
-    //    const response: IResponse<any | IError> = await this.repository.getChildById(
-    //        expressReq.body.childId
-    //    );
-    //    res.status(response.status).send(response);
-    //};
+    private getChildById = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as { id: string; email: string };
+        const response: IResponse<IChildGetDto | IError> = await this.repository.getChildById(
+            expressReq.body.childId, user.id
+        );
+        res.status(response.status).send(response);
+    };
 
     private createChild = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
@@ -53,13 +53,14 @@ export class childrenController {
         res.status(response.status).send(response);
     };
 
-    //private editChild = async (expressReq: Request, res: Response): Promise<void> => {
-    //    const req = expressReq as IRequestWithTokenData;
-    //    const user = req.dataFromToken as { id: string; email: string };
-    //    const response: IResponse<any | IError> = await this.repository.editChildById(
-    //        expressReq.body.childId,
-    //        expressReq.body.child
-    //    );
-    //    res.status(response.status).send(response);
-    //};
+    private editChild = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as { id: string; email: string };
+        const response: IResponse<IChildGetDto | IError> = await this.repository.editChildById(
+            expressReq.body.childId,
+            expressReq.body.child,
+            user.id
+        );
+        res.status(response.status).send(response);
+    };
 }
