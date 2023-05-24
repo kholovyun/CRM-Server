@@ -9,6 +9,7 @@ import IDoctorUpdateDto from "../../interfaces/IDoctor/IDoctorUpdateDto";
 import IError from "../../interfaces/IError";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 import { EErrorMessages } from "../../enums/EErrorMessages";
+import { Parent } from "../../models/Parent";
 
 
 export class DoctorsDb {
@@ -21,7 +22,7 @@ export class DoctorsDb {
                 include: {
                     model: User,
                     as: "users",
-                    attributes: ["name", "patronim", "surname", "email", "phone", "isBlocked"]
+                    attributes: ["id", "name", "patronim", "surname", "email", "phone", "isBlocked"]
                 },
                 order: [
                     [{ model: User, as: "users" }, "surname", "ASC"],
@@ -47,23 +48,31 @@ export class DoctorsDb {
         }
     };
 
-    public getDoctorByUserId = async (userId: string): Promise<IResponse<IDoctorGetDto | IError>> => {
+    public getDoctorByUserId = async (userId: string, doctorUserId: string): Promise<IResponse<IDoctorGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error(EErrorMessages.NOT_AUTHORIZED);
+
             const doctor: IDoctorGetDto | null = await Doctor.findOne(
                 {   
-                    where: {userId: userId},
+                    where: {userId: doctorUserId},
                     include: {
                         model: User,
                         as: "users",
                         attributes: foundUser.role === ERoles.PARENT 
-                            ? ["name", "patronim", "surname"] 
-                            : ["name", "patronim", "surname", "email", "phone"]
+                            ? ["id", "name", "patronim", "surname"] 
+                            : ["id", "name", "patronim", "surname", "email", "phone"]
                     }
                 });
             if (!doctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
-            if (foundUser.role === ERoles.DOCTOR && !doctor.isActive) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
+
+            if (foundUser.role === ERoles.PARENT) {
+                const parent = await Parent.findOne({where: {doctorId: doctor.id}});
+                if (!parent) new Error(EErrorMessages.NO_ACCESS);
+            }
+
+            if (foundUser.role === ERoles.DOCTOR && foundUser.id !== doctor.userId) throw new Error(EErrorMessages.NO_ACCESS);
+            
             return {
                 status: StatusCodes.OK,
                 result: doctor

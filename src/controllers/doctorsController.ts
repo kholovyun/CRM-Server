@@ -53,8 +53,7 @@ export class DoctorsController {
     private getDoctorById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string, role: string };
-        const userId = user.role === ERoles.DOCTOR ? user.id : req.params.id;
-        const response: IResponse<IDoctorGetDto | IError> = await this.repository.getDoctorByUserId(userId);
+        const response: IResponse<IDoctorGetDto | IError> = await this.repository.getDoctorByUserId(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 

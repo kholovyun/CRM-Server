@@ -276,14 +276,18 @@ export class UsersDb {
     public editUser = async (editorId: string, userId: string, userDto: IUserUpdateDto, ): Promise<IResponse<IUserGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(editorId);
+            const editingUser = await User.findByPk(userId);
+            if (!editingUser) throw new Error(EErrorMessages.USER_NOT_FOUND);
+
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
 
-            if ((foundUser.role === ERoles.DOCTOR ||
-                foundUser.role === ERoles.PARENT) && 
-                foundUser.id !== userId) throw new Error(EErrorMessages.NO_ACCESS);
+            if (foundUser.role !== ERoles.SUPERADMIN && 
+                foundUser.role !== ERoles.ADMIN && foundUser.id !== userId) throw new Error(EErrorMessages.NO_ACCESS);
             
-            // if (foundUser.role === ERoles.PARENT && foundUser.id !== userId) throw new Error(EErrorMessages.NO_ACCESS);
-            
+            if (foundUser.role === ERoles.ADMIN && editingUser.role === ERoles.ADMIN && foundUser.id !== editingUser.id) throw new Error(EErrorMessages.NO_ACCESS);
+
+            if (foundUser.role === ERoles.ADMIN && editingUser.role === ERoles.SUPERADMIN) throw new Error(EErrorMessages.NO_ACCESS);
+
             const fieldsToExclude = ["id", "password", "email", "role", "isBlocked"];    
             const myFields = Object.keys(userDto).filter(field => !fieldsToExclude.includes(field));
 
