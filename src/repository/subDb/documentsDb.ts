@@ -45,3 +45,5 @@ export class DocumentsDb {
         }
     };
 }
+
+export const documentsDb = new DocumentsDb();
