@@ -57,11 +57,19 @@ export class DocumentsDb {
 
             const document = await Document.findByPk(documentId);
             if (!document) throw new Error(EErrorMessages.DOCUMENT_NOT_FOUND);
-
+            const foundChild = await Child.findOne({where: {id: document.childId}});
+            
             if (foundUser.role === ERoles.PARENT) {
-                const foundChild = await Child.findOne({where: {id: document.childId}});
                 const foundParent = await Parent.findOne({where: {user_id: userId}});
                 if (foundChild?.parentId !== foundParent?.id) throw new Error(EErrorMessages.NO_ACCESS);
+            }
+
+            if (foundUser.role === ERoles.DOCTOR) {
+                const foundDoctor = await Doctor.findOne({where: {user_id: userId}});
+                const foundParent = await Parent.findOne({where: {id: foundChild?.parentId}});
+                console.log(foundDoctor?.id);
+                console.log(foundParent?.doctorId);
+                if (foundParent?.doctorId !== foundDoctor?.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
 
 
