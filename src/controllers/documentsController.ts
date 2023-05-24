@@ -31,6 +31,8 @@ export class DocumentsControllers {
         this.router = express.Router();
         this.router.post("/", [permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.PARENT]), upload.single("url")], this.createDocument);
         this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.PARENT, ERoles.SUPERADMIN]), this.deleteDocument);
+        this.router.get("/:id", permission([ERoles.DOCTOR, ERoles.SUPERADMIN, ERoles.ADMIN, ERoles.PARENT]), this.getDocumentsByChildId);
+
 
     }
 
@@ -51,6 +53,13 @@ export class DocumentsControllers {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<string | IError> = await this.repository.deleteDocument(user.id, req.params.id);
+        res.status(response.status).send(response.result);
+    };
+
+    private getDocumentsByChildId = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as IUserGetDto;
+        const response: IResponse<IDocumentGetDto[] | IError> = await this.repository.getDocumentsByChildId(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
