@@ -8,7 +8,7 @@ import { config } from "../index.config";
 import multer from "multer";
 import shortid from "shortid";
 import IError from "../interfaces/IError";
-import { RecomendationsDb, recomendationDb } from "../repository/supDb/recomendationsDb";
+import { RecomendationsDb, recomendationDb } from "../repository/subDb/recomendationsDb";
 import IRecomendationCetDto from "../interfaces/IRecomendation/IRecomendationGetDto";
 import IRecomendationCreateDto from "../interfaces/IRecomendation/IRecomendationCreateDto";
 

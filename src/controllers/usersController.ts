@@ -8,7 +8,7 @@ import morganMiddleware from "../config/morganMiddleware";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import { IMessage } from "../interfaces/IMessage";
-import { UsersDb, usersDb } from "../repository/supDb/usersDb";
+import { UsersDb, usersDb } from "../repository/subDb/usersDb";
 import IError from "../interfaces/IError";
 
 export class UsersController {
@@ -23,7 +23,7 @@ export class UsersController {
         this.router.get("/token", permission(), this.checkToken);
         this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getUsers);
         this.router.get("/:id", permission(), this.getUserById);
-        this.router.patch("/", permission(), this.editUser);
+        this.router.patch("/:id", permission([ERoles.SUPERADMIN, ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.editUser);
         this.router.post("/set-password", this.setPassword);
         this.router.patch("/block/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.blockUser);
         this.repository = usersDb;
@@ -68,7 +68,7 @@ export class UsersController {
     private editUser = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as IUserGetDto;
-        const response: IResponse<IUserGetDto | IError> = await this.repository.editUser(req.body, user.id);
+        const response: IResponse<IUserGetDto | IError> = await this.repository.editUser(user.id, req.params.id, req.body);
         res.status(response.status).send(response.result);
     };
 

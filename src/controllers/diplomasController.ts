@@ -8,7 +8,7 @@ import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import { config } from "../index.config";
 import multer from "multer";
 import shortid from "shortid";
-import { DiplomasDb, diplomasDb } from "../repository/supDb/diplomasDb";
+import { DiplomasDb, diplomasDb } from "../repository/subDb/diplomasDb";
 import IError from "../interfaces/IError";
 
 const storage = multer.diskStorage({
