@@ -10,13 +10,32 @@ import { ERoles } from "../../enums/ERoles";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 import { Parent } from "../../models/Parent";
 import { Doctor } from "../../models/Doctor";
-import Logger from "../../lib/logger";
 
 export class ChildrenDb {
-    public getChildrenByParentId = async (userId: string, parentId: string): Promise<IResponse<IChildGetDto[] | IError>> => {
+    public getChildrenByParentId = async (parentId: string, userId: string): Promise<IResponse<IChildGetDto[] | IError>> => {
         try {
-            //check with no access 
-            // middleware permisson in controller
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser) throw new Error(EErrorMessages.NO_ACCESS);
+            if (foundUser.isBlocked && foundUser.role !== ERoles.PARENT) throw new Error(EErrorMessages.NO_ACCESS);
+            const foundParent = await Parent.findOne({where: {id: parentId}});
+
+            if (!foundParent) {
+                throw new Error(EErrorMessages.PARENT_NOT_FOUND);
+            }
+
+            if (foundUser.role === ERoles.PARENT) {
+                if (foundParent.userId !== userId) {
+                    throw new Error(EErrorMessages.NO_ACCESS);
+                }
+            }
+                
+            if (foundUser.role === ERoles.DOCTOR) {
+                const foundDoctor = await Doctor.findOne({where: {userId}});
+                if (foundParent.doctorId !== foundDoctor?.id) {
+                    throw new Error(EErrorMessages.NO_ACCESS);
+                }
+            }
+
             const children = await Child.findAll({
                 where: { parentId: parentId },
                 raw: true,

@@ -8,6 +8,7 @@ import IResponse from "../interfaces/IResponse";
 import IError from "../interfaces/IError";
 import { ERoles } from "../enums/ERoles";
 import IChildCreateDto from "../interfaces/IChild/IChildCreateDto";
+import IChildGetDto from "../interfaces/IChild/IChildGetDto";
 
 export class childrenController {
     private repository: ChildrenDb;
@@ -15,23 +16,23 @@ export class childrenController {
     constructor() {
         this.router = express.Router();
         this.router.use(morganMiddleware);
-        //this.router.get("/", permission(), this.getChildrenByParentId);
-        //this.router.get("/:id", permission(), this.getChildById);
+        this.router.get("/parent", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildrenByParentId);
         this.router.post("/", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.createChild);
+        //this.router.get("/:id", permission(), this.getChildById);
         //this.router.patch("/:id", permission(), this.editChild);
         this.repository = childrenDb;
     }
     public getRouter = (): Router => {
         return this.router;
     };
-    //private getChildrenByParentId = async (expressReq: Request, res: Response): Promise<void> => {
-    //    const req = expressReq as IRequestWithTokenData;
-    //    const user = req.dataFromToken as { id: string; email: string };
-    //    const response: IResponse<any | IError> = await this.repository.getChildrenByParentId(
-    //        expressReq.body.parentId
-    //    );
-    //    res.status(response.status).send(response);
-    //};
+    private getChildrenByParentId = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as { id: string; email: string };
+        const response: IResponse<IChildGetDto[] | IError> = await this.repository.getChildrenByParentId(
+            expressReq.body.parentId, user.id
+        );
+        res.status(response.status).send(response);
+    };
 
     //private getChildById = async (expressReq: Request, res: Response): Promise<void> => {
     //    const req = expressReq as IRequestWithTokenData;
