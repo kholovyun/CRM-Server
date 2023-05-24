@@ -327,7 +327,7 @@ export class UsersDb {
                 throw new Error(EErrorMessages.NO_ACCESS);
             const foundUser: IUserGetDto | null = await User.findByPk(userId);
             if (!foundUser) throw new Error(EErrorMessages.USER_NOT_FOUND_BY_ID);
-            if (foundUser.role === ERoles.SUPERADMIN) throw new Error(EErrorMessages.SUPERADMIN_CANT_BE_DELETED);
+            if (foundUser.role === ERoles.SUPERADMIN) throw new Error(EErrorMessages.SUPERADMIN_CANT_BE_BLOCKED);
             const updatedUser = await User.update(
                 { isBlocked: foundUser.isBlocked ? false : true },
                 {

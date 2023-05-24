@@ -15,6 +15,7 @@ export enum EErrorMessages {
     PASSWORD_NUMBER_FAILED = "Пароль должен содержать минимум 1 цифру.",
     USER_NOT_FOUND_BY_ID = "Пользователь с таким ID не найден.",
     SUPERADMIN_CANT_BE_DELETED = "Суперадминистратор не может быть удален.",
+    SUPERADMIN_CANT_BE_BLOCKED = "Суперадминистратор не может быть блокирован.",
     USER_ALREADY_EXISTS = "Пользователь с таким email уже зарегистрирован.",
     WRONG_MAIL_FOTMAT = "Неправильный формат email-адреса",
     DOCTOR_DIPLOMA_NOT_FOUND = "Врач, чьи дипломы Вы запрашиваете не найден.",
