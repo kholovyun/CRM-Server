@@ -9,6 +9,7 @@ export default interface IDoctorGetDto {
     achievments?: string
     degree?: string
     users: {
+        id: string
         name: string
         surname: string
         patronim?: string
