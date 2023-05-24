@@ -28,7 +28,7 @@ export class DocumentsControllers {
     constructor() {
         this.repository = documentsDb;
         this.router = express.Router();
-        this.router.post("/", [permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.SUPERADMIN]), upload.single("url")], this.createDocument);
+        this.router.post("/", [permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.PARENT]), upload.single("url")], this.createDocument);
     }
 
     public getRouter = (): Router => {

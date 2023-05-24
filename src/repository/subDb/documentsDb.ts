@@ -8,6 +8,9 @@ import { EErrorMessages } from "../../enums/EErrorMessages";
 import { User } from "../../models/User";
 import { Document } from "../../models/Document";
 import { ERoles } from "../../enums/ERoles";
+import { Doctor } from "../../models/Doctor";
+import { Parent } from "../../models/Parent";
+import { Child } from "../../models/Child";
 
 export class DocumentsDb {
     public createDocument = async (userId: string, document: IDocumentCreateDto): Promise<IResponse<IDocumentGetDto | IError>> => {
@@ -15,15 +18,18 @@ export class DocumentsDb {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
 
+            const foundChild = await Child.findByPk(document.childId);
+
             if (foundUser.role === ERoles.DOCTOR) {
-                console.log("hello");
+                const foundDoctor = await Doctor.findOne({where: {user_id: userId}});
+                const foundParent = await Parent.findOne({where: {id: foundChild?.parentId}});
+                if (foundDoctor?.id !== foundParent?.doctorId) throw new Error(EErrorMessages.NO_ACCESS);
             }
 
             if (foundUser.role === ERoles.PARENT) {
-                console.log("hello");
+                const foundParent = await Parent.findOne({where: {user_id: userId}});
+                if (foundChild?.parentId !== foundParent?.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
-
-            
             
             if (document.url === "") throw new Error(EErrorMessages.IMAGE_SHOUD_BE_PRESENT);
             const newDocument: IDocumentGetDto = await Document.create({...document});
