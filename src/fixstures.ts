@@ -181,6 +181,27 @@ const docFixture = {
     },
 
 };
+
+
+const parentFixture = {
+    parent1: {
+        id: uuid(),
+        userId: userFixture.user7.id,
+        doctorId: docFixture.doc4.id,
+        registerDate: new Date(),
+        isActive: false,
+    },
+    parent2: {
+        id: uuid(),
+        userId: userFixture.user6.id,
+        doctorId: docFixture.doc5.id,
+        registerDate: new Date(),
+        isActive: true,
+    }
+        
+};
+
+
 const recomendationsFix = {
     reco1 : {
         id: uuid(),
@@ -273,6 +294,12 @@ export const createUserFixtures = async (): Promise<void> => {
             { ...recomendationsFix.reco3},
             { ...recomendationsFix.reco4},
         ]);
+        
+        await Parent.bulkCreate([
+            {...parentFixture.parent1},
+            {...parentFixture.parent2}
+        ]);
+        
         Logger.info("Фикстуры созданы");
     } catch (error) {
         Logger.error(error);
