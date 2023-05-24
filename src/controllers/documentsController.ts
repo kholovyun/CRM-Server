@@ -9,6 +9,7 @@ import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
 import IResponse from "../interfaces/IResponse";
 import IDocumentGetDto from "../interfaces/IDocument/IDocumentGetDto";
 import IError from "../interfaces/IError";
+import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -29,6 +30,8 @@ export class DocumentsControllers {
         this.repository = documentsDb;
         this.router = express.Router();
         this.router.post("/", [permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.PARENT]), upload.single("url")], this.createDocument);
+        this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.PARENT, ERoles.SUPERADMIN]), this.deleteDocument);
+
     }
 
     public getRouter = (): Router => {
@@ -41,6 +44,13 @@ export class DocumentsControllers {
         const document = req.body;
         document.url = req.file ? req.file.filename : "";
         const response: IResponse<IDocumentGetDto | IError> = await this.repository.createDocument(user.id, document);
+        res.status(response.status).send(response.result);
+    };
+
+    private deleteDocument = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as IUserGetDto;
+        const response: IResponse<string | IError> = await this.repository.deleteDocument(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 

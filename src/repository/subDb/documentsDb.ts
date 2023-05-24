@@ -50,6 +50,39 @@ export class DocumentsDb {
             };
         }
     };
+    public deleteDocument = async (userId: string, documentId: string): Promise<IResponse<string | IError>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
+
+            const document = await Document.findByPk(documentId);
+            if (!document) throw new Error(EErrorMessages.DOCUMENT_NOT_FOUND);
+
+            if (foundUser.role === ERoles.PARENT) {
+                const foundChild = await Child.findOne({where: {id: document.childId}});
+                const foundParent = await Parent.findOne({where: {user_id: userId}});
+                if (foundChild?.parentId !== foundParent?.id) throw new Error(EErrorMessages.NO_ACCESS);
+            }
+
+
+            await Document.destroy({where: {id: documentId}});
+            return {
+                status: StatusCodes.OK,
+                result: "Документ удален!"
+            };
+
+        } catch (err: unknown) {
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
+        }
+    };
 }
 
 export const documentsDb = new DocumentsDb();
