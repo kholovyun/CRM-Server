@@ -11,6 +11,7 @@ import uuid from "react-uuid";
 import { Recommendation } from "./models/Recommendation";
 import { Child } from "./models/Child";
 import { NewbornData } from "./models/NewbornData";
+import { ESex } from "./enums/ESex";
 
 const db = PostgresDB;
 
@@ -201,6 +202,35 @@ const parentFixture = {
         
 };
 
+const childrenFixture = {
+    child1: {
+        id: uuid(),
+        parentId: parentFixture.parent1.id,
+        photo: "no photo",
+        name: "Mark",
+        surname: "Teal",
+        dateOfBirth: new Date(),
+        sex: ESex.MALE,
+        height: 155,
+        weight: 45,
+        patronim: "patronium",
+        isActive: true
+    },
+    child2: {
+        id: uuid(),
+        parentId: parentFixture.parent2.id,
+        photo: "no photo",
+        name: "Sara",
+        surname: "Grey",
+        dateOfBirth: new Date(),
+        sex: ESex.FEMALE,
+        height: 155,
+        weight: 45,
+        patronim: "patronium",
+        isActive: true
+    },
+};
+
 
 const recomendationsFix = {
     reco1 : {
@@ -298,6 +328,11 @@ export const createUserFixtures = async (): Promise<void> => {
         await Parent.bulkCreate([
             {...parentFixture.parent1},
             {...parentFixture.parent2}
+        ]);
+
+        await Child.bulkCreate([
+            {...childrenFixture.child1},
+            {...childrenFixture.child2}
         ]);
         
         Logger.info("Фикстуры созданы");
