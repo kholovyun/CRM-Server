@@ -19,5 +19,6 @@ export enum EErrorMessages {
     WRONG_MAIL_FOTMAT = "Неправильный формат email-адреса",
     DOCTOR_DIPLOMA_NOT_FOUND = "Врач, чьи дипломы Вы запрашиваете не найден.",
     IMAGE_SHOUD_BE_PRESENT = "Изображение обязательно.",
-    NO_RECOMENDATIONS_FOUND = "Рекомендации не найдены."
+    NO_RECOMENDATIONS_FOUND = "Рекомендации не найдены.",
+    CHILD_NOT_FOUND = "Ребенок не найден"
 }
