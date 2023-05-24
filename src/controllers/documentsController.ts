@@ -32,8 +32,6 @@ export class DocumentsControllers {
         this.router.post("/", [permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.PARENT]), upload.single("url")], this.createDocument);
         this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.PARENT, ERoles.SUPERADMIN]), this.deleteDocument);
         this.router.get("/:id", permission([ERoles.DOCTOR, ERoles.SUPERADMIN, ERoles.ADMIN, ERoles.PARENT]), this.getDocumentsByChildId);
-
-
     }
 
     public getRouter = (): Router => {
