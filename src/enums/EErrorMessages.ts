@@ -22,5 +22,6 @@ export enum EErrorMessages {
     IMAGE_SHOUD_BE_PRESENT = "Изображение обязательно.",
     NO_RECOMENDATIONS_FOUND = "Рекомендации не найдены.",
     WRONG_PASS_OR_EMAIL = "Неверно указан емайл или пароль",
-    CHILD_NOT_FOUND = "Ребенок не найден"
+    CHILD_NOT_FOUND = "Ребенок не найден",
+    DOCUMENT_NOT_FOUND = "Документ не найден"
 }

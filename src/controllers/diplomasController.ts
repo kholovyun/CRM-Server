@@ -29,9 +29,9 @@ export class DiplomasControllers {
     constructor() {
         this.repository = diplomasDb;
         this.router = express.Router();
-        this.router.get("/:id", permission([ERoles.DOCTOR, ERoles.DOCTOR, ERoles.ADMIN, ERoles.PARENT]), this.getDiplomasByDoctor);
+        this.router.get("/:id", permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.PARENT, ERoles.SUPERADMIN]), this.getDiplomasByDoctor);
         this.router.post("/", [permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.SUPERADMIN]), upload.single("url")], this.createDiploma);
-        this.router.delete("/:id", permission([ERoles.DOCTOR]), this.deleteDiploma);
+        this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.SUPERADMIN]), this.deleteDiploma);
     }
 
     public getRouter = (): Router => {
