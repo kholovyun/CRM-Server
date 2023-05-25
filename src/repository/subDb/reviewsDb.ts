@@ -5,8 +5,7 @@ import { EErrorMessages } from "../../enums/EErrorMessages";
 import { Review } from "../../models/Review";
 import { ERoles } from "../../enums/ERoles";
 import IReviewCreateDto from "../../interfaces/IReview/IReviewCreateDto";
-import { Doctor } from "../../models/Doctor";
-import { Parent } from "../../models/Parent";
+
 
 export class ReviewsDb {
     public getReviews = async (userId: string) => {
@@ -18,8 +17,11 @@ export class ReviewsDb {
                 include: {
                     model: User,
                     as: "users",
-                    attributes: ["name", "patronim", "surname"]
-                }
+                    attributes: ["id", "name", "patronim", "surname"]
+                },
+                order: [
+                    [ "createdAt", "DESC"]
+                ]
             });
             return {
                 status: StatusCodes.OK,
