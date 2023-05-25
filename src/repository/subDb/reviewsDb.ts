@@ -43,7 +43,7 @@ export class ReviewsDb {
     public createReview = async (userId: string, review: IReviewCreateDto) => {
         try {
             const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
+            if (!foundUser) throw new Error(EErrorMessages.NO_ACCESS);
             
             const newReview: IReviewCreateDto= await Review.create({...review});
             return {
