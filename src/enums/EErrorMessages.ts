@@ -23,5 +23,6 @@ export enum EErrorMessages {
     NO_RECOMENDATIONS_FOUND = "Рекомендации не найдены.",
     WRONG_PASS_OR_EMAIL = "Неверно указан емайл или пароль",
     CHILD_NOT_FOUND = "Ребенок не найден",
+    NO_REVIEW_FOUND = "Отзыв не найден",
     DOCUMENT_NOT_FOUND = "Документ не найден"
 }
