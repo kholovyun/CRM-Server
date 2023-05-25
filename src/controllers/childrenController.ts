@@ -2,7 +2,7 @@ import express, { Request, Response, Router } from "express";
 
 import morganMiddleware from "../config/morganMiddleware";
 import { permission } from "../middleware/permission";
-import { ChildrenDb, childrenDb } from "../repository/supDb/childrenDb";
+import { ChildrenDb, childrenDb } from "../repository/subDb/childrenDb";
 import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
 import IResponse from "../interfaces/IResponse";
 import IError from "../interfaces/IError";

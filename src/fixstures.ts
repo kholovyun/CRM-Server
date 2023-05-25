@@ -6,11 +6,14 @@ import { Message } from "./models/Message";
 import { Review } from "./models/Review";
 import { Subscription } from "./models/Subscription";
 import Logger from "./lib/logger";
-import { PostgresDB } from "./repository/postgresDb";
 import uuid from "react-uuid";
 import { Recommendation } from "./models/Recommendation";
 import { Child } from "./models/Child";
 import { NewbornData } from "./models/NewbornData";
+import { ESex } from "./enums/ESex";
+import { Document } from "./models/Document";
+import { PostgresDB } from "./repository/postgresDb";
+
 
 const db = PostgresDB;
 
@@ -201,6 +204,51 @@ const parentFixture = {
         
 };
 
+const childrenFixture = {
+    child1: {
+        id: uuid(),
+        parentId: parentFixture.parent1.id,
+        photo: "default-photo.svg",
+        name: "Mark",
+        surname: "Teal",
+        dateOfBirth: new Date(),
+        sex: ESex.MALE,
+        height: 155,
+        weight: 45,
+        patronim: "patronium",
+        isActive: true
+    },
+    child2: {
+        id: uuid(),
+        parentId: parentFixture.parent2.id,
+        photo: "default-photo.svg",
+        name: "Sara",
+        surname: "Grey",
+        dateOfBirth: new Date(),
+        sex: ESex.FEMALE,
+        height: 155,
+        weight: 45,
+        patronim: "patronium",
+        isActive: true
+    },
+};
+
+const documentsFixture = {
+    document1: {
+        id: uuid(),
+        childId: childrenFixture.child1.id,
+        createdAt: new Date(),
+        url: "some url here"
+    },
+    document2: {
+        id: uuid(),
+        childId: childrenFixture.child2.id,
+        createdAt: new Date(),
+        url: "some url here"
+    },
+    
+};
+
 
 const recomendationsFix = {
     reco1 : {
@@ -225,6 +273,7 @@ const recomendationsFix = {
     },
 };
 
+
 export const createUserFixtures = async (): Promise<void> => {
     try {
         await NewbornData.destroy({where: {}});
@@ -237,6 +286,7 @@ export const createUserFixtures = async (): Promise<void> => {
         await Subscription.destroy({ where: {} });
         await Review.destroy({ where: {} });
         await User.destroy({ where: {} });
+        await Document.destroy({where: {}});
         await User.bulkCreate([
             {
                 ...userFixture.user1,
@@ -298,6 +348,16 @@ export const createUserFixtures = async (): Promise<void> => {
         await Parent.bulkCreate([
             {...parentFixture.parent1},
             {...parentFixture.parent2}
+        ]);
+
+        await Child.bulkCreate([
+            {...childrenFixture.child1},
+            {...childrenFixture.child2}
+        ]);
+
+        await Document.bulkCreate([
+            {...documentsFixture.document1},
+            {...documentsFixture.document2},
         ]);
         
         Logger.info("Фикстуры созданы");
