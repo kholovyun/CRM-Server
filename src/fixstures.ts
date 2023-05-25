@@ -208,7 +208,7 @@ const childrenFixture = {
     child1: {
         id: uuid(),
         parentId: parentFixture.parent1.id,
-        photo: "no photo",
+        photo: "default-photo.svg",
         name: "Mark",
         surname: "Teal",
         dateOfBirth: new Date(),
@@ -221,7 +221,7 @@ const childrenFixture = {
     child2: {
         id: uuid(),
         parentId: parentFixture.parent2.id,
-        photo: "no photo",
+        photo: "default-photo.svg",
         name: "Sara",
         surname: "Grey",
         dateOfBirth: new Date(),

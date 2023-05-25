@@ -21,13 +21,13 @@ export class DocumentsDb {
             const foundChild = await Child.findByPk(document.childId);
 
             if (foundUser.role === ERoles.DOCTOR) {
-                const foundDoctor = await Doctor.findOne({where: {user_id: userId}});
+                const foundDoctor = await Doctor.findOne({where: {userId}});
                 const foundParent = await Parent.findOne({where: {id: foundChild?.parentId}});
                 if (foundDoctor?.id !== foundParent?.doctorId) throw new Error(EErrorMessages.NO_ACCESS);
             }
 
             if (foundUser.role === ERoles.PARENT) {
-                const foundParent = await Parent.findOne({where: {user_id: userId}});
+                const foundParent = await Parent.findOne({where: {userId}});
                 if (foundChild?.parentId !== foundParent?.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
             
@@ -62,12 +62,12 @@ export class DocumentsDb {
             const foundChild = await Child.findOne({where: {id: document.childId}});
             
             if (foundUser.role === ERoles.PARENT) {
-                const foundParent = await Parent.findOne({where: {user_id: userId}});
+                const foundParent = await Parent.findOne({where: {userId}});
                 if (foundChild?.parentId !== foundParent?.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
 
             if (foundUser.role === ERoles.DOCTOR) {
-                const foundDoctor = await Doctor.findOne({where: {user_id: userId}});
+                const foundDoctor = await Doctor.findOne({where: {userId}});
                 const foundParent = await Parent.findOne({where: {id: foundChild?.parentId}});
                 if (foundParent?.doctorId !== foundDoctor?.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
@@ -100,13 +100,13 @@ export class DocumentsDb {
             if (!foundChild) throw new Error(EErrorMessages.CHILD_NOT_FOUND);
 
             if (foundUser.role === ERoles.DOCTOR) {
-                const foundDoctor = await Doctor.findOne({where: {user_id: userId}});
+                const foundDoctor = await Doctor.findOne({where: {userId}});
                 const foundParent = await Parent.findOne({where: {id: foundChild.parentId}});
                 if (foundDoctor?.id !== foundParent?.doctorId) throw new Error(EErrorMessages.NO_ACCESS);
             }
 
             if (foundUser.role === ERoles.PARENT) {
-                const foundParent = await Parent.findOne({where: {user_id: userId}});
+                const foundParent = await Parent.findOne({where: {userId}});
                 if (foundChild.parentId !== foundParent?.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
 
