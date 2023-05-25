@@ -10,6 +10,7 @@ import { ParentsController } from "./controllers/parentsController";
 import { DiplomasControllers } from "./controllers/diplomasController";
 import { RecomendationsControllers } from "./controllers/recomendationsController";
 import { childrenController } from "./controllers/childrenController";
+import { ReviewControllers } from "./controllers/reviewController";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ class App {
             this.app.use("/diplomas", new DiplomasControllers().getRouter());
             this.app.use("/recomendations", new RecomendationsControllers().getRouter());
             this.app.use("/children", new childrenController().getRouter());
+            this.app.use("/reviews", new ReviewControllers().getRouter());
         } catch (err: unknown) {
             const error = err as Error;
             Logger.error(`Server error: ${error.message}`);
