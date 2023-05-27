@@ -4,7 +4,7 @@ export default interface IDoctorCreateDto {
     speciality: string
     placeOfWork: string
     experience: number
-    isActive: boolean
+    price: number
     achievements?: string
     degree?: string
 }

@@ -20,7 +20,7 @@ export class DiplomasDb {
             const foundDoctor = await Doctor.findByPk(doctorId);
             if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_DIPLOMA_NOT_FOUND);
             
-            if (foundUser.role === ERoles.DOCTOR && String(foundUser.id) !== String(foundDoctor.userId))
+            if (foundUser.role === ERoles.DOCTOR && foundUser.id !== foundDoctor.userId)
                 throw new Error(EErrorMessages.NO_ACCESS);
             if (foundUser.role === ERoles.PARENT) {
                 const foundParent = await Parent.findOne({
@@ -29,8 +29,7 @@ export class DiplomasDb {
                 if(!foundParent) throw new Error(EErrorMessages.NO_ACCESS);
             }
             const diplomas = await Diploma.findAll({
-                where: {doctorId: doctorId},
-                raw: true
+                where: {doctorId: doctorId}
             });            
             return {
                 status: StatusCodes.OK,
@@ -62,7 +61,7 @@ export class DiplomasDb {
                     throw new Error(EErrorMessages.NO_ACCESS);
             }
 
-            if (diploma.url === "") throw new Error(EErrorMessages.IMAGE_SHOUD_BE_PRESENT);
+            if (diploma.url === "") throw new Error(EErrorMessages.IMAGE_REQUIRED);
 
             const newDiploma: IDiplomaGetDto = await Diploma.create({...diploma});
             return {

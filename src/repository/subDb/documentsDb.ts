@@ -31,7 +31,7 @@ export class DocumentsDb {
                 if (foundChild?.parentId !== foundParent?.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
             
-            if (document.url === "") throw new Error(EErrorMessages.IMAGE_SHOUD_BE_PRESENT);
+            if (document.url === "") throw new Error(EErrorMessages.IMAGE_REQUIRED);
             const newDocument: IDocumentGetDto = await Document.create({...document});
 
             return {

@@ -1,5 +1,6 @@
 import { Model, Table, Column, PrimaryKey, DataType, ForeignKey, BelongsTo } from "sequelize-typescript";
 import { User } from "./User";
+import { EPaymentType } from "../enums/EPaymentType";
 
 @Table({
     tableName: "subscriptions",
@@ -37,11 +38,17 @@ export class Subscription extends Model {
         payedBy!: string;
 
     @Column({
-        type: DataType.STRING(256),
-        allowNull: false,
-        defaultValue: "-"
+        type: DataType.INTEGER,
+        allowNull: false
     })
-        type!: string;
+        type!: number;
+
+    @Column({
+        type: DataType.ENUM(...Object.values(EPaymentType)),
+        field: "payment_type",
+        allowNull: false
+    })
+        paymentType!: EPaymentType;
 
     @Column({
         type: DataType.DECIMAL(10,2),

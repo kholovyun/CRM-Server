@@ -13,6 +13,7 @@ import { NewbornData } from "./models/NewbornData";
 import { ESex } from "./enums/ESex";
 import { Document } from "./models/Document";
 import { PostgresDB } from "./repository/postgresDb";
+import { EPaymentType } from "./enums/EPaymentType";
 
 
 const db = PostgresDB;
@@ -200,15 +201,35 @@ const parentFixture = {
         doctorId: docFixture.doc5.id,
         registerDate: new Date(),
         isActive: true,
-    }
-        
+    }        
+};
+
+const subscrFixture = {
+    subscr1: {
+        id: uuid(),
+        userId: userFixture.user7.id,
+        payedBy: userFixture.user9.id,
+        type: 1,
+        sum: docFixture.doc4.price,
+        paymentType: EPaymentType.CASH,
+        endDate: parentFixture.parent1.registerDate.setMonth(parentFixture.parent1.registerDate.getMonth() + 1)
+    },
+    subscr2: {
+        id: uuid(),
+        userId: userFixture.user6.id,
+        payedBy: userFixture.user6.id,
+        type: 1,
+        sum: docFixture.doc5.price,
+        paymentType: EPaymentType.CASH,
+        endDate: parentFixture.parent2.registerDate.setMonth(parentFixture.parent2.registerDate.getMonth() + 1)
+    }        
 };
 
 const childrenFixture = {
     child1: {
         id: uuid(),
         parentId: parentFixture.parent1.id,
-        photo: "default-photo.svg",
+        photo: "default-child-photo.svg",
         name: "Mark",
         surname: "Teal",
         dateOfBirth: new Date(),
@@ -221,7 +242,7 @@ const childrenFixture = {
     child2: {
         id: uuid(),
         parentId: parentFixture.parent2.id,
-        photo: "default-photo.svg",
+        photo: "default-child-photo.svg",
         name: "Sara",
         surname: "Grey",
         dateOfBirth: new Date(),
@@ -348,6 +369,11 @@ export const createUserFixtures = async (): Promise<void> => {
         await Parent.bulkCreate([
             {...parentFixture.parent1},
             {...parentFixture.parent2}
+        ]);
+
+        await Subscription.bulkCreate([
+            {...subscrFixture.subscr1},
+            {...subscrFixture.subscr2},
         ]);
 
         await Child.bulkCreate([

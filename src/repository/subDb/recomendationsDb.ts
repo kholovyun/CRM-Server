@@ -16,11 +16,8 @@ export class RecomendationsDb {
             const foundDoctor = await Doctor.findByPk(doctorId);
             if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
             const recomendations = await Recommendation.findAll({
-                where: {doctorId: doctorId},
-                raw: true
+                where: {doctorId: doctorId}
             });
-            if(!recomendations) throw Error(EErrorMessages.NO_RECOMENDATIONS_FOUND);
-
             return {
                 status: StatusCodes.OK,
                 result: recomendations
@@ -69,7 +66,7 @@ export class RecomendationsDb {
         }
     };
 
-    public editRecomendation = async (userId: string, recomendationId : string,upgradedRecomendation: IRecomendationCreateDto): Promise<IResponse<IRecomendationCreateDto | IError>> => {
+    public editRecomendation = async (userId: string, recomendationId : string, upgradedRecomendation: IRecomendationCreateDto): Promise<IResponse<IRecomendationCreateDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -80,29 +77,19 @@ export class RecomendationsDb {
                 });
                 if (!foundDoctor || upgradedRecomendation.doctorId !== foundDoctor.id ) 
                     throw new Error(EErrorMessages.NO_ACCESS);
-                const editedRecomeddation: IRecomendationCreateDto = await Recommendation.update({...upgradedRecomendation},
-                    {
-                        where: { id: recomendationId },
-                        returning: true
-                    }).then((result) => { return result[1][0]; });
-                return {
-                    status: StatusCodes.OK,
-                    result: editedRecomeddation
-                };
-            } else if (foundUser.role === ERoles.ADMIN || ERoles.SUPERADMIN) {
-                const editedRecomeddation: IRecomendationCreateDto = await Recommendation.update({...upgradedRecomendation},
-                    {
-                        where: { id: recomendationId },
-                        returning: true
-                    }).then((result) => { return result[1][0]; });
-                return {
-                    status: StatusCodes.OK,
-                    result: editedRecomeddation
-                };
-            } else {
-                throw new Error(EErrorMessages.NO_ACCESS);
             }
-
+            
+            const editedRecomeddation: IRecomendationCreateDto = await Recommendation.update({...upgradedRecomendation},
+                {
+                    where: { id: recomendationId },
+                    returning: true
+                }).then((result) => { 
+                return result[1][0];
+            });
+            return {
+                status: StatusCodes.OK,
+                result: editedRecomeddation
+            };
 
         } catch (err: unknown) {
             const error = err as Error;

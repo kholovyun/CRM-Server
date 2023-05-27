@@ -10,5 +10,4 @@ export default interface IChildCreateDto {
     height: number
     weight: number
     patronim?: string
-    isActive: boolean 
 }

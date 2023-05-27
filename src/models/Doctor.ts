@@ -67,7 +67,7 @@ export class Doctor extends Model {
         allowNull: false,
         defaultValue: 0,
         validate: {
-            max: 60,
+            max: 80,
             min: 0
         }
     })

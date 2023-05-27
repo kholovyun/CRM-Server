@@ -23,14 +23,14 @@ import { passwordValidation } from "../../helpers/passwordValidation";
 import { EErrorMessages } from "../../enums/EErrorMessages";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 import { Op } from "sequelize";
-import IParentCreateDto from "../../interfaces/IParent/IParentCreateDto";
 import IChildCreateDto from "../../interfaces/IChild/IChildCreateDto";
-import { ESex } from "../../enums/ESex";
 import { Child } from "../../models/Child";
-import IParentGetDto from "../../interfaces/IParent/IParentGetDto";
 import IChildGetDto from "../../interfaces/IChild/IChildGetDto";
 import { NewbornData } from "../../models/NewbornData";
 import IUserUpdateDto from "../../interfaces/IUser/IUserUpdateDto";
+import IUserCreateParentWithChildDto from "../../interfaces/IUser/IUserCreateParentWithChildDto";
+import { Subscription } from "../../models/Subscription";
+import { EPaymentType } from "../../enums/EPaymentType";
 
 export class UsersDb {
     public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): Promise<IResponse<IUserGetDto[] | IError>> => {
@@ -47,7 +47,8 @@ export class UsersDb {
                         }
                     },
                     order: [
-                        ["surname", "ASC"]
+                        ["surname", "ASC"],
+                        ["name", "ASC"]
                     ],
                     limit: parseInt(limit),
                     offset: parseInt(offset) 
@@ -55,7 +56,8 @@ export class UsersDb {
             } else {
                 foundUsers = await User.findAll({
                     order: [
-                        ["surname", "ASC"]
+                        ["surname", "ASC"],
+                        ["name", "ASC"]
                     ], 
                     limit: parseInt(limit),
                     offset: parseInt(offset) 
@@ -107,7 +109,7 @@ export class UsersDb {
         }
     };
 
-    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
+    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDto | IError>> => {
         try {
             const userExists = await User.findOne({
                 where: {
@@ -118,7 +120,7 @@ export class UsersDb {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const email: IEmailFromTokem = { email: userDto.email };
             if (!emailRegex.test(userDto.email)) {
-                throw new Error(EErrorMessages.WRONG_MAIL_FOTMAT);
+                throw new Error(EErrorMessages.WRONG_MAIL_FORMAT);
             }
 
             const primaryPassword: string = shortid.generate();
@@ -135,23 +137,14 @@ export class UsersDb {
                     experience: 0,
                     placeOfWork: "-",
                     photo: "default-photo.svg",
-                    isActive: true
+                    price: userDto.price ? userDto.price : 5000
                 };
                 await Doctor.create({ ...newDoctor });
             }
             delete user.dataValues.password;
-            const userWithToken: IUserGetDtoWithToken = {
-                ...user.dataValues,
-                token: generateJWT({
-                    id: user.dataValues.id,
-                    email: user.dataValues.email,
-                    role: user.dataValues.role
-                })
-            };
-
             return {
                 status: StatusCodes.CREATED,
-                result: userWithToken
+                result: user
             };
         } catch (err: unknown) {
             const error = err as Error;
@@ -165,14 +158,17 @@ export class UsersDb {
         }
     };
 
-    public registerParent = async (userDto: IUserCreateDto, doctorId: string, userId: string): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
+    public registerParent = async (userDto: IUserCreateParentWithChildDto, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
         try {
-            if(userDto.role !== ERoles.PARENT) throw new Error(EErrorMessages.NO_ACCESS);
+            if (userDto.role !== ERoles.PARENT) throw new Error(EErrorMessages.NO_ACCESS);
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);
-            if(foundUser.role === ERoles.DOCTOR && doctorId !== foundUser.id) 
+            if (foundUser.role === ERoles.DOCTOR && foundUser.id !== userDto.doctorId) 
                 throw new Error(EErrorMessages.NO_ACCESS);
+            const foundDoctor = await Doctor.findByPk(userDto.doctorId);
+            if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
+                
             const userExists = await User.findOne({
                 where: {
                     email: userDto.email
@@ -182,7 +178,7 @@ export class UsersDb {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const email: IEmailFromTokem = { email: userDto.email };
             if (!emailRegex.test(userDto.email)) {
-                throw new Error(EErrorMessages.WRONG_MAIL_FOTMAT);
+                throw new Error(EErrorMessages.WRONG_MAIL_FORMAT);
             }
             const primaryPassword: string = shortid.generate();
             // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
@@ -191,45 +187,41 @@ export class UsersDb {
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
             const url = `http://localhost:5173/reset-password?token=${token}`;
             await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
-            const newParent: IParentCreateDto = {
+            const newParent = {
                 userId: user.id,
-                isActive: true,
-                doctorId: doctorId,
-                registerDate: new Date(Date.now())
+                doctorId: userDto.doctorId
             };
-            const parentUser: IParentGetDto = await Parent.create({ ...newParent });
+            const parentUser = await Parent.create({ ...newParent });
+            const now = new Date();
+            await Subscription.create({
+                userId: user.id,
+                payedBy: userDto.paymentType === EPaymentType.CASH ? userDto.doctorId : parentUser.userId,
+                type: userDto.subscrType,
+                paymentType: userDto.paymentType,
+                endDate: now.setMonth(now.getMonth() + userDto.subscrType),
+                sum: foundDoctor.price*1
+            });
             const child: IChildCreateDto = {
                 parentId: parentUser.id,
-                photo: "https://www.cdc.gov/ncbddd/childdevelopment/positiveparenting/images/toddler-boy-jean-shorts-300px.jpg?_=24427",
-                name: `Dodo  ${Math.floor(Math.random() * 100)})`,
-                surname: "Doe",
-                dateOfBirth: new Date(+(new Date()) - Math.floor(Math.random()*10000000000)),
-                sex: ESex.FEMALE,
-                height: 90,
-                weight: 3,
-                isActive: true,
+                photo: "default_child_photo.svg",
+                name: userDto.child.name,
+                surname: userDto.child.surname,
+                patronim: userDto.child.patronim ? userDto.child.patronim : "",
+                dateOfBirth: userDto.child.dateOfBirth,
+                sex: userDto.child.sex,
+                height: userDto.child.height,
+                weight: userDto.child.weight
             };
             const createdChild: IChildGetDto = await Child.create({...child});
-
             const newbornData = {
-                childId: createdChild.id,
-                dischargedDate: new Date(),
+                childId: createdChild.id
             };
 
             await NewbornData.create({...newbornData});
             delete user.dataValues.password;
-            const userWithToken: IUserGetDtoWithToken = {
-                ...user.dataValues,
-                token: generateJWT({
-                    id: user.dataValues.id,
-                    email: user.dataValues.email,
-                    role: user.dataValues.role
-                })
-            };
-
             return {
                 status: StatusCodes.CREATED,
-                result: userWithToken
+                result: user
             };
         } catch (err: unknown) {
             const error = err as Error;
@@ -284,7 +276,8 @@ export class UsersDb {
             if (foundUser.role !== ERoles.SUPERADMIN && 
                 foundUser.role !== ERoles.ADMIN && foundUser.id !== userId) throw new Error(EErrorMessages.NO_ACCESS);
             
-            if (foundUser.role === ERoles.ADMIN && editingUser.role === ERoles.ADMIN && foundUser.id !== editingUser.id) throw new Error(EErrorMessages.NO_ACCESS);
+            if (foundUser.role === ERoles.ADMIN && editingUser.role === ERoles.ADMIN && foundUser.id !== editingUser.id) 
+                throw new Error(EErrorMessages.NO_ACCESS);
 
             if (foundUser.role === ERoles.ADMIN && editingUser.role === ERoles.SUPERADMIN) throw new Error(EErrorMessages.NO_ACCESS);
 

@@ -1,5 +1,4 @@
 import express, { Request, Response, Router } from "express";
-
 import morganMiddleware from "../config/morganMiddleware";
 import { permission } from "../middleware/permission";
 import { ChildrenDb, childrenDb } from "../repository/subDb/childrenDb";
@@ -9,6 +8,20 @@ import IError from "../interfaces/IError";
 import { ERoles } from "../enums/ERoles";
 import IChildCreateDto from "../interfaces/IChild/IChildCreateDto";
 import IChildGetDto from "../interfaces/IChild/IChildGetDto";
+import multer from "multer";
+import shortid from "shortid";
+import { config } from "../index.config";
+
+const storage = multer.diskStorage({
+    destination(req, file, callback) {
+        callback(null, config.childrenImgs);
+    },
+    filename(req, file, callback) {
+        callback(null, `${shortid()}${file.originalname}`);
+    },
+});
+
+const upload = multer({ storage });
 
 export class childrenController {
     private repository: ChildrenDb;
@@ -16,49 +29,56 @@ export class childrenController {
     constructor() {
         this.router = express.Router();
         this.router.use(morganMiddleware);
-        this.router.get("/children", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildrenByParentId);
-        this.router.post("/", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.createChild);
-        this.router.get("/child", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildById);
-        this.router.patch("/edit", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.editChild);
+        this.router.get("/parent/:id", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildrenByParentId);
+        this.router.post("/", [permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), upload.single("photo")], this.createChild);
+        this.router.get("/:id", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildById);
+        this.router.patch("/:id", [permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), upload.single("photo")], this.editChild);
         this.repository = childrenDb;
     }
+
     public getRouter = (): Router => {
         return this.router;
     };
+    
     private getChildrenByParentId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string };
+        const user = req.dataFromToken as { id: string; email: string, role: string };
         const response: IResponse<IChildGetDto[] | IError> = await this.repository.getChildrenByParentId(
-            expressReq.body.parentId, user.id
+            req.params.id, user.id
         );
         res.status(response.status).send(response);
     };
 
     private getChildById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string };
+        const user = req.dataFromToken as { id: string; email: string, role: string };
         const response: IResponse<IChildGetDto | IError> = await this.repository.getChildById(
-            expressReq.body.childId, user.id
+            req.params.id, user.id
         );
         res.status(response.status).send(response);
     };
 
     private createChild = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string };
-        
+        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const child = req.body;
+        child.photo = req.file ? req.file.filename : "";
         const response: IResponse<IChildCreateDto | IError> = await this.repository.createChild(
-            expressReq.body, user.id
+            child, user.id
         );
         res.status(response.status).send(response);
     };
 
     private editChild = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string };
+        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const child = req.body;
+        if (req.file && req.file.filename) {
+            child.photo = req.file.filename;
+        }
         const response: IResponse<IChildGetDto | IError> = await this.repository.editChildById(
-            expressReq.body.childId,
-            expressReq.body.child,
+            req.params.id,
+            child,
             user.id
         );
         res.status(response.status).send(response);
