@@ -31,7 +31,7 @@ export class DiplomasControllers {
         this.router = express.Router();
         this.router.get("/:id", permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.PARENT, ERoles.SUPERADMIN]), this.getDiplomasByDoctor);
         this.router.post("/", [permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.SUPERADMIN]), upload.single("url")], this.createDiploma);
-        this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.SUPERADMIN]), this.deleteDiploma);
+        this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.SUPERADMIN]), this.deleteDiploma);
     }
 
     public getRouter = (): Router => {
