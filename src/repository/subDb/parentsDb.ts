@@ -5,7 +5,6 @@ import { Parent } from "../../models/Parent";
 import { User } from "../../models/User";
 import { Subscription } from "../../models/Subscription";
 import { ERoles } from "../../enums/ERoles";
-import IParentCreateDto from "../../interfaces/IParent/IParentCreateDto";
 import IError from "../../interfaces/IError";
 import { EErrorMessages } from "../../enums/EErrorMessages";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
@@ -24,7 +23,8 @@ export class ParentsDb {
                     attributes: ["name", "patronim", "surname", "email", "phone", "isBlocked"]
                 },
                 order: [
-                    [{ model: User, as: "users" }, "surname", "ASC"]
+                    [{ model: User, as: "users" }, "surname", "ASC"],
+                    [{ model: User, as: "users" }, "name", "ASC"]
                 ],
                 limit: parseInt(limit),
                 offset: parseInt(offset)
@@ -90,38 +90,6 @@ export class ParentsDb {
         }
     };
 
-    public createParent = async (userId: string, parent: IParentCreateDto): Promise<IResponse<IParentGetDto | IError>> => {
-        try {
-            const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.isBlocked)
-                throw new Error(EErrorMessages.NO_ACCESS);
-            const exsistedParent = await Parent.findOne({
-                where: {
-                    userId: parent.userId
-                }
-            });
-            if (exsistedParent) throw new Error(EErrorMessages.PARENT_TABLE_ALREADY_EXISTS);
-            const newParent: IParentGetDto = await Parent.create({ ...parent });
-            await Subscription.create({
-                userId: newParent.userId
-            });
-            return {
-                status: StatusCodes.CREATED,
-                result: newParent
-            };
-        } catch (err: unknown) {
-            const error = err as Error;
-            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
-            return {
-                status,
-                result: {
-                    status: "error",
-                    message: error.message
-                }
-            };
-        }
-    };
-
     public activateParent = async (userId: string, parentId: string): Promise<IResponse<IParentGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
@@ -134,7 +102,9 @@ export class ParentsDb {
                 { 
                     where: {id: foundParent.id },
                     returning: true 
-                }).then((result) => { return result[1][0]; });
+                }).then((result) => { 
+                return result[1][0];
+            });
             return {
                 status: StatusCodes.OK,
                 result: updatedParent
