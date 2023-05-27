@@ -102,7 +102,7 @@ export class DoctorsDb {
             });
             if (exsistedDoctor) throw new Error(EErrorMessages.DOCTOR_TABLE_ALREADY_EXISTS);
             if (doctor.photo === "") {
-                doctor.photo = "default_doctor_photo.jpg";
+                doctor.photo = "default-photo.svg";
             }
             const newDoctor: IDoctorGetDto = await Doctor.create({ ...doctor });
             return {
@@ -140,7 +140,9 @@ export class DoctorsDb {
                 {
                     where: { id: foundDoctor.id },
                     returning: true
-                }).then((result) => { return result[1][0]; });
+                }).then((result) => { 
+                return result[1][0];
+            });
             return {
                 status: StatusCodes.OK,
                 result: updatedDoctor
