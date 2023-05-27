@@ -3,7 +3,6 @@ import IResponse from "../interfaces/IResponse";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
-import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import { config } from "../index.config";
 import multer from "multer";
 import shortid from "shortid";
@@ -57,14 +56,18 @@ export class RecomendationsControllers {
 
     private deleteRecomendation = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as IUserGetDto;
+        const user = req.dataFromToken as { id: string; email: string, role: string };
         const response: IResponse<string | IError> = await this.repository.deleteRecomendation(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
+
     private editRecomendation = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as IUserGetDto;
+        const user = req.dataFromToken as { id: string; email: string, role: string };
         const upgradedRecomendation = req.body;
+        if (req.file && req.file.filename) {
+            upgradedRecomendation.url = req.file.filename;
+        }
         const response: IResponse<IRecomendationCreateDto | IError> = await this.repository.editRecomendation(user.id, req.params.id , upgradedRecomendation);
         res.status(response.status).send(response.result);
     };
