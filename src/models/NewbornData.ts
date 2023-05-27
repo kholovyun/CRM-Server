@@ -28,7 +28,8 @@ export class NewbornData extends Model {
     @Column({
         field: "discharged_date",
         type: DataType.DATEONLY,
-        allowNull: false
+        allowNull: false,
+        defaultValue: DataType.NOW
     })
         dischargedDate!: Date;
 
