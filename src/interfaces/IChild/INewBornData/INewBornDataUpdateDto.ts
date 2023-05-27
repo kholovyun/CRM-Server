@@ -1,4 +1,4 @@
-export default interface INewBornDataCreateDto {
+export default interface INewBornDataUpdateDto {
     childId: string;
     dischargedDate: Date;
     pregnancyN: number;
