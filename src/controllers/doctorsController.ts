@@ -31,7 +31,6 @@ export class DoctorsController {
         this.router.use(morganMiddleware);
         this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getDoctors);
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getDoctorById);
-        this.router.post("/", [permission([ERoles.ADMIN, ERoles.SUPERADMIN]), upload.single("photo")], this.createDoctor);
         this.router.put("/:id", [permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR]), upload.single("photo")], this.editDoctor);
         this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.activateDoctor);
         this.repository = doctorsDb;
@@ -57,15 +56,6 @@ export class DoctorsController {
             user.id, req.params.id
         );
         res.status(response.status).send(response.result);
-    };
-
-    private createDoctor = async (expressReq: Request, res: Response): Promise<void> => {
-        const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
-        const doctor = req.body;
-        doctor.photo = req.file ? req.file.filename : "";
-        const response: IResponse<IDoctorGetDto | IError> = await this.repository.createDoctor(user.id, doctor);
-        res.status(response.status).send(response);
     };
 
     private editDoctor = async (expressReq: Request, res: Response): Promise<void> => {

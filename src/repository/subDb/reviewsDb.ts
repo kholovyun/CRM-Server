@@ -6,7 +6,6 @@ import { Review } from "../../models/Review";
 import { ERoles } from "../../enums/ERoles";
 import IReviewCreateDto from "../../interfaces/IReview/IReviewCreateDto";
 
-
 export class ReviewsDb {
     public getReviews = async (userId: string) => {
         try {

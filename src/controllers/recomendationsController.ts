@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-export class RecomendationsControllers {
+export class RecomendationsController {
     private repository: RecomendationsDb;
     private router: Router;
 

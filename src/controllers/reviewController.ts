@@ -6,10 +6,9 @@ import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
 import IResponse from "../interfaces/IResponse";
 import IReviewGetDto from "../interfaces/IReview/IReviewGetDto";
 import IError from "../interfaces/IError";
-import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import IReviewCreateDto from "../interfaces/IReview/IReviewCreateDto";
 
-export class ReviewControllers {
+export class ReviewController {
     private repository: ReviewsDb;
     private router: Router;
 
@@ -18,7 +17,7 @@ export class ReviewControllers {
         this.router = express.Router();
         this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getReviews);
         this.router.post("/", permission([ERoles.DOCTOR, ERoles.PARENT]), this.createReview);
-        this.router.delete("/", permission([ERoles.SUPERADMIN]), this.deleteReview);
+        this.router.delete("/:id", permission([ERoles.SUPERADMIN]), this.deleteReview);
     }
 
     public getRouter = (): Router => {
@@ -27,21 +26,21 @@ export class ReviewControllers {
 
     private getReviews = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as IUserGetDto;
+        const user = req.dataFromToken as { id: string; email: string, role: string };
         const response: IResponse<IReviewGetDto[] | IError> = await this.repository.getReviews(user.id);
         res.status(response.status).send(response.result);
     };
 
     private createReview = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as IUserGetDto;
+        const user = req.dataFromToken as { id: string; email: string, role: string };
         const response: IResponse<IReviewCreateDto | IError> = await this.repository.createReview(user.id, req.body);
         res.status(response.status).send(response.result);
     };
 
     private deleteReview = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as IUserGetDto;
+        const user = req.dataFromToken as { id: string; email: string, role: string };
         const response: IResponse<string | IError> = await this.repository.deleteReview(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };

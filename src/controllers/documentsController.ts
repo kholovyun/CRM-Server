@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-export class DocumentsControllers {
+export class DocumentsController {
     private repository: DocumentsDb;
     private router: Router;
 
@@ -60,6 +60,4 @@ export class DocumentsControllers {
         const response: IResponse<IDocumentGetDto[] | IError> = await this.repository.getDocumentsByChildId(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
-
-
 }
