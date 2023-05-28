@@ -20,8 +20,10 @@ export enum EErrorMessages {
     DOCTOR_DIPLOMA_NOT_FOUND = "Врач, чьи дипломы Вы запрашиваете не найден.",
     IMAGE_REQUIRED = "Изображение обязательно.",
     NO_RECOMENDATIONS_FOUND = "Рекомендации не найдены.",
-    WRONG_PASS_OR_EMAIL = "Неверно указан емайл или пароль",
-    CHILD_NOT_FOUND = "Ребенок не найден",
-    NO_REVIEW_FOUND = "Отзыв не найден",
-    DOCUMENT_NOT_FOUND = "Документ не найден"
+    WRONG_PASS_OR_EMAIL = "Неверно указан емайл или пароль.",
+    CHILD_NOT_FOUND = "Ребенок не найден.",
+    NO_REVIEW_FOUND = "Отзыв не найден.",
+    DOCUMENT_NOT_FOUND = "Документ не найден.",
+    VACCINATION_NOT_FOUND = "Запись о вакцинации не найдена.",
+    ALLERGY_NOT_FOUND = "Запись об аллергии не найдена."
 }
