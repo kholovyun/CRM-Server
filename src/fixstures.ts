@@ -14,6 +14,8 @@ import { ESex } from "./enums/ESex";
 import { Document } from "./models/Document";
 import { PostgresDB } from "./repository/postgresDb";
 import { EPaymentType } from "./enums/EPaymentType";
+import { Allergy } from "./models/Allergy";
+import { Vaccination } from "./models/Vaccination";
 
 
 const db = PostgresDB;
@@ -254,6 +256,47 @@ const childrenFixture = {
     },
 };
 
+const allergyFixture = {
+    all1: {
+        id: uuid(),
+        childId: childrenFixture.child1.id,
+        type: "пищевая",
+        symptom: "кожная сыпь (крапивница)",
+        factors: "приём внутрь чаёв и отваров с мелиссой лимонной"
+    }
+};
+
+const vaccinationFixture = {
+    vac1: {
+        id: uuid(),
+        childId: childrenFixture.child1.id,
+        infection: "Туберкулёз",
+        vaccine: "БЦЖ",
+        age: "1 день",
+        date: childrenFixture.child1.dateOfBirth,
+        dose: "0,025",
+        serial: "1515",
+        manufacturer: "KZ",
+        reaction: "",
+        conterindication: "",
+        notes: ""
+    },
+    vac2: {
+        id: uuid(),
+        childId: childrenFixture.child2.id,
+        infection: "Туберкулёз",
+        vaccine: "БЦЖ",
+        age: "1 день",
+        date: childrenFixture.child2.dateOfBirth,
+        dose: "",
+        serial: "",
+        manufacturer: "",
+        reaction: "",
+        conterindication: "Отказ родителя",
+        notes: ""
+    }
+};
+
 const documentsFixture = {
     document1: {
         id: uuid(),
@@ -269,7 +312,6 @@ const documentsFixture = {
     },
     
 };
-
 
 const recomendationsFix = {
     reco1 : {
@@ -294,9 +336,10 @@ const recomendationsFix = {
     },
 };
 
-
 export const createUserFixtures = async (): Promise<void> => {
     try {
+        await Allergy.destroy({where: {}});
+        await Vaccination.destroy({where: {}});
         await NewbornData.destroy({where: {}});
         await Child.destroy({where: {}});
         await Recommendation.destroy({ where: {} });
@@ -379,6 +422,15 @@ export const createUserFixtures = async (): Promise<void> => {
         await Child.bulkCreate([
             {...childrenFixture.child1},
             {...childrenFixture.child2}
+        ]);
+
+        await Allergy.bulkCreate([
+            {...allergyFixture.all1}
+        ]);
+
+        await Vaccination.bulkCreate([
+            {...vaccinationFixture.vac1},
+            {...vaccinationFixture.vac2}
         ]);
 
         await Document.bulkCreate([

@@ -7,11 +7,13 @@ import { postgresDB } from "./repository/postgresDb";
 import { UsersController } from "./controllers/usersController";
 import { DoctorsController } from "./controllers/doctorsController";
 import { ParentsController } from "./controllers/parentsController";
-import { DiplomasControllers } from "./controllers/diplomasController";
-import { RecomendationsControllers } from "./controllers/recomendationsController";
+import { DiplomasController } from "./controllers/diplomasController";
+import { RecomendationsController } from "./controllers/recomendationsController";
 import { childrenController } from "./controllers/childrenController";
-import { ReviewControllers } from "./controllers/reviewController";
-import { DocumentsControllers } from "./controllers/documentsController";
+import { ReviewController } from "./controllers/reviewController";
+import { DocumentsController } from "./controllers/documentsController";
+import { AllergiesController } from "./controllers/allergiesController";
+import { VaccinationsController } from "./controllers/vaccinationsController";
 
 dotenv.config();
 
@@ -36,11 +38,13 @@ class App {
             this.app.use("/users", new UsersController().getRouter());
             this.app.use("/doctors", new DoctorsController().getRouter());
             this.app.use("/parents", new ParentsController().getRouter());
-            this.app.use("/diplomas", new DiplomasControllers().getRouter());
-            this.app.use("/recomendations", new RecomendationsControllers().getRouter());
+            this.app.use("/diplomas", new DiplomasController().getRouter());
+            this.app.use("/recomendations", new RecomendationsController().getRouter());
             this.app.use("/children", new childrenController().getRouter());
-            this.app.use("/reviews", new ReviewControllers().getRouter());
-            this.app.use("/documents", new DocumentsControllers().getRouter());
+            this.app.use("/reviews", new ReviewController().getRouter());
+            this.app.use("/documents", new DocumentsController().getRouter());
+            this.app.use("/allergies", new AllergiesController().getRouter());
+            this.app.use("/vaccinations", new VaccinationsController().getRouter());
         } catch (err: unknown) {
             const error = err as Error;
             Logger.error(`Server error: ${error.message}`);

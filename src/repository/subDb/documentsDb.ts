@@ -51,6 +51,7 @@ export class DocumentsDb {
             };
         }
     };
+    
     public deleteDocument = async (userId: string, documentId: string): Promise<IResponse<string | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);

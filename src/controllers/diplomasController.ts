@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-export class DiplomasControllers {
+export class DiplomasController {
     private repository: DiplomasDb;
     private router: Router;
 

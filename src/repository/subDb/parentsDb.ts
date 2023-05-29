@@ -121,7 +121,6 @@ export class ParentsDb {
             };
         }
     };
-
 }
 
 export const parentsDb = new ParentsDb();

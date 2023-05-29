@@ -17,7 +17,6 @@ export class ParentsController {
         this.router.use(morganMiddleware);
         this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getParents);
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getParentById);
-        this.router.post("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR]), this.createParent);
         this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.activateParent);
         this.repository = parentsDb;
     }
@@ -43,13 +42,6 @@ export class ParentsController {
             req.params.id
         );
         res.status(response.status).send(response.result);
-    };
-
-    private createParent = async (expressReq: Request, res: Response): Promise<void> => {
-        const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string };
-        const response: IResponse<IParentGetDto | IError> = await this.repository.createParent(user.id, req.body);
-        res.status(response.status).send(response);
     };
 
     private activateParent = async (expressReq: Request, res: Response): Promise<void> => {

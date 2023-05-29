@@ -4,13 +4,11 @@ import IResponse from "../../interfaces/IResponse";
 import { Doctor } from "../../models/Doctor";
 import { User } from "../../models/User";
 import { ERoles } from "../../enums/ERoles";
-import IDoctorCreateDto from "../../interfaces/IDoctor/IDoctorCreateDto";
 import IDoctorUpdateDto from "../../interfaces/IDoctor/IDoctorUpdateDto";
 import IError from "../../interfaces/IError";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 import { EErrorMessages } from "../../enums/EErrorMessages";
 import { Parent } from "../../models/Parent";
-
 
 export class DoctorsDb {
     public getDoctors = async (userId: string, offset: string, limit: string): Promise<IResponse<IDoctorGetDto[] | IError>> => {
@@ -80,38 +78,6 @@ export class DoctorsDb {
         } catch (err: unknown) {
             const error = err as Error;
             const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
-            return {
-                status,
-                result: {
-                    status: "error",
-                    message: error.message
-                }
-            };
-        }
-    };
-
-    public createDoctor = async (userId: string, doctor: IDoctorCreateDto): Promise<IResponse<IDoctorGetDto | IError>> => {
-        try {
-            const foundUser = await User.findByPk(userId);
-            if (!foundUser || foundUser.isBlocked)
-                throw new Error(EErrorMessages.NO_ACCESS);
-            const exsistedDoctor = await Doctor.findOne({
-                where: {
-                    userId: doctor.userId
-                }
-            });
-            if (exsistedDoctor) throw new Error(EErrorMessages.DOCTOR_TABLE_ALREADY_EXISTS);
-            if (doctor.photo === "") {
-                doctor.photo = "default-photo.svg";
-            }
-            const newDoctor: IDoctorGetDto = await Doctor.create({ ...doctor });
-            return {
-                status: StatusCodes.CREATED,
-                result: newDoctor
-            };
-        } catch (err: unknown) {
-            const error = err as Error;
-            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
             return {
                 status,
                 result: {
