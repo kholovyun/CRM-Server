@@ -195,7 +195,7 @@ export class UsersDb {
             const now = new Date();
             await Subscription.create({
                 userId: user.id,
-                payedBy: userDto.paymentType === EPaymentType.CASH ? userDto.doctorId : parentUser.userId,
+                payedBy: userDto.paymentType === EPaymentType.CASH ? foundDoctor.userId : parentUser.userId,
                 type: userDto.subscrType,
                 paymentType: userDto.paymentType,
                 endDate: now.setMonth(now.getMonth() + userDto.subscrType),
