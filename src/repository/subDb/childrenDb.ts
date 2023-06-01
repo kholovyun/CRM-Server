@@ -11,8 +11,6 @@ import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 import { Parent } from "../../models/Parent";
 import { Doctor } from "../../models/Doctor";
 import { NewbornData } from "../../models/NewbornData";
-import fs from "fs";
-import path from "path";
 import { deleteFile } from "../../helpers/deleteFile";
 
 export class ChildrenDb {
@@ -132,7 +130,7 @@ export class ChildrenDb {
             };
         } catch (err: unknown) {
             if (child.photo) {
-                deleteFile(child.photo);
+                deleteFile(child.photo, "childrenImgs");
             }
             const error = err as Error;
             const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;

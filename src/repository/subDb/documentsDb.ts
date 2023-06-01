@@ -11,6 +11,7 @@ import { ERoles } from "../../enums/ERoles";
 import { Doctor } from "../../models/Doctor";
 import { Parent } from "../../models/Parent";
 import { Child } from "../../models/Child";
+import { deleteFile } from "../../helpers/deleteFile";
 
 export class DocumentsDb {
     public createDocument = async (userId: string, document: IDocumentCreateDto): Promise<IResponse<IDocumentGetDto | IError>> => {
@@ -19,6 +20,8 @@ export class DocumentsDb {
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
 
             const foundChild = await Child.findByPk(document.childId);
+
+            if (!foundChild) throw new Error(EErrorMessages.CHILD_NOT_FOUND);
 
             if (foundUser.role === ERoles.DOCTOR) {
                 const foundDoctor = await Doctor.findOne({where: {userId}});
@@ -41,6 +44,9 @@ export class DocumentsDb {
 
         } catch (err: unknown) {
             const error = err as Error;
+            if (document.url) {
+                deleteFile(document.url, "childrenDocuments");
+            }
             const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
             return {
                 status,
