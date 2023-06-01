@@ -8,7 +8,9 @@ import { ERoles } from "../../enums/ERoles";
 import IError from "../../interfaces/IError";
 import { EErrorMessages } from "../../enums/EErrorMessages";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
-
+import IUser from "../../interfaces/IUser/IUser";
+import { Doctor } from "../../models/Doctor";
+import { Child } from "../../models/Child";
 
 export class ParentsDb {
     public getParents = async (userId: string, offset: string, limit: string): Promise<IResponse<IParentGetDto[] | IError>> => {
@@ -112,6 +114,51 @@ export class ParentsDb {
         } catch (err: unknown) {
             const error = err as Error;
             const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
+        }
+    };
+
+    public getParentByUserId = async (userId: string, id: string): Promise<IResponse<Parent | IError>> => {
+        try {
+            const foundUser: IUser | null = await User.findByPk(userId);
+            console.log(`HELLLO userId: ${userId} this string id: ${id}`);
+            if (!foundUser) throw new Error(EErrorMessages.NOT_AUTHORIZED);
+            const parrent: Parent | null = await Parent.findOne({
+                where: {userId: id},
+                include: [
+                    {
+                        model: User,
+                        attributes: { exclude: ["password"] },
+                    },
+                    {
+                        model: Doctor,
+                        include: [
+                            {
+                                model: User,
+                                attributes: { exclude: ["password"] },
+                            },
+                        ],
+                    },
+                    {
+                        model: Child,
+                    },
+                ],
+            
+            });
+            if (!parrent) throw new Error(EErrorMessages.PARENT_NOT_FOUND);
+            return {
+                status: StatusCodes.OK,
+                result: parrent
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
             return {
                 status,
                 result: {
