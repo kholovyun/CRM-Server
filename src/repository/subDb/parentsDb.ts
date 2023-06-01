@@ -127,7 +127,6 @@ export class ParentsDb {
     public getParentByUserId = async (userId: string, id: string): Promise<IResponse<Parent | IError>> => {
         try {
             const foundUser: IUser | null = await User.findByPk(userId);
-            console.log(`HELLLO userId: ${userId} this string id: ${id}`);
             if (!foundUser) throw new Error(EErrorMessages.NOT_AUTHORIZED);
             const parrent: Parent | null = await Parent.findOne({
                 where: {userId: id},
@@ -135,6 +134,14 @@ export class ParentsDb {
                     {
                         model: User,
                         attributes: { exclude: ["password"] },
+                        include: [
+                            {
+                                model: Subscription,
+                                as: "subscriptions",
+                                order: [["endDate", "DESC"]],
+                                limit: 1
+                            }
+                        ]
                     },
                     {
                         model: Doctor,
