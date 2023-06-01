@@ -7,6 +7,7 @@ import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import { ParentsDb, parentsDb } from "../repository/subDb/parentsDb";
 import IError from "../interfaces/IError";
+import { Parent } from "../models/Parent";
 
 export class ParentsController {
     private repository: ParentsDb;
@@ -18,6 +19,7 @@ export class ParentsController {
         this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getParents);
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getParentById);
         this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.activateParent);
+        this.router.post("/alldata/", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getParentByUserId);
         this.repository = parentsDb;
     }
 
@@ -48,6 +50,16 @@ export class ParentsController {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as {id: string, email: string};
         const response: IResponse<IParentGetDto | IError> = await this.repository.activateParent(user.id, req.params.id);
+        res.status(response.status).send(response.result);
+    };
+
+    private getParentByUserId = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = await expressReq as IRequestWithTokenData;
+        const user = await req.dataFromToken as { id: string; email: string };
+        const response: IResponse<Parent | IError> = await this.repository.getParentByUserId(
+            user.id,
+            req.body.id
+        );
         res.status(response.status).send(response.result);
     };
 }

@@ -150,6 +150,7 @@ export class RecomendationsDb {
             };
         }
     };
+
 }
 
 export const recomendationDb = new RecomendationsDb();
