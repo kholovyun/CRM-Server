@@ -48,6 +48,44 @@ export class ParentsDb {
         }
     };
 
+    public getParentsByDoctorId = async (userId: string, offset: string, limit: string, doctorId: string): Promise<IResponse<IParentGetDto[] | IError>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.isBlocked)
+                throw new Error(EErrorMessages.NO_ACCESS);
+            const foundDoctor = await Doctor.findByPk(doctorId);
+            if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
+            const foundParents = await Parent.findAll({
+                where: { doctorId },
+                include: {
+                    model: User,
+                    as: "users",
+                    attributes: ["name", "patronim", "surname", "email", "phone", "isBlocked"]
+                },
+                order: [
+                    [{ model: User, as: "users" }, "surname", "ASC"],
+                    [{ model: User, as: "users" }, "name", "ASC"]
+                ],
+                limit: parseInt(limit),
+                offset: parseInt(offset)
+            });
+            return {
+                status: StatusCodes.OK,
+                result: foundParents
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
+        }
+    };
+
     public getParentById = async (userId: string, id: string): Promise<IResponse<IParentGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
