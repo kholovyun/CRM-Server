@@ -55,7 +55,8 @@ export class ChildrenDb {
         }
     };
 
-    public getChildrenByDoctorId = async (userId: string, offset: string, limit: string, doctorId: string): Promise<IResponse<IChildGetDto[] | IError>> => {
+    public getChildrenByDoctorId = async (userId: string, offset: string, limit: string, doctorId: string): 
+        Promise<IResponse<{rows: IChildGetDto[], count: number} | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
@@ -63,7 +64,7 @@ export class ChildrenDb {
             const foundDoctor = await Doctor.findByPk(doctorId);
             if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
             
-            const foundChildren = await Child.findAll({
+            const foundChildren = await Child.findAndCountAll({
                 include: {
                     model: Parent,
                     as: "parents",
