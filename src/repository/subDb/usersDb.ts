@@ -31,7 +31,6 @@ import IUserUpdateDto from "../../interfaces/IUser/IUserUpdateDto";
 import IUserCreateParentWithChildDto from "../../interfaces/IUser/IUserCreateParentWithChildDto";
 import { Subscription } from "../../models/Subscription";
 import { EPaymentType } from "../../enums/EPaymentType";
-import Logger from "../../lib/logger";
 
 export class UsersDb {
     public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): 
