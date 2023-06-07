@@ -20,7 +20,7 @@ export class Question extends Model {
         parents!: Parent;
     
     @BelongsTo(() => Child)
-        choldren!: Child;
+        children!: Child;
 
     @PrimaryKey
     @Column({
@@ -57,7 +57,7 @@ export class Question extends Model {
         field: "is_closed",
         type: DataType.BOOLEAN,
         allowNull: false,
-        defaultValue: true
+        defaultValue: false
     })
         isClosed!: boolean;
     
