@@ -6,6 +6,7 @@ export enum EErrorMessages {
     PARENT_TABLE_ALREADY_EXISTS = "Таблица «Родитель» для этого пользователя уже создана.",
     USER_NOT_FOUND = "Пользователь не найден.",
     DOCTOR_NOT_FOUND = "Врач не найден.",
+    QUESTION_NOT_FOUND = "Вопрос не найден",
     DOCTOR_TABLE_ALREADY_EXISTS = "Таблица врач для этого пользователя уже создана.",
     WRONG_PASSWORD = "Пароль указан не верно!",
     NO_PASSWORD = "Пароль не указан.",
