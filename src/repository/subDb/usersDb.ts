@@ -31,6 +31,7 @@ import IUserUpdateDto from "../../interfaces/IUser/IUserUpdateDto";
 import IUserCreateParentWithChildDto from "../../interfaces/IUser/IUserCreateParentWithChildDto";
 import { Subscription } from "../../models/Subscription";
 import { EPaymentType } from "../../enums/EPaymentType";
+import Logger from "../../lib/logger";
 
 export class UsersDb {
     public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): 
@@ -164,11 +165,17 @@ export class UsersDb {
 
     public registerParent = async (userDto: IUserCreateParentWithChildDto, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
         try {
-            if (userDto.role !== ERoles.PARENT) throw new Error(EErrorMessages.NO_ACCESS);
+            if (userDto.role !== ERoles.PARENT) 
+                throw new Error(EErrorMessages.NO_ACCESS);
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);
-            if (foundUser.role === ERoles.DOCTOR && foundUser.id !== userDto.doctorId) 
+            const doctor = await Doctor.findOne({
+                where: {
+                    userId: userId
+                }
+            }); 
+            if (doctor && foundUser.role === ERoles.DOCTOR && doctor.id !== userDto.doctorId)
                 throw new Error(EErrorMessages.NO_ACCESS);
             const foundDoctor = await Doctor.findByPk(userDto.doctorId);
             if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
