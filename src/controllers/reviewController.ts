@@ -27,7 +27,9 @@ export class ReviewController {
     private getReviews = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IReviewGetDto[] | IError> = await this.repository.getReviews(user.id);
+        const response: IResponse<{rows: IReviewGetDto[], count: number} | IError> = await this.repository.getReviews(
+            user.id, String(req.query.offset), String(req.query.limit)
+        );
         res.status(response.status).send(response.result);
     };
 

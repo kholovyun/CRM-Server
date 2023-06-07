@@ -40,7 +40,7 @@ export class ParentsController {
     private getParentsByDoctorId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IParentGetDto[] | IError> = await this.repository.getParentsByDoctorId(
+        const response: IResponse<{rows: IParentGetDto[], count: number} | IError> = await this.repository.getParentsByDoctorId(
             user.id, String(req.query.offset), String(req.query.limit), req.params.id
         );
         res.status(response.status).send(response.result);

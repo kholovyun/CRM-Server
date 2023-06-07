@@ -53,7 +53,7 @@ export class childrenController {
     private getChildrenByDoctorId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IChildGetDto[] | IError> = await this.repository.getChildrenByDoctorId(
+        const response: IResponse<{rows: IChildGetDto[], count: number} | IError> = await this.repository.getChildrenByDoctorId(
             user.id, String(req.query.offset), String(req.query.limit), req.params.id
         );
         res.status(response.status).send(response.result);
