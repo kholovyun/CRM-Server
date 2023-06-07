@@ -12,7 +12,6 @@ import { Child } from "../../models/Child";
 import { Parent } from "../../models/Parent";
 import Logger from "../../lib/logger";
 
-
 export class VisitsDb {
     public createVisit = async (userId: string, visit: IVisitCreateDto): Promise<IResponse<IVisitGetDto | IError>> => {
         try {
@@ -20,7 +19,7 @@ export class VisitsDb {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
 
-            const foundDoctor = await Doctor.findOne({where: {userId: userId}});
+            const foundDoctor = await Doctor.findOne({where: {userId: foundUser.id}});
             if (!foundDoctor) throw new Error(EErrorMessages.NO_ACCESS);
 
             const foundChild = await Child.findByPk(visit.childId);
@@ -39,6 +38,45 @@ export class VisitsDb {
         } catch (err: unknown) {
             const error = err as Error;
             const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
+        }
+    };
+
+    public deleteVisit = async (userId: string, visitId: string): Promise<IResponse<string | IError>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
+            
+            const foundDoctor = await Doctor.findOne({where: {userId: foundUser.id}});
+            if (!foundDoctor) throw new Error(EErrorMessages.NO_ACCESS);
+
+            const visit = await Visit.findByPk(visitId, {include: {
+                model: Child,
+                as: "children",
+                attributes: ["parentId"]     
+            }});
+            if (!visit) throw new Error(EErrorMessages.VISIT_NOT_FOUND);
+
+            const foundParent = await Parent.findOne({where: {doctorId: foundDoctor.id}});
+            if (!foundParent) throw new Error(EErrorMessages.NO_ACCESS);
+            
+            if (visit.children.parentId !== foundParent.id ) throw new Error(EErrorMessages.NO_ACCESS);
+            
+            await Visit.destroy({where: {id: visitId}});
+            
+            return {
+                status: StatusCodes.OK,
+                result: "Посещение удалено!"
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
             return {
                 status,
                 result: {

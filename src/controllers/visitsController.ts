@@ -15,6 +15,7 @@ export class VisitsController {
         this.repository = visitDb;
         this.router = express.Router();
         this.router.post("/", permission([ERoles.DOCTOR]), this.createVisit);
+        this.router.delete("/:id", permission([ERoles.DOCTOR]), this.deleteVisit);
     }
 
     public getRouter = (): Router => {
@@ -26,6 +27,13 @@ export class VisitsController {
         const user = req.dataFromToken as { id: string; email: string, role: string };
         const visit = req.body;
         const response: IResponse<IVisitGetDto | IError> = await this.repository.createVisit(user.id, visit);
+        res.status(response.status).send(response.result);
+    };
+
+    private deleteVisit = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const response: IResponse<string | IError> = await this.repository.deleteVisit(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 }
