@@ -30,7 +30,7 @@ export class ParentsController {
 
     private getParents = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IParentGetDto[] | IError> = await this.repository.getParents(
             user.id, String(req.query.offset), String(req.query.limit)
         );
@@ -39,7 +39,7 @@ export class ParentsController {
 
     private getParentsByDoctorId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<{rows: IParentGetDto[], count: number} | IError> = await this.repository.getParentsByDoctorId(
             user.id, String(req.query.offset), String(req.query.limit), req.params.id
         );
@@ -48,7 +48,7 @@ export class ParentsController {
 
     private getParentById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IParentGetDto | IError> = await this.repository.getParentById(
             user.id,
             req.params.id
@@ -58,14 +58,14 @@ export class ParentsController {
 
     private activateParent = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IParentGetDto | IError> = await this.repository.activateParent(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private getParentByUserId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<Parent | IError> = await this.repository.getParentByUserId(
             user.id,
             req.body.id
