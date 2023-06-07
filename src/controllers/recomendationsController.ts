@@ -47,7 +47,7 @@ export class RecomendationsController {
 
     private createRecomendation = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const recomendation = req.body;
         recomendation.url = req.file ? req.file.filename : "";
         const response: IResponse<IRecomendationCreateDto | IError> = await this.repository.createRecomendation(user.id, recomendation);
@@ -56,14 +56,14 @@ export class RecomendationsController {
 
     private deleteRecomendation = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<string | IError> = await this.repository.deleteRecomendation(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private editRecomendation = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const upgradedRecomendation = req.body;
         if (req.file && req.file.filename) {
             upgradedRecomendation.url = req.file.filename;

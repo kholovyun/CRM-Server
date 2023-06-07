@@ -42,8 +42,8 @@ export class DoctorsController {
 
     private getDoctors = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IDoctorGetDto[] | IError> = await this.repository.getDoctors(
+        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const response: IResponse<{rows: IDoctorGetDto[], count: number} | IError> = await this.repository.getDoctors(
             user.id, String(req.query.offset), String(req.query.limit)
         );
         res.status(response.status).send(response.result);
@@ -51,7 +51,7 @@ export class DoctorsController {
 
     private getDoctorById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IDoctorGetDto | IError> = await this.repository.getDoctorByUserId(
             user.id, req.params.id
         );
@@ -60,7 +60,7 @@ export class DoctorsController {
 
     private editDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const doctor = req.body;
         if (req.file && req.file.filename) {
             doctor.photo = req.file.filename;
@@ -71,7 +71,7 @@ export class DoctorsController {
 
     private activateDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IDoctorGetDto | IError> = await this.repository.activateDoctor(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };

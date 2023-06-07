@@ -33,14 +33,18 @@ import { Subscription } from "../../models/Subscription";
 import { EPaymentType } from "../../enums/EPaymentType";
 
 export class UsersDb {
-    public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): Promise<IResponse<IUserGetDto[] | IError>> => {
+    public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): 
+        Promise<IResponse<{rows: IUserGetDto[], count: number} | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);
-            let foundUsers: IUserGetDto[] = [];
+            let foundUsers: {rows: IUserGetDto[], count: number} = {
+                rows: [],
+                count: 0
+            };
             if (filter && filter === "admins") {
-                foundUsers = await User.findAll({ 
+                foundUsers = await User.findAndCountAll({ 
                     where: {
                         role: {
                             [Op.or]: [ERoles.ADMIN, ERoles.SUPERADMIN]
@@ -54,7 +58,7 @@ export class UsersDb {
                     offset: parseInt(offset) 
                 });
             } else {
-                foundUsers = await User.findAll({
+                foundUsers = await User.findAndCountAll({
                     order: [
                         ["surname", "ASC"],
                         ["name", "ASC"]
@@ -358,4 +362,3 @@ export class UsersDb {
 }
 
 export const usersDb = new UsersDb();
-
