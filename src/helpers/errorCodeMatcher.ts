@@ -12,7 +12,7 @@ export const errorCodesMathcher: ErrorObject = {
     [EErrorMessages.USER_NOT_FOUND_BY_ID]: StatusCodes.NOT_FOUND,
     [EErrorMessages.USER_NOT_FOUND]: StatusCodes.NOT_FOUND,
     [EErrorMessages.NO_ACCESS]: StatusCodes.FORBIDDEN,
-    [EErrorMessages.NOT_AUTHORIZED]: StatusCodes.FORBIDDEN,
+    [EErrorMessages.NOT_AUTHORIZED]: StatusCodes.UNAUTHORIZED,
     [EErrorMessages.WRONG_PASSWORD]: StatusCodes.BAD_REQUEST,
     [EErrorMessages.PASSWORD_LENGTH_FAILED]: StatusCodes.BAD_REQUEST,
     [EErrorMessages.PASSWORD_CAPITAL_LETTER_FAILED]: StatusCodes.BAD_REQUEST,

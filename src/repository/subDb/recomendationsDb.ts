@@ -51,7 +51,7 @@ export class RecomendationsDb {
 
             const newRecomeddation: IRecomendationCreateDto = await Recommendation.create({...recomendation});
             return {
-                status: StatusCodes.OK,
+                status: StatusCodes.CREATED,
                 result: newRecomeddation
             };
         } catch (err: unknown) {

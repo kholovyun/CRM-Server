@@ -52,7 +52,7 @@ export class ReviewsDb {
             
             const newReview: IReviewCreateDto= await Review.create({...review});
             return {
-                status: StatusCodes.OK,
+                status: StatusCodes.CREATED,
                 result: newReview
             };
         } catch(err: unknown) {

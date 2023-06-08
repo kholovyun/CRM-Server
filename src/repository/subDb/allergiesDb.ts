@@ -61,7 +61,7 @@ export class AllergiesDb {
             }
             const newAllergy: IAllergy = await Allergy.create({...allDto});
             return {
-                status: StatusCodes.OK,
+                status: StatusCodes.CREATED,
                 result: newAllergy
             };
         } catch (err: unknown) {
