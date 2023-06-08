@@ -60,4 +60,11 @@ export class Parent extends Model {
         defaultValue: true
     })
         isActive!: boolean;
+
+    @Column({
+        type: DataType.DATE,
+        allowNull: false,
+        field: "subscription_end_date"
+    })
+        subscriptionEndDate!: Date;
 }

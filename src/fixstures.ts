@@ -188,6 +188,7 @@ const docFixture = {
 };
 
 
+
 const parentFixture = {
     parent1: {
         id: uuid(),
@@ -195,6 +196,7 @@ const parentFixture = {
         doctorId: docFixture.doc4.id,
         registerDate: new Date(),
         isActive: false,
+        subscriptionEndDate: new Date().setMonth(new Date().getMonth() + 1)
     },
     parent2: {
         id: uuid(),
@@ -202,8 +204,11 @@ const parentFixture = {
         doctorId: docFixture.doc5.id,
         registerDate: new Date(),
         isActive: true,
+        subscriptionEndDate: new Date().setMonth(new Date().getMonth() + 1)
     }        
 };
+
+
 
 const subscrFixture = {
     subscr1: {
