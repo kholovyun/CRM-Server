@@ -61,7 +61,7 @@ export class VaccinationsDb {
             }
             const newVaccination: IVaccination = await Vaccination.create({...vacDto});
             return {
-                status: StatusCodes.OK,
+                status: StatusCodes.CREATED,
                 result: newVaccination
             };
         } catch (err: unknown) {

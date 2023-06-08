@@ -125,7 +125,7 @@ export class ChildrenDb {
             };
             await NewbornData.create({...newbornData});
             return {
-                status: StatusCodes.OK,
+                status: StatusCodes.CREATED,
                 result: newChild,
             };
         } catch (err: unknown) {

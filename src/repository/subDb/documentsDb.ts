@@ -38,7 +38,7 @@ export class DocumentsDb {
             const newDocument: IDocumentGetDto = await Document.create({...document});
 
             return {
-                status: StatusCodes.OK,
+                status: StatusCodes.CREATED,
                 result: newDocument
             };
 

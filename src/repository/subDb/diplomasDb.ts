@@ -65,7 +65,7 @@ export class DiplomasDb {
 
             const newDiploma: IDiplomaGetDto = await Diploma.create({...diploma});
             return {
-                status: StatusCodes.OK,
+                status: StatusCodes.CREATED,
                 result: newDiploma
             };
         } catch (err: unknown) {
