@@ -16,6 +16,8 @@ import { PostgresDB } from "./repository/postgresDb";
 import { EPaymentType } from "./enums/EPaymentType";
 import { Allergy } from "./models/Allergy";
 import { Vaccination } from "./models/Vaccination";
+import { Visit } from "./models/Visit";
+import { EVisitReasons } from "./enums/EVisitReasons";
 
 const db = PostgresDB;
 
@@ -366,6 +368,41 @@ const recomendationsFix = {
     },
 };
 
+const visitsFixture = {
+    visit1: {
+        id: uuid(),
+        childId: childrenFixture.child1.id,
+        reason: EVisitReasons.THERAP,
+        date: new Date(),
+        conclusion: "Диарея",
+        appointment: "По 2 таблетки \"Антидиарея\"в день, утром и вечером после ужина"
+    },
+    visit2: {
+        id: uuid(),
+        childId: childrenFixture.child1.id,
+        reason: EVisitReasons.PROPH,
+        date: new Date(),
+        conclusion: "Легкая простуда",
+        appointment: "По 2 пакетика \"Инсти для детей\"в день, утром и вечером после ужина"
+    },
+    visit3: {
+        id: uuid(),
+        childId: childrenFixture.child2.id,
+        reason: EVisitReasons.PROPH,
+        date: new Date(),
+        conclusion: "Ринит",
+        appointment: "Впрыскиваний препарата \"Лазорин\" в каждый носовой ход в сутки; продолжительность применения не более 5–7 дней"
+    },
+    visit4: {
+        id: uuid(),
+        childId: childrenFixture.child2.id,
+        reason: EVisitReasons.PROPH,
+        date: new Date(),
+        conclusion: "Ветрянка",
+        appointment: "Обработка сыпи антисептическими и подсушивающими средствами для исключения занесения вторичной инфекции и ускорения регенерации папул без остаточных рубцов"
+    }, 
+};
+
 export const createUserFixtures = async (): Promise<void> => {
     try {
         await Allergy.destroy({where: {}});
@@ -381,6 +418,7 @@ export const createUserFixtures = async (): Promise<void> => {
         await Review.destroy({ where: {} });
         await User.destroy({ where: {} });
         await Document.destroy({where: {}});
+        await Visit.destroy({where: {}});
         await User.bulkCreate([
             {
                 ...userFixture.user1,
@@ -468,6 +506,13 @@ export const createUserFixtures = async (): Promise<void> => {
         await Document.bulkCreate([
             {...documentsFixture.document1},
             {...documentsFixture.document2},
+        ]);
+
+        await Visit.bulkCreate([
+            {...visitsFixture.visit1},
+            {...visitsFixture.visit2},
+            {...visitsFixture.visit3},
+            {...visitsFixture.visit4},
         ]);
         
         Logger.info("Фикстуры созданы");
