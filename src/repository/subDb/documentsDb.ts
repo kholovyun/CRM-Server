@@ -80,6 +80,9 @@ export class DocumentsDb {
             }
 
             await Document.destroy({where: {id: documentId}});
+            if (document.url) {
+                deleteFile(document.url, "childrenDocuments");
+            }
             return {
                 status: StatusCodes.OK,
                 result: "Документ удален!"

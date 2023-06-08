@@ -129,7 +129,7 @@ export class ChildrenDb {
                 result: newChild,
             };
         } catch (err: unknown) {
-            if (child.photo) {
+            if (child.photo && child.photo !== "default-child-photo.svg") {
                 deleteFile(child.photo, "childrenImgs");
             }
             const error = err as Error;
