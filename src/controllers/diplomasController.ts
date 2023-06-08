@@ -4,7 +4,6 @@ import IDiplomaGetDto from "../interfaces/IDiploma/IDiplomaGetDto";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
-import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 import { config } from "../index.config";
 import multer from "multer";
 import shortid from "shortid";
@@ -24,7 +23,7 @@ const upload = multer({ storage });
 
 export class DiplomasController {
     private repository: DiplomasDb;
-    private router: Router;
+    private readonly router: Router;
 
     constructor() {
         this.repository = diplomasDb;
@@ -40,14 +39,14 @@ export class DiplomasController {
 
     private getDiplomasByDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as IUserGetDto;
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IDiplomaGetDto[] | IError> = await this.repository.getDiplomasByDoctor(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private createDiploma = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const diploma = req.body;
         diploma.url = req.file ? req.file.filename : "";
         const response: IResponse<IDiplomaGetDto | IError> = await this.repository.createDiploma(user.id, diploma);
@@ -56,7 +55,7 @@ export class DiplomasController {
 
     private deleteDiploma = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as IUserGetDto;
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<string | IError> = await this.repository.deleteDiploma(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };

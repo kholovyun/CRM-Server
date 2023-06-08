@@ -188,6 +188,7 @@ const docFixture = {
 };
 
 
+
 const parentFixture = {
     parent1: {
         id: uuid(),
@@ -195,6 +196,7 @@ const parentFixture = {
         doctorId: docFixture.doc4.id,
         registerDate: new Date(),
         isActive: false,
+        subscriptionEndDate: new Date().setMonth(new Date().getMonth() + 1)
     },
     parent2: {
         id: uuid(),
@@ -202,8 +204,11 @@ const parentFixture = {
         doctorId: docFixture.doc5.id,
         registerDate: new Date(),
         isActive: true,
+        subscriptionEndDate: new Date().setMonth(new Date().getMonth() + 1)
     }        
 };
+
+
 
 const subscrFixture = {
     subscr1: {
@@ -213,7 +218,7 @@ const subscrFixture = {
         type: 1,
         sum: docFixture.doc4.price,
         paymentType: EPaymentType.CASH,
-        endDate: parentFixture.parent1.registerDate.setMonth(parentFixture.parent1.registerDate.getMonth() + 1)
+        endDate: new Date(parentFixture.parent1.registerDate).setMonth(parentFixture.parent1.registerDate.getMonth() + 1)
     },
     subscr2: {
         id: uuid(),
@@ -222,7 +227,7 @@ const subscrFixture = {
         type: 1,
         sum: docFixture.doc5.price,
         paymentType: EPaymentType.CASH,
-        endDate: parentFixture.parent2.registerDate.setMonth(parentFixture.parent2.registerDate.getMonth() + 1)
+        endDate: new Date(parentFixture.parent2.registerDate).setMonth(parentFixture.parent2.registerDate.getMonth() + 1)
     }        
 };
 
@@ -241,6 +246,32 @@ const childrenFixture = {
         isActive: true
     },
     child2: {
+        id: uuid(),
+        parentId: parentFixture.parent1.id,
+        photo: "default-child-photo.svg",
+        name: "Sara",
+        surname: "Grey",
+        dateOfBirth: new Date(),
+        sex: ESex.FEMALE,
+        height: 155,
+        weight: 45,
+        patronim: "patronium",
+        isActive: true
+    },
+    child3: {
+        id: uuid(),
+        parentId: parentFixture.parent1.id,
+        photo: "default-child-photo.svg",
+        name: "Василий",
+        surname: "Рубенштейн",
+        dateOfBirth: new Date(),
+        sex: ESex.MALE,
+        height: 155,
+        weight: 45,
+        patronim: "Иванович",
+        isActive: true
+    },
+    child4: {
         id: uuid(),
         parentId: parentFixture.parent2.id,
         photo: "default-child-photo.svg",
@@ -420,7 +451,9 @@ export const createUserFixtures = async (): Promise<void> => {
 
         await Child.bulkCreate([
             {...childrenFixture.child1},
-            {...childrenFixture.child2}
+            {...childrenFixture.child2},
+            {...childrenFixture.child3},
+            {...childrenFixture.child4},
         ]);
 
         await Allergy.bulkCreate([

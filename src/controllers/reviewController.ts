@@ -26,21 +26,23 @@ export class ReviewController {
 
     private getReviews = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
-        const response: IResponse<IReviewGetDto[] | IError> = await this.repository.getReviews(user.id);
+        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const response: IResponse<{rows: IReviewGetDto[], count: number} | IError> = await this.repository.getReviews(
+            user.id, String(req.query.offset), String(req.query.limit)
+        );
         res.status(response.status).send(response.result);
     };
 
     private createReview = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IReviewCreateDto | IError> = await this.repository.createReview(user.id, req.body);
         res.status(response.status).send(response.result);
     };
 
     private deleteReview = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<string | IError> = await this.repository.deleteReview(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };

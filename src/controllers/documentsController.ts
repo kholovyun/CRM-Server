@@ -9,7 +9,6 @@ import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
 import IResponse from "../interfaces/IResponse";
 import IDocumentGetDto from "../interfaces/IDocument/IDocumentGetDto";
 import IError from "../interfaces/IError";
-import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -24,7 +23,7 @@ const upload = multer({ storage });
 
 export class DocumentsController {
     private repository: DocumentsDb;
-    private router: Router;
+    private readonly router: Router;
 
     constructor() {
         this.repository = documentsDb;
@@ -40,7 +39,7 @@ export class DocumentsController {
 
     private createDocument = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const document = req.body;
         document.url = req.file ? req.file.filename : "";
         const response: IResponse<IDocumentGetDto | IError> = await this.repository.createDocument(user.id, document);
@@ -49,14 +48,14 @@ export class DocumentsController {
 
     private deleteDocument = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as IUserGetDto;
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<string | IError> = await this.repository.deleteDocument(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private getDocumentsByChildId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as IUserGetDto;
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IDocumentGetDto[] | IError> = await this.repository.getDocumentsByChildId(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };

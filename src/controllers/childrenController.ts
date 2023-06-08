@@ -30,6 +30,7 @@ export class childrenController {
         this.router = express.Router();
         this.router.use(morganMiddleware);
         this.router.get("/parent/:id", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildrenByParentId);
+        this.router.get("/doctor/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR,]), this.getChildrenByDoctorId);
         this.router.post("/", [permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), upload.single("photo")], this.createChild);
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildById);
         this.router.patch("/:id", [permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), upload.single("photo")], this.editChild);
@@ -42,16 +43,25 @@ export class childrenController {
     
     private getChildrenByParentId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IChildGetDto[] | IError> = await this.repository.getChildrenByParentId(
             req.params.id, user.id
         );
         res.status(response.status).send(response);
     };
 
+    private getChildrenByDoctorId = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const response: IResponse<{rows: IChildGetDto[], count: number} | IError> = await this.repository.getChildrenByDoctorId(
+            user.id, String(req.query.offset), String(req.query.limit), req.params.id
+        );
+        res.status(response.status).send(response.result);
+    };
+
     private getChildById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IChildGetDto | IError> = await this.repository.getChildById(
             req.params.id, user.id
         );
@@ -60,7 +70,7 @@ export class childrenController {
 
     private createChild = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const child = req.body;
         child.photo = req.file ? req.file.filename : "";
         const response: IResponse<IChildCreateDto | IError> = await this.repository.createChild(
@@ -71,7 +81,7 @@ export class childrenController {
 
     private editChild = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const child = req.body;
         if (req.file && req.file.filename) {
             child.photo = req.file.filename;

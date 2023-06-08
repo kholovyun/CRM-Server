@@ -11,6 +11,7 @@ import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 import { Parent } from "../../models/Parent";
 import { Doctor } from "../../models/Doctor";
 import { NewbornData } from "../../models/NewbornData";
+import { deleteFile } from "../../helpers/deleteFile";
 
 export class ChildrenDb {
     public getChildrenByParentId = async (parentId: string, userId: string): Promise<IResponse<IChildGetDto[] | IError>> => {
@@ -41,6 +42,46 @@ export class ChildrenDb {
             return {
                 status: StatusCodes.OK,
                 result: children,
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
+        }
+    };
+
+    public getChildrenByDoctorId = async (userId: string, offset: string, limit: string, doctorId: string): 
+        Promise<IResponse<{rows: IChildGetDto[], count: number} | IError>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.isBlocked)
+                throw new Error(EErrorMessages.NO_ACCESS);
+            const foundDoctor = await Doctor.findByPk(doctorId);
+            if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
+            
+            const foundChildren = await Child.findAndCountAll({
+                include: {
+                    model: Parent,
+                    as: "parents",
+                    where: { doctorId },
+                    attributes: ["id"]
+                },
+                order: [
+                    ["surname", "ASC"],
+                    ["name", "ASC"]
+                ],
+                limit: parseInt(limit),
+                offset: parseInt(offset)
+            });            
+            return {
+                status: StatusCodes.OK,
+                result: foundChildren,
             };
         } catch (err: unknown) {
             const error = err as Error;
@@ -128,6 +169,9 @@ export class ChildrenDb {
                 result: newChild,
             };
         } catch (err: unknown) {
+            if (child.photo) {
+                deleteFile(child.photo, "childrenImgs");
+            }
             const error = err as Error;
             const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
             return {
