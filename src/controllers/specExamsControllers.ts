@@ -15,9 +15,9 @@ export class SpecExamsController {
     constructor() {
         this.repository = specialistExamsDb;
         this.router = express.Router();
-        this.router.get("/:id", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getSpecialistExamsByChildId);
+        this.router.get("/:id", permission([ERoles.SUPERADMIN, ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getSpecialistExamsByChildId);
         this.router.post("/", permission([ERoles.DOCTOR, ERoles.PARENT]), this.createSpecialistExam);
-        this.router.delete("/:id", permission([ERoles.PARENT]), this.deleteSpecialistExam);
+        this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.PARENT]), this.deleteSpecialistExam);
     }
 
     public getRouter = (): Router => {
@@ -26,21 +26,21 @@ export class SpecExamsController {
 
     private getSpecialistExamsByChildId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<ISpecialistExamsGetDto[] | IError> = await this.repository.getSpecialistExamsByChildId(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private createSpecialistExam = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<ISpecialistExamsCreateDto | IError> = await this.repository.createSpecialistExam(user.id, req.body);
         res.status(response.status).send(response.result);
     };
 
     private deleteSpecialistExam = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string; email: string, role: string };
+        const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<string | IError> = await this.repository.deleteSpecialistExam(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
