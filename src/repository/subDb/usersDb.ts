@@ -187,12 +187,13 @@ export class UsersDb {
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
             const url = `http://localhost:5173/reset-password?token=${token}`;
             await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
+            const now = new Date();
             const newParent = {
                 userId: user.id,
-                doctorId: userDto.doctorId
+                doctorId: userDto.doctorId,
+                subscriptionEndDate: now.setMonth(now.getMonth() + userDto.subscrType)
             };
             const parentUser = await Parent.create({ ...newParent });
-            const now = new Date();
             await Subscription.create({
                 userId: user.id,
                 payedBy: userDto.paymentType === EPaymentType.CASH ? foundDoctor.userId : parentUser.userId,
