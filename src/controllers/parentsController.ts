@@ -79,7 +79,7 @@ export class ParentsController {
         const req = expressReq as IRequestWithTokenData;
         const params = req.params.id;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<IParent | IError> = await this.repository.getParentByParentId(
+        const response: IResponse<IParent | IError> = await this.repository.getParentByUserId(
             user.id,
             params
         );
