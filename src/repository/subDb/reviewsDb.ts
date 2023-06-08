@@ -5,14 +5,18 @@ import { EErrorMessages } from "../../enums/EErrorMessages";
 import { Review } from "../../models/Review";
 import { ERoles } from "../../enums/ERoles";
 import IReviewCreateDto from "../../interfaces/IReview/IReviewCreateDto";
+import IReviewGetDto from "../../interfaces/IReview/IReviewGetDto";
+import IError from "../../interfaces/IError";
+import IResponse from "../../interfaces/IResponse";
 
 export class ReviewsDb {
-    public getReviews = async (userId: string) => {
+    public getReviews = async (userId: string, offset: string, limit: string):
+        Promise<IResponse<{rows: IReviewGetDto[], count:number} | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);
-            const foundReviews = await Review.findAll({
+            const foundReviews = await Review.findAndCountAll({
                 include: {
                     model: User,
                     as: "users",
@@ -20,7 +24,9 @@ export class ReviewsDb {
                 },
                 order: [
                     [ "createdAt", "DESC"]
-                ]
+                ],
+                limit: parseInt(limit),
+                offset: parseInt(offset)
             });
             return {
                 status: StatusCodes.OK,

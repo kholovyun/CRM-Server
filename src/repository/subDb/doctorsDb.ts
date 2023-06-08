@@ -11,12 +11,13 @@ import { EErrorMessages } from "../../enums/EErrorMessages";
 import { Parent } from "../../models/Parent";
 
 export class DoctorsDb {
-    public getDoctors = async (userId: string, offset: string, limit: string): Promise<IResponse<IDoctorGetDto[] | IError>> => {
+    public getDoctors = async (userId: string, offset: string, limit: string): 
+        Promise<IResponse<{rows: IDoctorGetDto[], count:number} | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);
-            const foundDoctors = await Doctor.findAll({
+            const foundDoctors = await Doctor.findAndCountAll({
                 include: {
                     model: User,
                     as: "users",

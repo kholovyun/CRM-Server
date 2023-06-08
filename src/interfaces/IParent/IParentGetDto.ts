@@ -4,6 +4,7 @@ export default interface IParentGetDto {
     doctorId: string
     registerDate: Date
     isActive: boolean
+    subscriptionEndDate: Date
     users: {
         name: string
         surname: string

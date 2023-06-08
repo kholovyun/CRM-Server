@@ -56,6 +56,46 @@ export class ChildrenDb {
         }
     };
 
+    public getChildrenByDoctorId = async (userId: string, offset: string, limit: string, doctorId: string): 
+        Promise<IResponse<{rows: IChildGetDto[], count: number} | IError>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.isBlocked)
+                throw new Error(EErrorMessages.NO_ACCESS);
+            const foundDoctor = await Doctor.findByPk(doctorId);
+            if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
+            
+            const foundChildren = await Child.findAndCountAll({
+                include: {
+                    model: Parent,
+                    as: "parents",
+                    where: { doctorId },
+                    attributes: ["id"]
+                },
+                order: [
+                    ["surname", "ASC"],
+                    ["name", "ASC"]
+                ],
+                limit: parseInt(limit),
+                offset: parseInt(offset)
+            });            
+            return {
+                status: StatusCodes.OK,
+                result: foundChildren,
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
+        }
+    };
+
     public getChildById = async (childId: string, userId: string): Promise<IResponse<IChildGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);

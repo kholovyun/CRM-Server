@@ -33,14 +33,18 @@ import { Subscription } from "../../models/Subscription";
 import { EPaymentType } from "../../enums/EPaymentType";
 
 export class UsersDb {
-    public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): Promise<IResponse<IUserGetDto[] | IError>> => {
+    public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): 
+        Promise<IResponse<{rows: IUserGetDto[], count: number} | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);
-            let foundUsers: IUserGetDto[] = [];
+            let foundUsers: {rows: IUserGetDto[], count: number} = {
+                rows: [],
+                count: 0
+            };
             if (filter && filter === "admins") {
-                foundUsers = await User.findAll({ 
+                foundUsers = await User.findAndCountAll({ 
                     where: {
                         role: {
                             [Op.or]: [ERoles.ADMIN, ERoles.SUPERADMIN]
@@ -54,7 +58,7 @@ export class UsersDb {
                     offset: parseInt(offset) 
                 });
             } else {
-                foundUsers = await User.findAll({
+                foundUsers = await User.findAndCountAll({
                     order: [
                         ["surname", "ASC"],
                         ["name", "ASC"]
@@ -160,11 +164,17 @@ export class UsersDb {
 
     public registerParent = async (userDto: IUserCreateParentWithChildDto, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
         try {
-            if (userDto.role !== ERoles.PARENT) throw new Error(EErrorMessages.NO_ACCESS);
+            if (userDto.role !== ERoles.PARENT) 
+                throw new Error(EErrorMessages.NO_ACCESS);
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);
-            if (foundUser.role === ERoles.DOCTOR && foundUser.id !== userDto.doctorId) 
+            const doctor = await Doctor.findOne({
+                where: {
+                    userId: userId
+                }
+            }); 
+            if (doctor && foundUser.role === ERoles.DOCTOR && doctor.id !== userDto.doctorId)
                 throw new Error(EErrorMessages.NO_ACCESS);
             const foundDoctor = await Doctor.findByPk(userDto.doctorId);
             if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
@@ -187,12 +197,13 @@ export class UsersDb {
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
             const url = `http://localhost:5173/reset-password?token=${token}`;
             await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
+            const now = new Date();
             const newParent = {
                 userId: user.id,
-                doctorId: userDto.doctorId
+                doctorId: userDto.doctorId,
+                subscriptionEndDate: now.setMonth(now.getMonth() + userDto.subscrType)
             };
             const parentUser = await Parent.create({ ...newParent });
-            const now = new Date();
             await Subscription.create({
                 userId: user.id,
                 payedBy: userDto.paymentType === EPaymentType.CASH ? foundDoctor.userId : parentUser.userId,
@@ -358,4 +369,3 @@ export class UsersDb {
 }
 
 export const usersDb = new UsersDb();
-

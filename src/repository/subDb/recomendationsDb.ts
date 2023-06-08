@@ -9,6 +9,7 @@ import { EErrorMessages } from "../../enums/EErrorMessages";
 import { Recommendation } from "../../models/Recommendation";
 import IRecomendationCreateDto from "../../interfaces/IRecomendation/IRecomendationCreateDto";
 import IRecomendationGetDto from "../../interfaces/IRecomendation/IRecomendationGetDto";
+import {deleteFile} from "../../helpers/deleteFile";
 
 export class RecomendationsDb {
     public getRecomendationsByDoctor = async (doctorId: string): Promise<IResponse<IRecomendationGetDto[] | IError>> => {
@@ -54,6 +55,9 @@ export class RecomendationsDb {
                 result: newRecomeddation
             };
         } catch (err: unknown) {
+            if (recomendation.url) {
+                deleteFile(recomendation.url, "docRecomends");
+            }
             const error = err as Error;
             const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
             return {
@@ -131,6 +135,9 @@ export class RecomendationsDb {
                     {
                         where: {id: recomendationId}
                     });
+                if (recomendation.url) {
+                    deleteFile(recomendation.url, "docRecomends");
+                }
                 return {
                     status: StatusCodes.OK,
                     result: "Публикация удалена!"
@@ -150,6 +157,7 @@ export class RecomendationsDb {
             };
         }
     };
+
 }
 
 export const recomendationDb = new RecomendationsDb();
