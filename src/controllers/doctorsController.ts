@@ -24,7 +24,7 @@ const upload = multer({ storage });
 
 export class DoctorsController {
     private repository: DoctorsDb;
-    private router: Router;
+    private readonly router: Router;
 
     constructor() {
         this.router = express.Router();
