@@ -23,7 +23,7 @@ const upload = multer({ storage });
 
 export class DocumentsController {
     private repository: DocumentsDb;
-    private router: Router;
+    private readonly router: Router;
 
     constructor() {
         this.repository = documentsDb;

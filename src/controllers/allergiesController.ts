@@ -10,7 +10,7 @@ import { AllergiesDb, allergiesDb } from "../repository/subDb/allergiesDb";
 
 export class AllergiesController {
     private repository: AllergiesDb;
-    private router: Router;
+    private readonly router: Router;
 
     constructor() {
         this.repository = allergiesDb;
