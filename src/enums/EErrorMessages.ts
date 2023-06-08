@@ -27,5 +27,7 @@ export enum EErrorMessages {
     NO_REVIEW_FOUND = "Отзыв не найден.",
     DOCUMENT_NOT_FOUND = "Документ не найден.",
     VACCINATION_NOT_FOUND = "Запись о вакцинации не найдена.",
-    ALLERGY_NOT_FOUND = "Запись об аллергии не найдена."
+    ALLERGY_NOT_FOUND = "Запись об аллергии не найдена.",
+    VISIT_NOT_FOUND = "Запись о посещении не найдена.",
+    VISITS_NOT_FOUND = "Записи о посещениях не найдены."
 }
