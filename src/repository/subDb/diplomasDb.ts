@@ -10,6 +10,7 @@ import IResponse from "../../interfaces/IResponse";
 import IError from "../../interfaces/IError";
 import {errorCodesMathcher} from "../../helpers/errorCodeMatcher";
 import {EErrorMessages} from "../../enums/EErrorMessages";
+import {deleteFile} from "../../helpers/deleteFile";
 
 export class DiplomasDb {
     public getDiplomasByDoctor = async (userId: string, doctorId: string): Promise<IResponse<IDiplomaGetDto[] | IError>> => {
@@ -69,6 +70,9 @@ export class DiplomasDb {
                 result: newDiploma
             };
         } catch (err: unknown) {
+            if (diploma.url) {
+                deleteFile(diploma.url, "doctorsDiplomas");
+            }
             const error = err as Error;
             const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
             return {
@@ -98,6 +102,9 @@ export class DiplomasDb {
             }
 
             await Diploma.destroy({where: {id: diplomaId}});
+            if (diploma.url) {
+                deleteFile(diploma.url, "doctorsDiplomas");
+            }
             return {
                 status: StatusCodes.OK,
                 result: "Диплом удален!"
