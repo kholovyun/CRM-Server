@@ -15,6 +15,7 @@ import { DocumentsController } from "./controllers/documentsController";
 import { AllergiesController } from "./controllers/allergiesController";
 import { VaccinationsController } from "./controllers/vaccinationsController";
 import { QuestionsController } from "./controllers/questionsController";
+import { SpecExamsController } from "./controllers/specExamsControllers";
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ class App {
             this.app.use("/allergies", new AllergiesController().getRouter());
             this.app.use("/vaccinations", new VaccinationsController().getRouter());
             this.app.use("/questions", new QuestionsController().getRouter());
+            this.app.use("/examinations", new SpecExamsController().getRouter());
         } catch (err: unknown) {
             const error = err as Error;
             Logger.error(`Server error: ${error.message}`);
