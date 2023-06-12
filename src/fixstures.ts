@@ -18,6 +18,7 @@ import { Allergy } from "./models/Allergy";
 import { Vaccination } from "./models/Vaccination";
 import { Visit } from "./models/Visit";
 import { EVisitReasons } from "./enums/EVisitReasons";
+import { Question } from "./models/Question";
 
 const db = PostgresDB;
 
@@ -403,6 +404,57 @@ const visitsFixture = {
     }, 
 };
 
+const questionsFixture = {
+    question1: {
+        id: uuid(),
+        doctorId: docFixture.doc4.id,
+        childId: childrenFixture.child1.id,
+        parentId: parentFixture.parent1.id,
+        createdAt: new Date(),
+        question: "Когда Марк может получить привывку от кори?"
+    },
+    question2: {
+        id: uuid(),
+        doctorId: docFixture.doc4.id,
+        childId: childrenFixture.child2.id,
+        parentId: parentFixture.parent1.id,
+        createdAt: new Date(),
+        question: "Когда и чем сбивать температуру у ребенка? Стоит ли ее сбивать вообще?"
+    },
+    question3: {
+        id: uuid(),
+        doctorId: docFixture.doc4.id,
+        childId: childrenFixture.child1.id,
+        parentId: parentFixture.parent1.id,
+        createdAt: new Date(),
+        question: "После визита к вам прошло 5 дней, температура спала, можно ли выйти на улицу?"
+    },
+    question4: {
+        id: uuid(),
+        doctorId: docFixture.doc4.id,
+        childId: childrenFixture.child1.id,
+        parentId: parentFixture.parent1.id,
+        createdAt: new Date(),
+        question: "У Марка температура иногда поднимается. Можно ли выйти на улицу с температурой выше 37?"
+    },
+    question5: {
+        id: uuid(),
+        doctorId: docFixture.doc4.id,
+        childId: childrenFixture.child3.id,
+        parentId: parentFixture.parent1.id,
+        createdAt: new Date(),
+        question: "У ребенка кажется колики, можно ли ставить ребенку газоотводную трубку?"
+    },
+    question6: {
+        id: uuid(),
+        doctorId: docFixture.doc5.id,
+        childId: childrenFixture.child4.id,
+        parentId: parentFixture.parent2.id,
+        createdAt: new Date(),
+        question: "Можете порекомендовать солнцезащитный крем для младенца"
+    }
+};
+
 export const createUserFixtures = async (): Promise<void> => {
     try {
         await Allergy.destroy({where: {}});
@@ -419,6 +471,7 @@ export const createUserFixtures = async (): Promise<void> => {
         await User.destroy({ where: {} });
         await Document.destroy({where: {}});
         await Visit.destroy({where: {}});
+        await Question.destroy({where: {}});
         await User.bulkCreate([
             {
                 ...userFixture.user1,
@@ -513,6 +566,15 @@ export const createUserFixtures = async (): Promise<void> => {
             {...visitsFixture.visit2},
             {...visitsFixture.visit3},
             {...visitsFixture.visit4},
+        ]);
+
+        await Question.bulkCreate([
+            {...questionsFixture.question1},
+            {...questionsFixture.question2},
+            {...questionsFixture.question3},
+            {...questionsFixture.question4},
+            {...questionsFixture.question5},
+            {...questionsFixture.question6},
         ]);
         
         Logger.info("Фикстуры созданы");
