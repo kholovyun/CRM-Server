@@ -130,7 +130,8 @@ export class UsersDb {
             const primaryPassword: string = shortid.generate();
             // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
             console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
-            const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
+            // const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
+            const user = await User.create({ ...userDto, password: "123"});
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
             const url = `http://localhost:5173/reset-password?token=${token}`;
             await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
@@ -145,7 +146,7 @@ export class UsersDb {
                 };
                 await Doctor.create({ ...newDoctor });
             }
-            delete user.dataValues.password;
+            // delete user.dataValues.password;
             return {
                 status: StatusCodes.CREATED,
                 result: user
@@ -253,6 +254,7 @@ export class UsersDb {
             if (!foundUser) throw new Error(EErrorMessages.WRONG_PASS_OR_EMAIL);
 
             const isMatch: boolean = await checkPassword(userDto.password, foundUser);
+
             if (!isMatch) throw new Error(EErrorMessages.WRONG_PASS_OR_EMAIL);
             const user = foundUser.dataValues;
             delete user.password;
