@@ -1,4 +1,4 @@
 export enum EPaymentType {
-    AQUIR = "банк-эквайринг",
+    AQUIR = "онлайн",
     CASH = "наличные"
 }
