@@ -190,15 +190,13 @@ const docFixture = {
 
 };
 
-
-
 const parentFixture = {
     parent1: {
         id: uuid(),
         userId: userFixture.user7.id,
         doctorId: docFixture.doc4.id,
         registerDate: new Date(),
-        isActive: false,
+        isActive: true,
         subscriptionEndDate: new Date().setMonth(new Date().getMonth() + 1)
     },
     parent2: {
@@ -210,8 +208,6 @@ const parentFixture = {
         subscriptionEndDate: new Date().setMonth(new Date().getMonth() + 1)
     }        
 };
-
-
 
 const subscrFixture = {
     subscr1: {
@@ -241,10 +237,10 @@ const childrenFixture = {
         photo: "default-child-photo.svg",
         name: "Mark",
         surname: "Teal",
-        dateOfBirth: new Date(),
+        dateOfBirth: "2013-06-12",
         sex: ESex.MALE,
-        height: 155,
-        weight: 45,
+        height: 135,
+        weight: 35,
         patronim: "patronium",
         isActive: true
     },
@@ -254,10 +250,10 @@ const childrenFixture = {
         photo: "default-child-photo.svg",
         name: "Sara",
         surname: "Grey",
-        dateOfBirth: new Date(),
+        dateOfBirth: "2020-10-11",
         sex: ESex.FEMALE,
-        height: 155,
-        weight: 45,
+        height: 95,
+        weight: 15,
         patronim: "patronium",
         isActive: true
     },
@@ -267,10 +263,10 @@ const childrenFixture = {
         photo: "default-child-photo.svg",
         name: "Василий",
         surname: "Рубенштейн",
-        dateOfBirth: new Date(),
+        dateOfBirth: "2019-01-01",
         sex: ESex.MALE,
-        height: 155,
-        weight: 45,
+        height: 100,
+        weight: 17.500,
         patronim: "Иванович",
         isActive: true
     },
@@ -280,7 +276,7 @@ const childrenFixture = {
         photo: "default-child-photo.svg",
         name: "Sara",
         surname: "Grey",
-        dateOfBirth: new Date(),
+        dateOfBirth: "2010-05-07",
         sex: ESex.FEMALE,
         height: 155,
         weight: 45,
