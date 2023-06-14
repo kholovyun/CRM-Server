@@ -17,6 +17,7 @@ import { VaccinationsController } from "./controllers/vaccinationsController";
 import { VisitsController } from "./controllers/visitsController";
 import { QuestionsController } from "./controllers/questionsController";
 import { SpecExamsController } from "./controllers/specExamsControllers";
+import job from "./sheduleSubscripttion/sheduleSubscription";
 
 dotenv.config();
 
@@ -51,6 +52,7 @@ class App {
             this.app.use("/visits", new VisitsController().getRouter());
             this.app.use("/questions", new QuestionsController().getRouter());
             this.app.use("/examinations", new SpecExamsController().getRouter());
+            job;
         } catch (err: unknown) {
             const error = err as Error;
             Logger.error(`Server error: ${error.message}`);
