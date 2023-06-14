@@ -46,7 +46,7 @@ export class UsersController {
         res.status(response.status).send(response.result);
     };
 
-    private register = async (req: Request, res: Response): Promise<void> => {
+    public register = async (req: Request, res: Response): Promise<void> => {
         const response: IResponse<IUserGetDto | IError> = await this.repository.register(req.body);
         res.status(response.status).send(response.result);
     };

@@ -193,15 +193,18 @@ export class ChildrenDb {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error(EErrorMessages.NO_ACCESS);
             if (foundUser.isBlocked && foundUser.role !== ERoles.PARENT)
-                throw new Error(EErrorMessages.NO_ACCESS);            
+                throw new Error(EErrorMessages.NO_ACCESS);
+                     
             const foundChild = await Child.findByPk(childId);
+            
             if (!foundChild) throw new Error(EErrorMessages.CHILD_NOT_FOUND);
             if (foundUser.role === ERoles.PARENT) {
                 const foundParentByUser = await Parent.findOne({where: {userId}});
                 if (!foundParentByUser || foundChild.parentId !== foundParentByUser.id)
                     throw new Error(EErrorMessages.NO_ACCESS);
             }
-            const foundParent = await Parent.findOne({where: {id: child.parentId}});
+            
+            const foundParent = await Parent.findOne({where: {id: foundChild.parentId}});  
             if (!foundParent) throw new Error(EErrorMessages.PARENT_NOT_FOUND);
             if (foundUser.role === ERoles.DOCTOR) {
                 const foundDoctor = await Doctor.findOne({where: {userId}});
@@ -209,6 +212,7 @@ export class ChildrenDb {
                     throw new Error(EErrorMessages.NO_ACCESS);
                 }
             }
+            
             const updatedChild = await Child.update(
                 { ...child },
                 { where: { id: foundChild.id }, returning: true }
