@@ -11,25 +11,42 @@ import { EErrorMessages } from "../../enums/EErrorMessages";
 import { Parent } from "../../models/Parent";
 
 export class DoctorsDb {
-    public getDoctors = async (userId: string, offset: string, limit: string): 
+    public getDoctors = async (userId: string, offset?: string, limit?: string): 
         Promise<IResponse<{rows: IDoctorGetDto[], count:number} | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);
-            const foundDoctors = await Doctor.findAndCountAll({
-                include: {
-                    model: User,
-                    as: "users",
-                    attributes: ["id", "name", "patronim", "surname", "email", "phone", "isBlocked"]
-                },
-                order: [
-                    [{ model: User, as: "users" }, "surname", "ASC"],
-                    [{ model: User, as: "users"}, "name", "ASC"]
-                ],
-                limit: parseInt(limit),
-                offset: parseInt(offset)
-            });
+            let foundDoctors: {rows: IDoctorGetDto[], count:number} = {rows: [], count: 0};
+            if (offset && limit) {
+                foundDoctors = await Doctor.findAndCountAll({
+                    where: foundUser.role === ERoles.DOCTOR ? {userId: foundUser.id} : {},
+                    include: {
+                        model: User,
+                        as: "users",
+                        attributes: ["id", "name", "patronim", "surname", "email", "phone", "isBlocked"]
+                    },
+                    order: [
+                        [{ model: User, as: "users" }, "surname", "ASC"],
+                        [{ model: User, as: "users"}, "name", "ASC"]
+                    ],
+                    limit: parseInt(limit),
+                    offset: parseInt(offset)
+                });
+            } else {
+                foundDoctors = await Doctor.findAndCountAll({
+                    where: foundUser.role === ERoles.DOCTOR ? {userId: foundUser.id} : {},
+                    include: {
+                        model: User,
+                        as: "users",
+                        attributes: ["id", "name", "patronim", "surname", "email", "phone", "isBlocked"]
+                    },
+                    order: [
+                        [{ model: User, as: "users" }, "surname", "ASC"],
+                        [{ model: User, as: "users"}, "name", "ASC"]
+                    ]
+                });
+            }            
             return {
                 status: StatusCodes.OK,
                 result: foundDoctors

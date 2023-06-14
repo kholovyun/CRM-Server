@@ -29,7 +29,7 @@ export class DoctorsController {
     constructor() {
         this.router = express.Router();
         this.router.use(morganMiddleware);
-        this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getDoctors);
+        this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR]), this.getDoctors);
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getDoctorById);
         this.router.put("/:id", [permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR]), upload.single("photo")], this.editDoctor);
         this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.activateDoctor);
@@ -44,7 +44,7 @@ export class DoctorsController {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<{rows: IDoctorGetDto[], count: number} | IError> = await this.repository.getDoctors(
-            user.id, String(req.query.offset), String(req.query.limit)
+            user.id, req.query.offset ? String(req.query.offset) : undefined, req.query.limit ? String(req.query.limit): undefined
         );
         res.status(response.status).send(response.result);
     };
