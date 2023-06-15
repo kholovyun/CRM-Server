@@ -7,6 +7,7 @@ import IError from "../interfaces/IError";
 import { SpecialistExams, specialistExamsDb } from "../repository/subDb/specialistExamsDb";
 import ISpecialistExamsGetDto from "../interfaces/ISpecialistExams/ISpecialistExamsGetDto";
 import ISpecialistExamsCreateDto from "../interfaces/ISpecialistExams/ISpecialistExamsCreateDto";
+import { IMessage } from "../interfaces/IMessage";
 
 export class SpecExamsController {
     private repository: SpecialistExams;
@@ -41,7 +42,7 @@ export class SpecExamsController {
     private deleteSpecialistExam = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<string | IError> = await this.repository.deleteSpecialistExam(user.id, req.params.id);
+        const response: IResponse<IMessage | IError> = await this.repository.deleteSpecialistExam(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 

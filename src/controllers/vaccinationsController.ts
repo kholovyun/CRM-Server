@@ -7,6 +7,7 @@ import IVaccination from "../interfaces/IVaccination/IVaccination";
 import IError from "../interfaces/IError";
 import IVaccinationCreateDto from "../interfaces/IVaccination/IVaccinationCreateDto";
 import { VaccinationsDb, vaccinationsDb } from "../repository/subDb/vaccinationsDb";
+import { IMessage } from "../interfaces/IMessage";
 
 export class VaccinationsController {
     private repository: VaccinationsDb;
@@ -41,7 +42,7 @@ export class VaccinationsController {
     private deleteVaccination = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<string | IError> = await this.repository.deleteVaccination(user.id, req.params.id);
+        const response: IResponse<IMessage | IError> = await this.repository.deleteVaccination(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 }

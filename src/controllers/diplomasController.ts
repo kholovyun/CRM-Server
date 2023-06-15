@@ -9,6 +9,7 @@ import multer from "multer";
 import shortid from "shortid";
 import { DiplomasDb, diplomasDb } from "../repository/subDb/diplomasDb";
 import IError from "../interfaces/IError";
+import { IMessage } from "../interfaces/IMessage";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -56,7 +57,7 @@ export class DiplomasController {
     private deleteDiploma = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<string | IError> = await this.repository.deleteDiploma(user.id, req.params.id);
+        const response: IResponse<IMessage | IError> = await this.repository.deleteDiploma(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 }

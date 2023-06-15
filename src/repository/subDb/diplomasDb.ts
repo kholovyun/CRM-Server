@@ -11,6 +11,7 @@ import IError from "../../interfaces/IError";
 import {errorCodesMathcher} from "../../helpers/errorCodeMatcher";
 import {EErrorMessages} from "../../enums/EErrorMessages";
 import {deleteFile} from "../../helpers/deleteFile";
+import { IMessage } from "../../interfaces/IMessage";
 
 export class DiplomasDb {
     public getDiplomasByDoctor = async (userId: string, doctorId: string): Promise<IResponse<IDiplomaGetDto[] | IError>> => {
@@ -85,7 +86,7 @@ export class DiplomasDb {
         }
     };
 
-    public deleteDiploma = async (userId: string, diplomaId: string): Promise<IResponse<string | IError>> => {
+    public deleteDiploma = async (userId: string, diplomaId: string): Promise<IResponse<IMessage | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -107,7 +108,7 @@ export class DiplomasDb {
             }
             return {
                 status: StatusCodes.OK,
-                result: "Диплом удален!"
+                result: {message: "Диплом удален!"}
             };
         } catch (err: unknown) {
             const error = err as Error;

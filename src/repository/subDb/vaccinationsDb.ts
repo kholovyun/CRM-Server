@@ -11,6 +11,7 @@ import { Child } from "../../models/Child";
 import { Parent } from "../../models/Parent";
 import { Vaccination } from "../../models/Vaccination";
 import IVaccinationCreateDto from "../../interfaces/IVaccination/IVaccinationCreateDto";
+import { IMessage } from "../../interfaces/IMessage";
 
 export class VaccinationsDb {
     public getVaccinations = async (userId: string, childId: string): Promise<IResponse<IVaccination[] | IError>> => {
@@ -77,7 +78,7 @@ export class VaccinationsDb {
         }
     };
 
-    public deleteVaccination = async (userId: string, vacId: string): Promise<IResponse<string | IError>> => {
+    public deleteVaccination = async (userId: string, vacId: string): Promise<IResponse<IMessage | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -93,7 +94,7 @@ export class VaccinationsDb {
             await Vaccination.destroy({where: {id: vacId}});
             return {
                 status: StatusCodes.OK,
-                result: "Запись о вакцинации удалена!"
+                result: {message: "Запись о вакцинации удалена!"}
             };
         } catch (err: unknown) {
             const error = err as Error;

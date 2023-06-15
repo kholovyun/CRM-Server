@@ -8,6 +8,7 @@ import IReviewCreateDto from "../../interfaces/IReview/IReviewCreateDto";
 import IReviewGetDto from "../../interfaces/IReview/IReviewGetDto";
 import IError from "../../interfaces/IError";
 import IResponse from "../../interfaces/IResponse";
+import { IMessage } from "../../interfaces/IMessage";
 
 export class ReviewsDb {
     public getReviews = async (userId: string, offset: string, limit: string):
@@ -68,7 +69,7 @@ export class ReviewsDb {
         }
     };
 
-    public deleteReview = async (userId: string, reviewId: string) => {
+    public deleteReview = async (userId: string, reviewId: string): Promise<IResponse<IMessage | IError>>=> {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -83,7 +84,7 @@ export class ReviewsDb {
                 );
                 return {
                     status: StatusCodes.OK,
-                    result: "Отзыв удален!"
+                    result: {message: "Отзыв удален!"}
                 };
             } else {
                 throw new Error(EErrorMessages.NO_ACCESS);

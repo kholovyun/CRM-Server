@@ -12,6 +12,7 @@ import { Doctor } from "../../models/Doctor";
 import { Parent } from "../../models/Parent";
 import { Child } from "../../models/Child";
 import { deleteFile } from "../../helpers/deleteFile";
+import { IMessage } from "../../interfaces/IMessage";
 
 export class DocumentsDb {
     public createDocument = async (userId: string, document: IDocumentCreateDto): Promise<IResponse<IDocumentGetDto | IError>> => {
@@ -58,7 +59,7 @@ export class DocumentsDb {
         }
     };
     
-    public deleteDocument = async (userId: string, documentId: string): Promise<IResponse<string | IError>> => {
+    public deleteDocument = async (userId: string, documentId: string): Promise<IResponse<IMessage | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -85,7 +86,7 @@ export class DocumentsDb {
             }
             return {
                 status: StatusCodes.OK,
-                result: "Документ удален!"
+                result: {message: "Документ удален!"}
             };
 
         } catch (err: unknown) {

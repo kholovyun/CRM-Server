@@ -11,6 +11,7 @@ import IVisitGetDto from "../../interfaces/IVisit/IVisitGetDto";
 import { Child } from "../../models/Child";
 import { Parent } from "../../models/Parent";
 import { ERoles } from "../../enums/ERoles";
+import { IMessage } from "../../interfaces/IMessage";
 
 export class VisitsDb {
     public getVisitsByChildId = async (userId: string, childId: string): Promise<IResponse<IVisitGetDto[] | IError>> => {
@@ -92,7 +93,7 @@ export class VisitsDb {
         }
     };
 
-    public deleteVisit = async (userId: string, visitId: string): Promise<IResponse<string | IError>> => {
+    public deleteVisit = async (userId: string, visitId: string): Promise<IResponse<IMessage | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -116,7 +117,7 @@ export class VisitsDb {
             
             return {
                 status: StatusCodes.OK,
-                result: "Посещение удалено!"
+                result: {message: "Посещение удалено!"}
             };
         } catch (err: unknown) {
             const error = err as Error;
