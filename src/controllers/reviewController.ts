@@ -7,6 +7,7 @@ import IResponse from "../interfaces/IResponse";
 import IReviewGetDto from "../interfaces/IReview/IReviewGetDto";
 import IError from "../interfaces/IError";
 import IReviewCreateDto from "../interfaces/IReview/IReviewCreateDto";
+import { IMessage } from "../interfaces/IMessage";
 
 export class ReviewController {
     private repository: ReviewsDb;
@@ -43,7 +44,7 @@ export class ReviewController {
     private deleteReview = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<string | IError> = await this.repository.deleteReview(user.id, req.params.id);
+        const response: IResponse<IMessage | IError> = await this.repository.deleteReview(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 }

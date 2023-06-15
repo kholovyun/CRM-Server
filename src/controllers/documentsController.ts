@@ -9,6 +9,7 @@ import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
 import IResponse from "../interfaces/IResponse";
 import IDocumentGetDto from "../interfaces/IDocument/IDocumentGetDto";
 import IError from "../interfaces/IError";
+import { IMessage } from "../interfaces/IMessage";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -49,7 +50,7 @@ export class DocumentsController {
     private deleteDocument = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<string | IError> = await this.repository.deleteDocument(user.id, req.params.id);
+        const response: IResponse<IMessage | IError> = await this.repository.deleteDocument(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 

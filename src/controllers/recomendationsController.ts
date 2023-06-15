@@ -10,6 +10,7 @@ import IError from "../interfaces/IError";
 import { RecomendationsDb, recomendationDb } from "../repository/subDb/recomendationsDb";
 import IRecomendationCetDto from "../interfaces/IRecomendation/IRecomendationGetDto";
 import IRecomendationCreateDto from "../interfaces/IRecomendation/IRecomendationCreateDto";
+import { IMessage } from "../interfaces/IMessage";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -57,7 +58,7 @@ export class RecomendationsController {
     private deleteRecomendation = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<string | IError> = await this.repository.deleteRecomendation(user.id, req.params.id);
+        const response: IResponse<IMessage | IError> = await this.repository.deleteRecomendation(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 

@@ -9,6 +9,9 @@ import { Parent } from "../../models/Parent";
 import { SpecialistExam } from "../../models/SpecialistExam";
 import ISpecialistExamsCreateDto from "../../interfaces/ISpecialistExams/ISpecialistExamsCreateDto";
 import ISpecialistExamsGetDto from "../../interfaces/ISpecialistExams/ISpecialistExamsGetDto";
+import { IMessage } from "../../interfaces/IMessage";
+import IError from "../../interfaces/IError";
+import IResponse from "../../interfaces/IResponse";
 
 export class SpecialistExams {
     public getSpecialistExamsByChildId = async (userId: string, childId: string) => {
@@ -75,7 +78,7 @@ export class SpecialistExams {
         }
     };
 
-    public deleteSpecialistExam = async (userId: string, examinationId: string) => {
+    public deleteSpecialistExam = async (userId: string, examinationId: string): Promise<IResponse<IMessage | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -91,7 +94,7 @@ export class SpecialistExams {
             await SpecialistExam.destroy({where: {id: examinationId}});
             return {
                 status: StatusCodes.OK,
-                result: "Запись об осмотре врача удалена!"
+                result: {message: "Запись об осмотре врача удалена!"}
             };
         } catch(err: unknown) {
             const error = err as Error;

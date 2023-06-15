@@ -11,6 +11,7 @@ import { Parent } from "../../models/Parent";
 import IAllergy from "../../interfaces/IAllergy/IAllergy";
 import { Allergy } from "../../models/Allergy";
 import IAllergyCreateDto from "../../interfaces/IAllergy/IAllergyCreateDto";
+import { IMessage } from "../../interfaces/IMessage";
 
 export class AllergiesDb {
     public getAllergies = async (userId: string, childId: string): Promise<IResponse<IAllergy[] | IError>> => {
@@ -77,7 +78,7 @@ export class AllergiesDb {
         }
     };
 
-    public deleteAllergy = async (userId: string, allId: string): Promise<IResponse<string | IError>> => {
+    public deleteAllergy = async (userId: string, allId: string): Promise<IResponse<IMessage | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -93,7 +94,7 @@ export class AllergiesDb {
             await Allergy.destroy({where: {id: allId}});
             return {
                 status: StatusCodes.OK,
-                result: "Запись об аллергии удалена!"
+                result: {message: "Запись об аллергии удалена!"}
             };
         } catch (err: unknown) {
             const error = err as Error;

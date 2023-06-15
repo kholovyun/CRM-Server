@@ -6,6 +6,7 @@ import IRequestWithTokenData from "../interfaces/IRequestWithTokenData";
 import IError from "../interfaces/IError";
 import { VisitsDb, visitDb } from "../repository/subDb/visitsDb";
 import IVisitGetDto from "../interfaces/IVisit/IVisitGetDto";
+import { IMessage } from "../interfaces/IMessage";
 
 export class VisitsController {
     private repository: VisitsDb;
@@ -41,7 +42,7 @@ export class VisitsController {
     private deleteVisit = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<string | IError> = await this.repository.deleteVisit(user.id, req.params.id);
+        const response: IResponse<IMessage | IError> = await this.repository.deleteVisit(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 }

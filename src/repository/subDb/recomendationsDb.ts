@@ -10,6 +10,7 @@ import { Recommendation } from "../../models/Recommendation";
 import IRecomendationCreateDto from "../../interfaces/IRecomendation/IRecomendationCreateDto";
 import IRecomendationGetDto from "../../interfaces/IRecomendation/IRecomendationGetDto";
 import {deleteFile} from "../../helpers/deleteFile";
+import { IMessage } from "../../interfaces/IMessage";
 
 export class RecomendationsDb {
     public getRecomendationsByDoctor = async (doctorId: string): Promise<IResponse<IRecomendationGetDto[] | IError>> => {
@@ -108,7 +109,7 @@ export class RecomendationsDb {
         }
     };
 
-    public deleteRecomendation = async (userId: string, recomendationId: string): Promise<IResponse<string | IError>> => {
+    public deleteRecomendation = async (userId: string, recomendationId: string): Promise<IResponse<IMessage | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -122,7 +123,7 @@ export class RecomendationsDb {
                     });
                 return {
                     status: StatusCodes.OK,
-                    result: "Публикация удалена!"
+                    result: {message: "Публикация удалена!"}
                 };
             } else if (foundUser.role === ERoles.DOCTOR) {
                 const foundDoctor = await Doctor.findOne({
@@ -140,7 +141,7 @@ export class RecomendationsDb {
                 }
                 return {
                     status: StatusCodes.OK,
-                    result: "Публикация удалена!"
+                    result: {message: "Публикация удалена!"}
                 };
             } else {
                 throw new Error(EErrorMessages.NO_ACCESS);
