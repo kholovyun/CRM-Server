@@ -17,7 +17,7 @@ export class ReviewController {
         this.repository = reviewsDb;
         this.router = express.Router();
         this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getReviews);
-        this.router.post("/", permission([ERoles.DOCTOR, ERoles.PARENT]), this.createReview);
+        this.router.post("/", permission([ERoles.PARENT]), this.createReview);
         this.router.delete("/:id", permission([ERoles.SUPERADMIN]), this.deleteReview);
     }
 

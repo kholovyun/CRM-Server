@@ -206,7 +206,15 @@ const parentFixture = {
         registerDate: new Date(),
         isActive: true,
         subscriptionEndDate: new Date().setMonth(new Date().getMonth() + 1)
-    }        
+    },
+    parent3: {
+        id: uuid(),
+        userId: userFixture.user5.id,
+        doctorId: docFixture.doc1.id,
+        registerDate: new Date(),
+        isActive: true,
+        subscriptionEndDate: new Date().setMonth(new Date().getMonth() + 6)
+    }
 };
 
 const subscrFixture = {
@@ -227,7 +235,16 @@ const subscrFixture = {
         sum: docFixture.doc5.price,
         paymentType: EPaymentType.CASH,
         endDate: new Date(parentFixture.parent2.registerDate).setMonth(parentFixture.parent2.registerDate.getMonth() + 1)
-    }        
+    },
+    subscr3: {
+        id: uuid(),
+        userId: userFixture.user5.id,
+        payedBy: userFixture.user3.id,
+        type: 6,
+        sum: docFixture.doc5.price,
+        paymentType: EPaymentType.CASH,
+        endDate: new Date(parentFixture.parent3.registerDate).setMonth(parentFixture.parent3.registerDate.getMonth() + 6)
+    }
 };
 
 const childrenFixture = {
@@ -281,6 +298,19 @@ const childrenFixture = {
         height: 155,
         weight: 45,
         patronim: "patronium",
+        isActive: true
+    },
+    child5: {
+        id: uuid(),
+        parentId: parentFixture.parent3.id,
+        photo: "default-child-photo.svg",
+        name: "Анастасия",
+        surname: "Доу",
+        dateOfBirth: "2010-03-17",
+        sex: ESex.FEMALE,
+        height: 155,
+        weight: 43,
+        patronim: "Заковна",
         isActive: true
     },
 };
@@ -451,6 +481,27 @@ const questionsFixture = {
     }
 };
 
+const reviewFixtures = {
+    review1: {
+        id: uuid(),
+        userId: userFixture.user5.id,
+        createdAt: new Date(),
+        text: "Принимая во внимание показатели успешности, глубокий уровень погружения прекрасно подходит для реализации своевременного выполнения сверхзадачи."
+    },
+    review2: {
+        id: uuid(),
+        userId: userFixture.user6.id,
+        createdAt: new Date(),
+        text: "Добрая половина выводов сделала своё дело!"
+    },
+    review3: {
+        id: uuid(),
+        userId: userFixture.user7.id,
+        createdAt: new Date(),
+        text: "Но современная методология разработки говорит о возможностях направлений прогрессивного развития. Современные технологии достигли такого уровня, что глубокий уровень погружения позволяет оценить значение кластеризации усилий."
+    }
+};
+
 export const createUserFixtures = async (): Promise<void> => {
     try {
         await Allergy.destroy({where: {}});
@@ -571,6 +622,12 @@ export const createUserFixtures = async (): Promise<void> => {
             {...questionsFixture.question4},
             {...questionsFixture.question5},
             {...questionsFixture.question6},
+        ]);
+
+        await Review.bulkCreate([
+            {...reviewFixtures.review1},
+            {...reviewFixtures.review2},
+            {...reviewFixtures.review3},
         ]);
         
         Logger.info("Фикстуры созданы");
