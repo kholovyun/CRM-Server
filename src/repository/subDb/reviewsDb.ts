@@ -21,7 +21,7 @@ export class ReviewsDb {
                 include: {
                     model: User,
                     as: "users",
-                    attributes: ["role", "name", "patronim", "surname"]
+                    attributes: ["name", "patronim", "surname", "email", "phone"]
                 },
                 order: [
                     [ "createdAt", "DESC"]
