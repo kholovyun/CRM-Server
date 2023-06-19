@@ -22,7 +22,7 @@ import IError from "../../interfaces/IError";
 import { passwordValidation } from "../../helpers/passwordValidation";
 import { EErrorMessages } from "../../enums/EErrorMessages";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
-import { Op } from "sequelize";
+import  { Op } from "sequelize";
 import IChildCreateDto from "../../interfaces/IChild/IChildCreateDto";
 import { Child } from "../../models/Child";
 import IChildGetDto from "../../interfaces/IChild/IChildGetDto";
