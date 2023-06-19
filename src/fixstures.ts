@@ -123,7 +123,7 @@ const userFixture = {
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
     },
-
+    
 };
 
 const docFixture = {
@@ -579,7 +579,8 @@ export const createUserFixtures = async (): Promise<void> => {
         
         await Parent.bulkCreate([
             {...parentFixture.parent1},
-            {...parentFixture.parent2}
+            {...parentFixture.parent2},
+            {...parentFixture.parent3}
         ]);
 
         await Subscription.bulkCreate([
