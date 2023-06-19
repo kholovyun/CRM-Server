@@ -29,7 +29,7 @@ export default interface INewBornDataUpdateDto {
     stool: string;
     diuresis: string;
     umbilicalCord: string;
-    examed_by: string;
+    examedBy: string;
     notes? :string
     feedingReason?: string
 }
