@@ -586,6 +586,7 @@ export const createUserFixtures = async (): Promise<void> => {
         await Subscription.bulkCreate([
             {...subscrFixture.subscr1},
             {...subscrFixture.subscr2},
+            {...subscrFixture.subscr3},
         ]);
 
         await Child.bulkCreate([
@@ -593,10 +594,7 @@ export const createUserFixtures = async (): Promise<void> => {
             {...childrenFixture.child2},
             {...childrenFixture.child3},
             {...childrenFixture.child4},
-        ]);
-
-        await Allergy.bulkCreate([
-            {...allergyFixture.all1}
+            {...childrenFixture.child5},
         ]);
 
         await Vaccination.bulkCreate([
