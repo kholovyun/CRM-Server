@@ -246,11 +246,12 @@ export class NewbornData extends Model {
         umbilicalCord!: string;
 
     @Column({
+        field: "examed_by",
         type: DataType.STRING(256),
         defaultValue: "-",
         allowNull: false
     })
-        examed_by!: string;
+        examedBy!: string;
 
     @Column({
         type: DataType.STRING(256),
