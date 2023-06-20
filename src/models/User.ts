@@ -5,6 +5,7 @@ import { Parent } from "./Parent";
 import { Message } from "./Message";
 import { Subscription } from "./Subscription";
 import { Review } from "./Review";
+import { MessagesStatus } from "./MessagesStatus";
 
 @Table({
     tableName: "users",
@@ -20,6 +21,9 @@ export class User extends Model {
     
     @HasMany(() => Message)
         messages!: Message[];
+    
+    @HasMany(() => MessagesStatus)
+        messagesStatus!: MessagesStatus[];
         
     @HasMany(() => Review)
         reviews!: Review[];

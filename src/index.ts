@@ -18,6 +18,8 @@ import { VisitsController } from "./controllers/visitsController";
 import { QuestionsController } from "./controllers/questionsController";
 import { SpecExamsController } from "./controllers/specExamsControllers";
 import job from "./sheduleSubscripttion/sheduleSubscription";
+import { ChatMessagesController } from "./controllers/chatMessagesController";
+import { ChatMessagesStatusController } from "./controllers/chatMessagesStatusController";
 
 dotenv.config();
 
@@ -52,6 +54,8 @@ class App {
             this.app.use("/visits", new VisitsController().getRouter());
             this.app.use("/questions", new QuestionsController().getRouter());
             this.app.use("/examinations", new SpecExamsController().getRouter());
+            this.app.use("/messages", new ChatMessagesController().getRouter());
+            this.app.use("/messages-status", new ChatMessagesStatusController().getRouter());
             job;
         } catch (err: unknown) {
             const error = err as Error;
