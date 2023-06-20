@@ -1,15 +1,22 @@
-import { Model, Table, Column, PrimaryKey, DataType, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Model, Table, Column, PrimaryKey, DataType, ForeignKey, BelongsTo, HasMany } from "sequelize-typescript";
 import { User } from "./User";
 import { Question } from "./Question";
+import { MessagesStatus } from "./MessagesStatus";
 
 @Table({
     tableName: "messages",
-    timestamps: false,
+    timestamps: false
 })
 
 export class Message extends Model {
     @BelongsTo(() => Question)
         questions!: Question;
+    
+    @BelongsTo(() => User)
+        users!: User;
+    
+    @HasMany(() => MessagesStatus)
+        messagesStatus!: MessagesStatus[];
     
     @PrimaryKey
     @Column({
