@@ -27,7 +27,7 @@ export class QuestionsDb {
                 const foundParentByUser = await Parent.findOne({where: {userId}});
                 if (!foundParentByUser || foundChild.parentId !== foundParentByUser.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
-            const questions = Question.findAll({
+            const questions = await Question.findAll({
                 where: {childId},
                 order: [
                     ["created_at", "DESC"],
@@ -61,7 +61,7 @@ export class QuestionsDb {
                 const foundDoctor = await Doctor.findOne({where: {userId}});
                 if (!foundDoctor) throw new Error(EErrorMessages.NO_ACCESS);
             }
-            const questions = Question.findAll({
+            const questions = await Question.findAll({
                 where: {doctorId},
                 order: [
                     ["created_at", "DESC"],
