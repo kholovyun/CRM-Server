@@ -14,6 +14,7 @@ import { MessagesStatus } from "../../models/MessagesStatus";
 import IChatMessageWithUserGetDto from "../../interfaces/IChatMessage/IChatMessageWithUserGetDto";
 import IError from "../../interfaces/IError";
 import { IMessage } from "../../interfaces/IMessage";
+import IChatMessage from "../../interfaces/IChatMessage/IChatMessage";
 
 export class ChatMessagesDb {
 
@@ -54,7 +55,7 @@ export class ChatMessagesDb {
         }
     };
     
-    public createMessage = async (userId: string, message: IChatMessageCreateDto) => {
+    public createMessage = async (userId: string, message: IChatMessageCreateDto): Promise<IResponse<IChatMessage | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error(EErrorMessages.NO_ACCESS);
@@ -77,8 +78,7 @@ export class ChatMessagesDb {
             const newMessage = await Message.create({...message});
             await MessagesStatus.create({
                 messageId: newMessage.id,
-                userId: foundUser.id,
-                isRead: true
+                userId: foundUser.id
             });
             await MessagesStatus.create({
                 messageId: newMessage.id,

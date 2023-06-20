@@ -24,7 +24,7 @@ export class MessagesStatus extends Model {
     @Column({
         field: "is_read",
         type: DataType.BOOLEAN,
-        defaultValue: false,
+        defaultValue: true,
         allowNull: false
     })
         isRead!: boolean;

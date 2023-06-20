@@ -11,6 +11,7 @@ import IResponse from "../interfaces/IResponse";
 import IError from "../interfaces/IError";
 import { IMessage } from "../interfaces/IMessage";
 import IChatMessageWithUserGetDto from "../interfaces/IChatMessage/IChatMessageWithUserGetDto";
+import IChatMessage from "../interfaces/IChatMessage/IChatMessage";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -52,7 +53,7 @@ export class ChatMessagesController {
         const user = req.dataFromToken as { id: string, email: string, role: string };
         const message = req.body;
         message.url = req.file ? req.file.filename : "";
-        const response: IResponse<IChatMessageWithUserGetDto | IError> = await this.repository.createMessage(user.id, message);
+        const response: IResponse<IChatMessage | IError> = await this.repository.createMessage(user.id, message);
         res.status(response.status).send(response.result);
     };
 
