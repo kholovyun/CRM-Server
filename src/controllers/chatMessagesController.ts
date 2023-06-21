@@ -32,7 +32,7 @@ export class ChatMessagesController {
         this.router = express.Router();
         this.router.use(morganMiddleware);
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getMessagesByQuestion);
-        this.router.post("/:id", [permission([ERoles.DOCTOR, ERoles.PARENT]), upload.single("url")], this.createMessage);
+        this.router.post("/", [permission([ERoles.DOCTOR, ERoles.PARENT]), upload.single("url")], this.createMessage);
         this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.PARENT]), this.deleteMessage);
         this.repository = chatMessagesDb;
     }
