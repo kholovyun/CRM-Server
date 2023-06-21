@@ -37,6 +37,12 @@ export class Visit extends Model {
         allowNull: false,
     })
         date!: Date;
+    
+     @Column({
+         type: DataType.STRING,
+         allowNull: false,
+     })
+         clinicData!: string;
 
     @Column({
         type: DataType.STRING,
