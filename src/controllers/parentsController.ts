@@ -20,9 +20,6 @@ export class ParentsController {
         this.router.get("/doctor/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR,]), this.getParentsByDoctorId);
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getParentById);
         this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.activateParent);
-        this.router.get("/alldata", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getParentByUserId);
-        this.router.get("/data/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getParentByParentId);
-
         this.repository = parentsDb;
     }
 
@@ -51,7 +48,7 @@ export class ParentsController {
     private getParentById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<IParentGetDto | IError> = await this.repository.getParentById(
+        const response: IResponse<IParent | IError> = await this.repository.getParentByUserId(
             user.id,
             req.params.id
         );
@@ -65,24 +62,4 @@ export class ParentsController {
         res.status(response.status).send(response.result);
     };
 
-    private getParentByUserId = async (expressReq: Request, res: Response): Promise<void> => {
-        const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<IParent | IError> = await this.repository.getParentByUserId(
-            user.id,
-            req.body.id
-        );
-        res.status(response.status).send(response.result);
-    };
-
-    private getParentByParentId = async (expressReq: Request, res: Response): Promise<void> => {
-        const req = expressReq as IRequestWithTokenData;
-        const params = req.params.id;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<IParent | IError> = await this.repository.getParentByUserId(
-            user.id,
-            params
-        );
-        res.status(response.status).send(response.result);
-    };
 }
