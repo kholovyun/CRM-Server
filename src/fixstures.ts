@@ -22,6 +22,7 @@ import { Question } from "./models/Question";
 import { MessagesStatus } from "./models/MessagesStatus";
 
 const db = PostgresDB;
+const date: Date = new Date();
 
 const userFixture = {
     user1: {
@@ -124,7 +125,7 @@ const userFixture = {
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
     },
-    
+
 };
 
 const docFixture = {
@@ -196,25 +197,25 @@ const parentFixture = {
         id: uuid(),
         userId: userFixture.user7.id,
         doctorId: docFixture.doc4.id,
-        registerDate: new Date(),
+        registerDate: date,
         isActive: true,
-        subscriptionEndDate: new Date().setMonth(new Date().getMonth() + 1)
+        subscriptionEndDate: new Date().setMonth(date.getMonth() + 1)
     },
     parent2: {
         id: uuid(),
         userId: userFixture.user6.id,
         doctorId: docFixture.doc5.id,
-        registerDate: new Date(),
+        registerDate: date,
         isActive: true,
-        subscriptionEndDate: new Date().setMonth(new Date().getMonth() + 1)
+        subscriptionEndDate: new Date().setMonth(date.getMonth() + 1)
     },
     parent3: {
         id: uuid(),
         userId: userFixture.user5.id,
         doctorId: docFixture.doc1.id,
-        registerDate: new Date(),
+        registerDate: date,
         isActive: true,
-        subscriptionEndDate: new Date().setMonth(new Date().getMonth() + 6)
+        subscriptionEndDate: new Date().setMonth(date.getMonth() + 6)
     }
 };
 
@@ -565,16 +566,16 @@ const documentsFixture = {
     document1: {
         id: uuid(),
         childId: childrenFixture.child1.id,
-        createdAt: new Date(),
+        createdAt: date,
         url: "default-any-image.svg"
     },
     document2: {
         id: uuid(),
         childId: childrenFixture.child2.id,
-        createdAt: new Date(),
+        createdAt: date,
         url: "default-any-image.svg"
     },
-    
+
 };
 
 const recomendationsFix = {
@@ -606,7 +607,7 @@ const visitsFixture = {
         childId: childrenFixture.child1.id,
         reason: EVisitReasons.THERAP,
         clinicData: "Тут клинические данные",
-        date: new Date(),
+        date: new Date(date.setDate(date.getDate() - 1)),
         conclusion: "Диарея",
         appointment: "По 2 таблетки \"Антидиарея\"в день, утром и вечером после ужина"
     },
@@ -615,7 +616,7 @@ const visitsFixture = {
         childId: childrenFixture.child1.id,
         reason: EVisitReasons.PROPH,
         clinicData: "Тут клинические данные",
-        date: new Date(),
+        date: new Date(date.setMonth(date.getMonth() - 1)),
         conclusion: "Легкая простуда",
         appointment: "По 2 пакетика \"Инсти для детей\"в день, утром и вечером после ужина"
     },
@@ -624,7 +625,7 @@ const visitsFixture = {
         childId: childrenFixture.child2.id,
         reason: EVisitReasons.PROPH,
         clinicData: "Тут клинические данные",
-        date: new Date(),
+        date: new Date(date.setDate(date.getDate() - 3)),
         conclusion: "Ринит",
         appointment: "Впрыскиваний препарата \"Лазорин\" в каждый носовой ход в сутки; продолжительность применения не более 5–7 дней"
     },
@@ -633,10 +634,10 @@ const visitsFixture = {
         childId: childrenFixture.child2.id,
         reason: EVisitReasons.PROPH,
         clinicData: "Тут клинические данные",
-        date: new Date(),
+        date: new Date(date.setMonth(date.getMonth() - 2)),
         conclusion: "Ветрянка",
         appointment: "Обработка сыпи антисептическими и подсушивающими средствами для исключения занесения вторичной инфекции и ускорения регенерации папул без остаточных рубцов"
-    }, 
+    },
 };
 
 const questionsFixture = {
@@ -645,7 +646,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: new Date(),
+        createdAt: date,
         question: "Когда Марк может получить привывку от кори?"
     },
     question2: {
@@ -653,7 +654,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child2.id,
         parentId: parentFixture.parent1.id,
-        createdAt: new Date(),
+        createdAt: date,
         question: "Когда и чем сбивать температуру у ребенка? Стоит ли ее сбивать вообще?"
     },
     question3: {
@@ -661,7 +662,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: new Date(),
+        createdAt: date,
         question: "После визита к вам прошло 5 дней, температура спала, можно ли выйти на улицу?"
     },
     question4: {
@@ -669,7 +670,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: new Date(),
+        createdAt: date,
         question: "У Марка температура иногда поднимается. Можно ли выйти на улицу с температурой выше 37?"
     },
     question5: {
@@ -677,7 +678,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child3.id,
         parentId: parentFixture.parent1.id,
-        createdAt: new Date(),
+        createdAt: date,
         question: "У ребенка кажется колики, можно ли ставить ребенку газоотводную трубку?"
     },
     question6: {
@@ -685,7 +686,7 @@ const questionsFixture = {
         doctorId: docFixture.doc5.id,
         childId: childrenFixture.child4.id,
         parentId: parentFixture.parent2.id,
-        createdAt: new Date(),
+        createdAt: date,
         question: "Можете порекомендовать солнцезащитный крем для младенца"
     }
 };
@@ -694,7 +695,7 @@ const messagesFixtures = {
     message1: {
         id: uuid(),
         authorId: userFixture.user9.id,
-        createdAt: new Date(),
+        createdAt: date,
         questionId: questionsFixture.question1.id,
         text: "Ещё не завезли, я Вам сообщу.",
         url: ""
@@ -702,7 +703,7 @@ const messagesFixtures = {
     message2: {
         id: uuid(),
         authorId: userFixture.user7.id,
-        createdAt: new Date(),
+        createdAt: date,
         questionId: questionsFixture.question1.id,
         text: "Тут ещё вопрос с картинкой",
         url: "default-any-image.svg"
@@ -710,7 +711,7 @@ const messagesFixtures = {
     message3: {
         id: uuid(),
         authorId: userFixture.user9.id,
-        createdAt: new Date(),
+        createdAt: date,
         questionId: questionsFixture.question1.id,
         text: "Третье сообщение с картинкой (ответ врача)",
         url: "default-any-image.svg"
@@ -754,25 +755,26 @@ const reviewFixtures = {
     review1: {
         id: uuid(),
         userId: userFixture.user5.id,
-        createdAt: new Date(),
+        createdAt: date,
         text: "Принимая во внимание показатели успешности, глубокий уровень погружения прекрасно подходит для реализации своевременного выполнения сверхзадачи."
     },
     review2: {
         id: uuid(),
         userId: userFixture.user6.id,
-        createdAt: new Date(),
+        createdAt: date,
         text: "Добрая половина выводов сделала своё дело!"
     },
     review3: {
         id: uuid(),
         userId: userFixture.user7.id,
-        createdAt: new Date(),
+        createdAt: date,
         text: "Но современная методология разработки говорит о возможностях направлений прогрессивного развития. Современные технологии достигли такого уровня, что глубокий уровень погружения позволяет оценить значение кластеризации усилий."
     }
 };
 
 export const createUserFixtures = async (): Promise<void> => {
     try {
+        await Message.destroy({ where: {} });
         await Allergy.destroy({where: {}});
         await Vaccination.destroy({where: {}});
         await NewbornData.destroy({where: {}});
@@ -781,7 +783,6 @@ export const createUserFixtures = async (): Promise<void> => {
         await Doctor.destroy({ where: {} });
         await Parent.destroy({ where: {} });
         await MessagesStatus.destroy({ where: {} });
-        await Message.destroy({ where: {} });
         await Review.destroy({ where: {} });
         await Subscription.destroy({ where: {} });
         await Review.destroy({ where: {} });
@@ -846,7 +847,7 @@ export const createUserFixtures = async (): Promise<void> => {
             { ...recomendationsFix.reco3},
             { ...recomendationsFix.reco4},
         ]);
-        
+
         await Parent.bulkCreate([
             {...parentFixture.parent1},
             {...parentFixture.parent2},
@@ -926,7 +927,7 @@ export const createUserFixtures = async (): Promise<void> => {
             {...reviewFixtures.review2},
             {...reviewFixtures.review3},
         ]);
-        
+
         Logger.info("Фикстуры созданы");
     } catch (error) {
         Logger.error(error);
