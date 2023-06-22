@@ -38,11 +38,12 @@ export class Visit extends Model {
     })
         date!: Date;
     
-     @Column({
-         type: DataType.STRING,
-         allowNull: false,
-     })
-         clinicData!: string;
+    @Column({
+        type: DataType.STRING,
+        field: "clinic_data",
+        allowNull: false,
+    })
+        clinicData!: string;
 
     @Column({
         type: DataType.STRING,
