@@ -81,7 +81,7 @@ export class DocumentsDb {
             }
 
             await Document.destroy({where: {id: documentId}});
-            if (document.url) {
+            if (document.url && document.url !== "default-any-image.svg") {
                 deleteFile(document.url, "childrenDocuments");
             }
             return {

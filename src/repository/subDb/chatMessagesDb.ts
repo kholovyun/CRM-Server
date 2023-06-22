@@ -118,7 +118,7 @@ export class ChatMessagesDb {
             if (foundMessage.authorId !== foundUser.id) throw new Error(EErrorMessages.NO_ACCESS);
 
             await Message.destroy({where: {id: messageId}});
-            if (foundMessage.url || foundMessage.url !== "") {
+            if (foundMessage.url || foundMessage.url !== "" && foundMessage.url !== "default-any-image.svg") {
                 deleteFile(foundMessage.url, "messagesFiles");
             }
             return {
