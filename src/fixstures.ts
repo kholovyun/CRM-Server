@@ -19,6 +19,7 @@ import { Vaccination } from "./models/Vaccination";
 import { Visit } from "./models/Visit";
 import { EVisitReasons } from "./enums/EVisitReasons";
 import { Question } from "./models/Question";
+import { MessagesStatus } from "./models/MessagesStatus";
 
 const db = PostgresDB;
 
@@ -28,8 +29,8 @@ const userFixture = {
         role: ERoles.ADMIN,
         email: "bumerboy86@gmail.com",
         phone: "+7(707)415-22-01",
-        name: "John",
-        surname: "Doe",
+        name: "Джон",
+        surname: "Доу",
         password: "$2b$10$a7cDlgvs1HuFKXI3FO4DM.qMVBmfn.ROJBZdxLFb8pHZ6vo/ZH9T.",
         isBlocked: false,
     },
@@ -38,8 +39,8 @@ const userFixture = {
         role: ERoles.SUPERADMIN,
         email: "kholov.yunus@gmail.com",
         phone: "+996(707)15-22-02",
-        name: "Jane",
-        surname: "Doe",
+        name: "Джейн",
+        surname: "Доу",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
     },
@@ -48,8 +49,8 @@ const userFixture = {
         role: ERoles.DOCTOR,
         email: "doc@gmail.com",
         phone: "+7(707)415-22-03",
-        name: "Lopez",
-        surname: "Doe",
+        name: "Лопес",
+        surname: "Оченьдлиннаяфамилия",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
     },
@@ -58,8 +59,8 @@ const userFixture = {
         role: ERoles.DOCTOR,
         email: "doc2@gmail.com",
         phone: "+7(707)415-22-04",
-        name: "Reno",
-        surname: "Doe",
+        name: "Рено",
+        surname: "Доу",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
     },
@@ -68,8 +69,8 @@ const userFixture = {
         role: ERoles.PARENT,
         email: "daddy@gmail.com",
         phone: "+7(707)415-22-05",
-        name: "Zack",
-        surname: "Doe",
+        name: "Зак",
+        surname: "Доу",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
     },
@@ -78,8 +79,8 @@ const userFixture = {
         role: ERoles.PARENT,
         email: "uncle@gmail.com",
         phone: "+7(707)415-22-06",
-        name: "Ed",
-        surname: "Doe",
+        name: "Эдд",
+        surname: "Грей",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
     },
@@ -88,8 +89,8 @@ const userFixture = {
         role: ERoles.PARENT,
         email: "mommy@gmail.com",
         phone: "+7(707)415-22-07",
-        name: "Lony",
-        surname: "Doe",
+        name: "Лони",
+        surname: "Рубенштейн",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
     },
@@ -98,8 +99,8 @@ const userFixture = {
         role: ERoles.DOCTOR,
         email: "doc3@gmail.com",
         phone: "+7(707)415-22-08",
-        name: "Renato",
-        surname: "Doe",
+        name: "Рената",
+        surname: "Ренатова",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
     },
@@ -108,8 +109,8 @@ const userFixture = {
         role: ERoles.DOCTOR,
         email: "doc4@gmail.com",
         phone: "+7(707)415-22-09",
-        name: "Anna",
-        surname: "Doe",
+        name: "Анна",
+        surname: "Анина",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
     },
@@ -118,8 +119,8 @@ const userFixture = {
         role: ERoles.DOCTOR,
         email: "doc5@gmail.com",
         phone: "+7(707)415-22-00",
-        name: "Aruzhan",
-        surname: "Doe",
+        name: "Аружан",
+        surname: "Аружанова",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
     },
@@ -252,8 +253,8 @@ const childrenFixture = {
         id: uuid(),
         parentId: parentFixture.parent1.id,
         photo: "default-child-photo.svg",
-        name: "Mark",
-        surname: "Teal",
+        name: "Марк",
+        surname: "Рубенштейн",
         dateOfBirth: "2013-06-12",
         sex: ESex.MALE,
         height: 135,
@@ -265,8 +266,8 @@ const childrenFixture = {
         id: uuid(),
         parentId: parentFixture.parent1.id,
         photo: "default-child-photo.svg",
-        name: "Sara",
-        surname: "Grey",
+        name: "Сара",
+        surname: "Рубенштейн",
         dateOfBirth: "2020-10-11",
         sex: ESex.FEMALE,
         height: 95,
@@ -291,8 +292,8 @@ const childrenFixture = {
         id: uuid(),
         parentId: parentFixture.parent2.id,
         photo: "default-child-photo.svg",
-        name: "Sara",
-        surname: "Grey",
+        name: "Мария",
+        surname: "Грей",
         dateOfBirth: "2010-05-07",
         sex: ESex.FEMALE,
         height: 155,
@@ -565,13 +566,13 @@ const documentsFixture = {
         id: uuid(),
         childId: childrenFixture.child1.id,
         createdAt: new Date(),
-        url: "some url here"
+        url: "default-any-image.svg"
     },
     document2: {
         id: uuid(),
         childId: childrenFixture.child2.id,
         createdAt: new Date(),
-        url: "some url here"
+        url: "default-any-image.svg"
     },
     
 };
@@ -604,6 +605,7 @@ const visitsFixture = {
         id: uuid(),
         childId: childrenFixture.child1.id,
         reason: EVisitReasons.THERAP,
+        clinicData: "Тут клинические данные",
         date: new Date(),
         conclusion: "Диарея",
         appointment: "По 2 таблетки \"Антидиарея\"в день, утром и вечером после ужина"
@@ -612,6 +614,7 @@ const visitsFixture = {
         id: uuid(),
         childId: childrenFixture.child1.id,
         reason: EVisitReasons.PROPH,
+        clinicData: "Тут клинические данные",
         date: new Date(),
         conclusion: "Легкая простуда",
         appointment: "По 2 пакетика \"Инсти для детей\"в день, утром и вечером после ужина"
@@ -620,6 +623,7 @@ const visitsFixture = {
         id: uuid(),
         childId: childrenFixture.child2.id,
         reason: EVisitReasons.PROPH,
+        clinicData: "Тут клинические данные",
         date: new Date(),
         conclusion: "Ринит",
         appointment: "Впрыскиваний препарата \"Лазорин\" в каждый носовой ход в сутки; продолжительность применения не более 5–7 дней"
@@ -628,6 +632,7 @@ const visitsFixture = {
         id: uuid(),
         childId: childrenFixture.child2.id,
         reason: EVisitReasons.PROPH,
+        clinicData: "Тут клинические данные",
         date: new Date(),
         conclusion: "Ветрянка",
         appointment: "Обработка сыпи антисептическими и подсушивающими средствами для исключения занесения вторичной инфекции и ускорения регенерации папул без остаточных рубцов"
@@ -685,6 +690,66 @@ const questionsFixture = {
     }
 };
 
+const messagesFixtures = {
+    message1: {
+        id: uuid(),
+        authorId: userFixture.user9.id,
+        createdAt: new Date(),
+        questionId: questionsFixture.question1.id,
+        text: "Ещё не завезли, я Вам сообщу.",
+        url: ""
+    },
+    message2: {
+        id: uuid(),
+        authorId: userFixture.user7.id,
+        createdAt: new Date(),
+        questionId: questionsFixture.question1.id,
+        text: "Тут ещё вопрос с картинкой",
+        url: "default-any-image.svg"
+    },
+    message3: {
+        id: uuid(),
+        authorId: userFixture.user9.id,
+        createdAt: new Date(),
+        questionId: questionsFixture.question1.id,
+        text: "Третье сообщение с картинкой (ответ врача)",
+        url: "default-any-image.svg"
+    },
+};
+
+const messagesStatusFixtures = {
+    messageStatus1: {
+        id: uuid(),
+        isRead: true,
+        messageId: messagesFixtures.message1.id,
+        userId: userFixture.user9.id
+    },
+    messageStatus2: {
+        id: uuid(),
+        isRead: true,
+        messageId: messagesFixtures.message1.id,
+        userId: userFixture.user7.id
+    },
+    messageStatus3: {
+        id: uuid(),
+        isRead: true,
+        messageId: messagesFixtures.message2.id,
+        userId: userFixture.user7.id
+    },
+    messageStatus4: {
+        id: uuid(),
+        isRead: true,
+        messageId: messagesFixtures.message2.id,
+        userId: userFixture.user9.id
+    },
+    messageStatus5: {
+        id: uuid(),
+        isRead: true,
+        messageId: messagesFixtures.message3.id,
+        userId: userFixture.user9.id
+    }
+};
+
 const reviewFixtures = {
     review1: {
         id: uuid(),
@@ -715,6 +780,7 @@ export const createUserFixtures = async (): Promise<void> => {
         await Recommendation.destroy({ where: {} });
         await Doctor.destroy({ where: {} });
         await Parent.destroy({ where: {} });
+        await MessagesStatus.destroy({ where: {} });
         await Message.destroy({ where: {} });
         await Review.destroy({ where: {} });
         await Subscription.destroy({ where: {} });
@@ -839,6 +905,20 @@ export const createUserFixtures = async (): Promise<void> => {
             {...questionsFixture.question4},
             {...questionsFixture.question5},
             {...questionsFixture.question6},
+        ]);
+
+        await Message.bulkCreate([
+            {...messagesFixtures.message1},
+            {...messagesFixtures.message2},
+            {...messagesFixtures.message3},
+        ]);
+
+        await MessagesStatus.bulkCreate([
+            {...messagesStatusFixtures.messageStatus1},
+            {...messagesStatusFixtures.messageStatus2},
+            {...messagesStatusFixtures.messageStatus3},
+            {...messagesStatusFixtures.messageStatus4},
+            {...messagesStatusFixtures.messageStatus5}
         ]);
 
         await Review.bulkCreate([
