@@ -775,10 +775,10 @@ const reviewFixtures = {
 export const createUserFixtures = async (): Promise<void> => {
     try {
         await Message.destroy({ where: {} });
-        await Allergy.destroy({where: {}});
-        await Vaccination.destroy({where: {}});
-        await NewbornData.destroy({where: {}});
-        await Child.destroy({where: {}});
+        await Allergy.destroy({ where: {} });
+        await Vaccination.destroy({ where: {} });
+        await NewbornData.destroy({ where: {} });
+        await Child.destroy({ where: {} });
         await Recommendation.destroy({ where: {} });
         await Doctor.destroy({ where: {} });
         await Parent.destroy({ where: {} });
@@ -787,9 +787,9 @@ export const createUserFixtures = async (): Promise<void> => {
         await Subscription.destroy({ where: {} });
         await Review.destroy({ where: {} });
         await User.destroy({ where: {} });
-        await Document.destroy({where: {}});
-        await Visit.destroy({where: {}});
-        await Question.destroy({where: {}});
+        await Document.destroy({ where: {} });
+        await Visit.destroy({ where: {} });
+        await Question.destroy({ where: {} });
         await User.bulkCreate([
             {
                 ...userFixture.user1,

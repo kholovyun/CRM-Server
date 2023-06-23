@@ -15,8 +15,8 @@ export class VisitsController {
     constructor() {
         this.repository = visitDb;
         this.router = express.Router();
-        this.router.post("/", permission([ERoles.DOCTOR]), this.createVisit);
         this.router.get("/:id", permission([ERoles.DOCTOR, ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.PARENT]), this.getVisitsByChildId);
+        this.router.post("/", permission([ERoles.DOCTOR]), this.createVisit);
         this.router.delete("/:id", permission([ERoles.DOCTOR]), this.deleteVisit);
     }
 
