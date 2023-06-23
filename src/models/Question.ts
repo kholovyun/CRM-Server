@@ -54,14 +54,6 @@ export class Question extends Model {
         parentId!: string;
 
     @Column({
-        field: "is_closed",
-        type: DataType.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    })
-        isClosed!: boolean;
-    
-    @Column({
         field: "created_at",
         type: DataType.DATE,
         allowNull: false,

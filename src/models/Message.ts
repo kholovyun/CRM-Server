@@ -50,7 +50,7 @@ export class Message extends Model {
         questionId!: string;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.STRING(256),
         allowNull: false,
     })
         text!: string;
