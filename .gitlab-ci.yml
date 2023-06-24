@@ -11,18 +11,17 @@ build_job:
   image: docker:20.10.16
   services:
     - docker:20.10.16-dind
+  tags:
+    - ajs
 
-tags:
-  - ajs
+  before_script:
+    - echo 'building job is running'
 
-before_script:
-  - echo 'building job is running'
-
-script: 
-  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-  - cp -f $ENV_FILE .env
-  - docker build -t $TAG_COMMIT -t $TAG_LATEST .
-  - docker push $TAG_COMMIT
-  - docker push $TAG_LATEST
-  - docker rmi $TAG_COMMIT
-  - docker rmi $TAG_LATEST
+  script: 
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - cp -f $ENV_FILE .env
+    - docker build -t $TAG_COMMIT -t $TAG_LATEST .
+    - docker push $TAG_COMMIT
+    - docker push $TAG_LATEST
+    - docker rmi $TAG_COMMIT
+    - docker rmi $TAG_LATEST
