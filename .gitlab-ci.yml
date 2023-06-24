@@ -12,7 +12,7 @@ build_job:
   services:
     - docker:20.10.16-dind
   tags:
-    - ajs
+    - ajsesdp
 
   before_script:
     - echo 'building job is running'
