@@ -15,7 +15,7 @@ build_job:
     - ajstag
 
   before_script:
-    = docker info
+    - docker info
     - echo 'building job is running'
 
   script: 
