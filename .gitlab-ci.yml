@@ -7,14 +7,15 @@ variables:
 
 build_job:
   stage: build
-  only: ["dev", "main"]
+  only: ["dev"]
   image: docker:20.10.16
   services:
     - docker:20.10.16-dind
   tags:
-    - ajsesdp
+    - tekelitag
 
   before_script:
+    = docker info
     - echo 'building job is running'
 
   script: 
