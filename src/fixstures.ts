@@ -646,7 +646,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: new Date(),
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 100),
         question: "Когда Марк может получить привывку от кори?"
     },
     question2: {
@@ -654,7 +654,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child2.id,
         parentId: parentFixture.parent1.id,
-        createdAt: new Date(),
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 50),
         question: "Когда и чем сбивать температуру у ребенка? Стоит ли ее сбивать вообще?"
     },
     question3: {
@@ -662,7 +662,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: new Date(),
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 30),
         question: "После визита к вам прошло 5 дней, температура спала, можно ли выйти на улицу?"
     },
     question4: {
@@ -670,7 +670,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: new Date(),
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 10),
         question: "У Марка температура иногда поднимается. Можно ли выйти на улицу с температурой выше 37?"
     },
     question5: {
@@ -678,7 +678,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child3.id,
         parentId: parentFixture.parent1.id,
-        createdAt: new Date(),
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 5),
         question: "У ребенка кажется колики, можно ли ставить ребенку газоотводную трубку?"
     },
     question6: {
@@ -695,7 +695,7 @@ const messagesFixtures = {
     message1: {
         id: uuid(),
         authorId: userFixture.user9.id,
-        createdAt: new Date(),
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 100),
         questionId: questionsFixture.question1.id,
         text: "Ещё не завезли, я Вам сообщу.",
         url: ""
@@ -703,7 +703,7 @@ const messagesFixtures = {
     message2: {
         id: uuid(),
         authorId: userFixture.user7.id,
-        createdAt: new Date(),
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 50),
         questionId: questionsFixture.question1.id,
         text: "Тут ещё вопрос с картинкой",
         url: "default-any-image.svg"
@@ -755,13 +755,13 @@ const reviewFixtures = {
     review1: {
         id: uuid(),
         userId: userFixture.user5.id,
-        createdAt: new Date(),
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 100),
         text: "Принимая во внимание показатели успешности, глубокий уровень погружения прекрасно подходит для реализации своевременного выполнения сверхзадачи."
     },
     review2: {
         id: uuid(),
         userId: userFixture.user6.id,
-        createdAt: new Date(),
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 50),
         text: "Добрая половина выводов сделала своё дело!"
     },
     review3: {
