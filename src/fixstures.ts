@@ -646,7 +646,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: date,
+        createdAt: new Date(),
         question: "Когда Марк может получить привывку от кори?"
     },
     question2: {
@@ -654,7 +654,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child2.id,
         parentId: parentFixture.parent1.id,
-        createdAt: date,
+        createdAt: new Date(),
         question: "Когда и чем сбивать температуру у ребенка? Стоит ли ее сбивать вообще?"
     },
     question3: {
@@ -662,7 +662,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: date,
+        createdAt: new Date(),
         question: "После визита к вам прошло 5 дней, температура спала, можно ли выйти на улицу?"
     },
     question4: {
@@ -670,7 +670,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: date,
+        createdAt: new Date(),
         question: "У Марка температура иногда поднимается. Можно ли выйти на улицу с температурой выше 37?"
     },
     question5: {
@@ -678,7 +678,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child3.id,
         parentId: parentFixture.parent1.id,
-        createdAt: date,
+        createdAt: new Date(),
         question: "У ребенка кажется колики, можно ли ставить ребенку газоотводную трубку?"
     },
     question6: {
@@ -686,7 +686,7 @@ const questionsFixture = {
         doctorId: docFixture.doc5.id,
         childId: childrenFixture.child4.id,
         parentId: parentFixture.parent2.id,
-        createdAt: date,
+        createdAt: new Date(),
         question: "Можете порекомендовать солнцезащитный крем для младенца"
     }
 };
@@ -695,7 +695,7 @@ const messagesFixtures = {
     message1: {
         id: uuid(),
         authorId: userFixture.user9.id,
-        createdAt: date,
+        createdAt: new Date(),
         questionId: questionsFixture.question1.id,
         text: "Ещё не завезли, я Вам сообщу.",
         url: ""
@@ -703,7 +703,7 @@ const messagesFixtures = {
     message2: {
         id: uuid(),
         authorId: userFixture.user7.id,
-        createdAt: date,
+        createdAt: new Date(),
         questionId: questionsFixture.question1.id,
         text: "Тут ещё вопрос с картинкой",
         url: "default-any-image.svg"
@@ -711,7 +711,7 @@ const messagesFixtures = {
     message3: {
         id: uuid(),
         authorId: userFixture.user9.id,
-        createdAt: date,
+        createdAt: new Date(),
         questionId: questionsFixture.question1.id,
         text: "Третье сообщение с картинкой (ответ врача)",
         url: "default-any-image.svg"
@@ -755,19 +755,19 @@ const reviewFixtures = {
     review1: {
         id: uuid(),
         userId: userFixture.user5.id,
-        createdAt: date,
+        createdAt: new Date(),
         text: "Принимая во внимание показатели успешности, глубокий уровень погружения прекрасно подходит для реализации своевременного выполнения сверхзадачи."
     },
     review2: {
         id: uuid(),
         userId: userFixture.user6.id,
-        createdAt: date,
+        createdAt: new Date(),
         text: "Добрая половина выводов сделала своё дело!"
     },
     review3: {
         id: uuid(),
         userId: userFixture.user7.id,
-        createdAt: date,
+        createdAt: new Date(),
         text: "Но современная методология разработки говорит о возможностях направлений прогрессивного развития. Современные технологии достигли такого уровня, что глубокий уровень погружения позволяет оценить значение кластеризации усилий."
     }
 };
