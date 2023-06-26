@@ -7,6 +7,8 @@ import {User} from "../../models/User";
 import {EErrorMessages} from "../../enums/EErrorMessages";
 import {Parent} from "../../models/Parent";
 import {IMessage} from "../../interfaces/IMessage";
+import {Subscription} from "../../models/Subscription";
+import {Doctor} from "../../models/Doctor";
 
 
 export class SubscriptionsDb {
@@ -19,25 +21,37 @@ export class SubscriptionsDb {
             const foundParent = await Parent.findByPk(parentId);
             if (!foundParent) throw new Error(EErrorMessages.PARENT_NOT_FOUND);
 
-            const isParentBlocked = await User.findByPk(foundParent.userId);
-            if (isParentBlocked) throw  new Error(EErrorMessages.NO_ACCESS);
+            const foundUserParent = await User.findByPk(foundParent.userId);
+            if (!foundUserParent) throw new Error(EErrorMessages.NO_ACCESS);
 
-            let days = 0;
+            const foundDoctor = await Doctor.findByPk(foundParent.doctorId);
+            if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
+
+            let price;
+
             switch (subscriptionDto.type) {
                 case 1:
-                    days = 30;
+                    price = foundDoctor?.price
                     break;
                 case 6:
-                    days = 180
+                    price = Math.floor(foundDoctor?.price * 6 - (foundDoctor?.price * 6) * 15/100)
                     break;
                 case 12:
-                    days = 360;
+                    price = Math.floor(foundDoctor?.price * 12 - (foundDoctor?.price * 12) * 35/100)
                     break;
-
             }
 
-            await Parent.update({subscriptionEndDate: new Date().setDate(foundParent.subscriptionEndDate.getDate() + days)}, {where: {id: parentId}})
+            const updatedEndDate = new Date().setMonth(foundParent.subscriptionEndDate.getMonth() + subscriptionDto.type)
 
+            await Parent.update({subscriptionEndDate: updatedEndDate}, {where: {id: parentId}})
+
+            await Subscription.update({
+                endDate: updatedEndDate,
+                payedBy: userId,
+                type: subscriptionDto.type,
+                paymentType: subscriptionDto.paymentType,
+                sum: price
+            }, {where: {userId: foundUserParent.id}})
 
             return {
                 status: StatusCodes.OK, result: {message: "Subscription is renewed"}
