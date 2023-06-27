@@ -57,7 +57,7 @@ class App {
             this.app.use("/examinations", new SpecExamsController().getRouter());
             this.app.use("/messages", new ChatMessagesController().getRouter());
             this.app.use("/messages-status", new ChatMessagesStatusController().getRouter());
-            this.app.use('/renew', new SubscriptionsController().getRouter());
+            this.app.use("/renew", new SubscriptionsController().getRouter());
             job;
         } catch (err: unknown) {
             const error = err as Error;
