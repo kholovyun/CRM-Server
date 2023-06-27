@@ -19,7 +19,7 @@ export class ParentsController {
         this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getParents);
         this.router.get("/doctor/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR,]), this.getParentsByDoctorId);
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getParentById);
-        this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.activateParent);
+        this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.PARENT]), this.activateParent);
         this.repository = parentsDb;
     }
 
@@ -61,5 +61,4 @@ export class ParentsController {
         const response: IResponse<IParentGetDto | IError> = await this.repository.activateParent(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
-
 }
