@@ -11,7 +11,6 @@ import { Doctor } from "../../models/Doctor";
 import ISubscriptionUpdateDto from "../../interfaces/ISubscription/ISubscriptionUpdateDto";
 import { ERoles } from "../../enums/ERoles";
 
-
 export class SubscriptionsDb {
     public renewSubscription = async (userId: string, subscriptionDto: ISubscriptionUpdateDto): Promise<IResponse<IMessage | IError>> => {
         try {
@@ -37,7 +36,6 @@ export class SubscriptionsDb {
             if (!foundSubscription) throw new Error(EErrorMessages.NO_SUBSCRIPTION);
 
             let sum;
-
             switch (subscriptionDto.type) {
             case 1:
                 sum = foundDoctor.price;
@@ -73,7 +71,7 @@ export class SubscriptionsDb {
             };
         } catch (err: unknown) {
             const error = err as Error;
-            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
             return {
                 status, result: {
                     status: "error", message: error.message
