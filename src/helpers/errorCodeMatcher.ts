@@ -28,7 +28,6 @@ export const errorCodesMathcher: ErrorObject = {
     [EErrorMessages.IMAGE_REQUIRED]: StatusCodes.BAD_REQUEST,
     [EErrorMessages.NO_RECOMENDATIONS_FOUND]: StatusCodes.NOT_FOUND,
     [EErrorMessages.WRONG_PASS_OR_EMAIL]: StatusCodes.BAD_REQUEST,
-    [EErrorMessages.SUPERADMIN_CANT_BE_BLOCKED] : StatusCodes.BAD_REQUEST,
     [EErrorMessages.VISIT_NOT_FOUND] : StatusCodes.NOT_FOUND,
     [EErrorMessages.VISITS_NOT_FOUND] : StatusCodes.NOT_FOUND,
 };
