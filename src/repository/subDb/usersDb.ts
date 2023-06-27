@@ -202,16 +202,28 @@ export class UsersDb {
             const newParent = {
                 userId: user.id,
                 doctorId: userDto.doctorId,
-                subscriptionEndDate: now.setMonth(now.getMonth() + userDto.subscrType)
+                subscriptionEndDate: new Date(now.setMonth(now.getMonth() + userDto.subscrType))
             };
             const parentUser = await Parent.create({ ...newParent });
+            let sum;
+            switch (userDto.subscrType) {
+            case 1:
+                sum = foundDoctor.price;
+                break;
+            case 6:
+                sum = Math.floor((foundDoctor.price * 6 - (foundDoctor.price * 6) * 15/100) / 1000) * 1000;
+                break;
+            case 12:
+                sum = Math.floor((foundDoctor.price * 12 - (foundDoctor.price * 12) * 35/100) / 1000) * 1000;
+                break;
+            }
             await Subscription.create({
                 userId: user.id,
                 payedBy: userDto.paymentType === EPaymentType.CASH ? foundDoctor.userId : parentUser.userId,
                 type: userDto.subscrType,
                 paymentType: userDto.paymentType,
-                endDate: now.setMonth(now.getMonth() + userDto.subscrType),
-                sum: foundDoctor.price*1
+                endDate: new Date(now.setMonth(now.getMonth() + userDto.subscrType)),
+                sum: sum
             });
             const child: IChildCreateDto = {
                 parentId: parentUser.id,

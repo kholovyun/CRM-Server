@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import Logger from "../lib/logger";
 
 export const deleteFile = (fileName: string | File, filePath: string) => {
     const imagePath = path.resolve("./") + `/public/uploads/${filePath}/`;
@@ -7,6 +8,6 @@ export const deleteFile = (fileName: string | File, filePath: string) => {
         if (err) {
             throw err;
         }
-        console.log("Image deleted");
+        Logger.info(`Image ${fileName} deleted`);
     });
 };
