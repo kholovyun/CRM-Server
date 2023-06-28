@@ -6,6 +6,8 @@ services:
     build:
       context: .
     image: nodebackend
+    depends_on:
+      - postgresql-db
     volumes:
       - ./public/uploads:/public/uploads
   postgresql-db:
@@ -16,4 +18,4 @@ services:
       volumes:
       - ./persistentdata/db:/var/lib/postgresql/data
       env_file:
-        - .development.env
+        - .env

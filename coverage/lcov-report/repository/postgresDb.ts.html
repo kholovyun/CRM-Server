@@ -163,11 +163,11 @@ export class PostgresDB {
     private sequelize: Sequelize;
     constructor() {
         this.sequelize = new Sequelize({
-            database: process.env.POSTGRES_DB,
+            database: process.env.PG_DB,
             dialect: "postgres",
             host: process.env.PG_HOST,
             username: process.env.POSTGRES_USER,
-            password: process.env.POSTGRES_PASS,
+            password: process.env.POSTGRES_PASSWORD,
             storage: ":memory",
             models: [path.join(__dirname, "../models")]
         });
