@@ -12,4 +12,4 @@ RUN npm run build
 
 ENV APP_PORT=8000
 
-CMD ["npm", "run", "build"]
+CMD ["npm", "run", "dev"]
