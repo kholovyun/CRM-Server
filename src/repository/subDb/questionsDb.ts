@@ -104,7 +104,7 @@ export class QuestionsDb {
             if (!foundParent || foundDoctor.id !== foundParent.doctorId || foundChild.parentId !== foundParent.id)
                 throw new Error(EErrorMessages.NO_ACCESS);
             
-            const newQuestion = await Question.create({ question });
+            const newQuestion = await Question.create({ ...question });
             return {
                 status: StatusCodes.CREATED,
                 result: newQuestion
