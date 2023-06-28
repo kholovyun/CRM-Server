@@ -1,0 +1,21 @@
+version: "2.4"
+
+services:
+  node-backend:
+    restart: always
+    build:
+      context: .
+    image: nodebackend
+    volumes:
+      - ./public/uploads:/public/uploads
+  postgresql-db:
+      image: postgres:12
+      environment:
+        PG_DATA: /var/lib/postgresql/data
+      ports:
+        - 5432:5432
+      restart: always
+      volumes:
+      - ./persistentdata/db:/var/lib/postgresql/data
+      env_file:
+        - .env

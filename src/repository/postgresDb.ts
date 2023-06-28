@@ -13,8 +13,8 @@ export class PostgresDB {
             database: process.env.PG_DB,
             dialect: "postgres",
             host: process.env.PG_HOST,
-            username: process.env.PG_USER,
-            password: process.env.PG_PASS,
+            username: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
             storage: ":memory",
             models: [path.join(__dirname, "../models")]
         });
