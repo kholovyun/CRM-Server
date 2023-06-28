@@ -578,7 +578,7 @@ const documentsFixture = {
 
 };
 
-const recomendationsFix = {
+const recommendationsFix = {
     reco1 : {
         id: uuid(),
         doctorId: docFixture.doc1.id,
@@ -842,10 +842,10 @@ export const createUserFixtures = async (): Promise<void> => {
         ]);
 
         await Recommendation.bulkCreate([
-            { ...recomendationsFix.reco1},
-            { ...recomendationsFix.reco2},
-            { ...recomendationsFix.reco3},
-            { ...recomendationsFix.reco4},
+            { ...recommendationsFix.reco1},
+            { ...recommendationsFix.reco2},
+            { ...recommendationsFix.reco3},
+            { ...recommendationsFix.reco4},
         ]);
 
         await Parent.bulkCreate([

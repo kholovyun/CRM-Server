@@ -1,4 +1,4 @@
-export default interface IRecomendationGetDto {
+export default interface IRecommendationGetDto {
     id: string
     doctorId: string
     url?: string

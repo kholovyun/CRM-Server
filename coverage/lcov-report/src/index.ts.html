@@ -207,7 +207,7 @@ import { UsersController } from "./controllers/usersController";
 import { DoctorsController } from "./controllers/doctorsController";
 import { ParentsController } from "./controllers/parentsController";
 import { DiplomasController } from "./controllers/diplomasController";
-import { RecomendationsController } from "./controllers/recomendationsController";
+import { RecommendationsController } from "./controllers/recommendationsController";
 import { childrenController } from "./controllers/childrenController";
 import { ReviewController } from "./controllers/reviewController";
 import { DocumentsController } from "./controllers/documentsController";
@@ -240,7 +240,7 @@ class App {
             this.app.use("/doctors", new DoctorsController().getRouter());
             this.app.use("/parents", new ParentsController().getRouter());
             this.app.use("/diplomas", new DiplomasController().getRouter());
-            this.app.use("/recomendations", new RecomendationsController().getRouter());
+            this.app.use("/recommendations", new RecommendationsController().getRouter());
             this.app.use("/children", new childrenController().getRouter());
             this.app.use("/reviews", new ReviewController().getRouter());
             this.app.use("/documents", new DocumentsController().getRouter());
