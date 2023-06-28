@@ -1,8 +1,8 @@
-FROM node:latest
+FROM node
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package*.json .
 
 RUN npm install
 
@@ -10,6 +10,6 @@ COPY . .
 
 #RUN npm run build
 
-ENV APP_PORT=8000
+#ENV APP_PORT=8000
 
 CMD ["npm", "run", "dev"]
