@@ -6,14 +6,14 @@ services:
     build:
       context: .
     image: nodebackend
-    depends_on:
-      - postgresql-db
     volumes:
       - ./public/uploads:/public/uploads
   postgresql-db:
       image: postgres:12
       environment:
         PG_DATA: /var/lib/postgresql/data
+      ports:
+        - 5432:5432
       restart: always
       volumes:
       - ./persistentdata/db:/var/lib/postgresql/data
