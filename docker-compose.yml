@@ -15,7 +15,7 @@ services:
       ports:
         - 5432:5432
       restart: always
-      volumes:
-      - ./persistentdata/db:/var/lib/postgresql/data
+#      volumes:
+#      - ./persistentdata/db:/var/lib/postgresql/data
       env_file:
         - .env
