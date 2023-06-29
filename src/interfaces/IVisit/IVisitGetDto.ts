@@ -8,4 +8,5 @@ export default interface IVisitGetDto {
     clinicData: string
     conclusion: string
     appointment: string
+    place: string
 }
