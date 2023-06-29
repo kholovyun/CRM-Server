@@ -56,4 +56,10 @@ export class Visit extends Model {
         allowNull: false,
     })
         appointment!: string;
+
+    @Column({
+        type: DataType.STRING(256),
+        allowNull: false,
+    })
+        place!: string;
 }
