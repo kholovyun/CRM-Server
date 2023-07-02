@@ -22,7 +22,7 @@ import IError from "../../interfaces/IError";
 import { passwordValidation } from "../../helpers/passwordValidation";
 import { EErrorMessages } from "../../enums/EErrorMessages";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
-import  { Op, Sequelize } from "sequelize";
+import  { Op } from "sequelize";
 import IChildCreateDto from "../../interfaces/IChild/IChildCreateDto";
 import { Child } from "../../models/Child";
 import IChildGetDto from "../../interfaces/IChild/IChildGetDto";
@@ -31,7 +31,7 @@ import IUserUpdateDto from "../../interfaces/IUser/IUserUpdateDto";
 import IUserCreateParentWithChildDto from "../../interfaces/IUser/IUserCreateParentWithChildDto";
 import { Subscription } from "../../models/Subscription";
 import { EPaymentType } from "../../enums/EPaymentType";
-import { PostgresDB, postgresDB } from "../postgresDb";
+import { postgresDB } from "../postgresDb";
 
 export class UsersDb {
     public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): 
@@ -115,27 +115,32 @@ export class UsersDb {
     };
 
     public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDto | IError>> => {
+        const transaction = await postgresDB.getSequelize().transaction();
+        
         try {
             const userExists = await User.findOne({
                 where: {
                     email: userDto.email
-                }
+                },
+                transaction
             });
             if (userExists) throw new Error(EErrorMessages.USER_ALREADY_EXISTS);
+            
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const email: IEmailFromTokem = { email: userDto.email };
             if (!emailRegex.test(userDto.email)) {
                 throw new Error(EErrorMessages.WRONG_MAIL_FORMAT);
             }
-
+            
             const primaryPassword: string = shortid.generate();
-            // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
             console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
-            // const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
-            const user = await User.create({ ...userDto, password: "123"});
+            
+            const user = await User.create({ ...userDto, password: "123"}, { transaction });
+            
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
             const url = `http://localhost:5173/reset-password?token=${token}`;
             await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
+            
             if (user.role === ERoles.DOCTOR) {
                 const newDoctor: IDoctorCreateDto = {
                     userId: user.id,
@@ -145,15 +150,19 @@ export class UsersDb {
                     photo: "default-photo.svg",
                     price: userDto.price ? userDto.price : 5000
                 };
-                await Doctor.create({ ...newDoctor });
+                await Doctor.create({ ...newDoctor }, { transaction });
             }
-            // delete user.dataValues.password;
+            
+            await transaction.commit();
+            
             return {
                 status: StatusCodes.CREATED,
                 result: user
             };
         } catch (err: unknown) {
             const error = err as Error;
+            await transaction.rollback();
+            
             return {
                 status: StatusCodes.BAD_REQUEST,
                 result: {
@@ -163,6 +172,7 @@ export class UsersDb {
             };
         }
     };
+    
 
     public registerParent = async (userDto: IUserCreateParentWithChildDto, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
         const transaction = await postgresDB.getSequelize().transaction();
