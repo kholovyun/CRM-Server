@@ -21,7 +21,8 @@ export enum EErrorMessages {
     WRONG_MAIL_FORMAT = "Неправильный формат email-адреса",
     DOCTOR_DIPLOMA_NOT_FOUND = "Врач, чьи дипломы Вы запрашиваете не найден.",
     IMAGE_REQUIRED = "Изображение обязательно.",
-    NO_RECOMENDATIONS_FOUND = "Рекомендации не найдены.",
+    NO_RECOMMENDATIONS_FOUND = "Рекомендации не найдены.",
+    NO_RECOMMENDATION_FOUND = "Рекомендация не найдена.",
     WRONG_PASS_OR_EMAIL = "Неверно указан емайл или пароль.",
     CHILD_NOT_FOUND = "Ребенок не найден.",
     NO_REVIEW_FOUND = "Отзыв не найден.",
@@ -30,5 +31,6 @@ export enum EErrorMessages {
     ALLERGY_NOT_FOUND = "Запись об аллергии не найдена.",
     VISIT_NOT_FOUND = "Запись о посещении не найдена.",
     VISITS_NOT_FOUND = "Записи о посещениях не найдены.",
-    MESSAGE_NOT_FOUND = "Сообщение не найдено."
+    MESSAGE_NOT_FOUND = "Сообщение не найдено.",
+    NO_SUBSCRIPTION = "Подписки нет."
 }

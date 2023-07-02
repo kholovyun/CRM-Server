@@ -7,4 +7,5 @@ export default interface IVisitCreateDto {
     clinicData: string
     conclusion: string
     appointment: string
+    place: string
 }

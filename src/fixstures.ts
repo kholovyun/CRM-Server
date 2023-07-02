@@ -578,7 +578,7 @@ const documentsFixture = {
 
 };
 
-const recomendationsFix = {
+const recommendationsFix = {
     reco1 : {
         id: uuid(),
         doctorId: docFixture.doc1.id,
@@ -609,7 +609,8 @@ const visitsFixture = {
         clinicData: "Тут клинические данные",
         date: new Date(date.setDate(date.getDate() - 1)),
         conclusion: "Диарея",
-        appointment: "По 2 таблетки \"Антидиарея\"в день, утром и вечером после ужина"
+        appointment: "По 2 таблетки \"Антидиарея\"в день, утром и вечером после ужина",
+        place: "г. Алматы, ул. З.Шашкина 14"
     },
     visit2: {
         id: uuid(),
@@ -618,7 +619,8 @@ const visitsFixture = {
         clinicData: "Тут клинические данные",
         date: new Date(date.setMonth(date.getMonth() - 1)),
         conclusion: "Легкая простуда",
-        appointment: "По 2 пакетика \"Инсти для детей\"в день, утром и вечером после ужина"
+        appointment: "По 2 пакетика \"Инсти для детей\"в день, утром и вечером после ужина",
+        place: "г. Алматы, ул. С.Сейфуллина 146"
     },
     visit3: {
         id: uuid(),
@@ -627,7 +629,8 @@ const visitsFixture = {
         clinicData: "Тут клинические данные",
         date: new Date(date.setDate(date.getDate() - 3)),
         conclusion: "Ринит",
-        appointment: "Впрыскиваний препарата \"Лазорин\" в каждый носовой ход в сутки; продолжительность применения не более 5–7 дней"
+        appointment: "Впрыскиваний препарата \"Лазорин\" в каждый носовой ход в сутки; продолжительность применения не более 5–7 дней",
+        place: "г. Алматы, ЖК Асылтас, 41-47"
     },
     visit4: {
         id: uuid(),
@@ -636,7 +639,8 @@ const visitsFixture = {
         clinicData: "Тут клинические данные",
         date: new Date(date.setMonth(date.getMonth() - 2)),
         conclusion: "Ветрянка",
-        appointment: "Обработка сыпи антисептическими и подсушивающими средствами для исключения занесения вторичной инфекции и ускорения регенерации папул без остаточных рубцов"
+        appointment: "Обработка сыпи антисептическими и подсушивающими средствами для исключения занесения вторичной инфекции и ускорения регенерации папул без остаточных рубцов",
+        place: "г. Алматы, Талгар,ул. Бейбітшілік 45"
     },
 };
 
@@ -646,7 +650,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: date,
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 100),
         question: "Когда Марк может получить привывку от кори?"
     },
     question2: {
@@ -654,7 +658,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child2.id,
         parentId: parentFixture.parent1.id,
-        createdAt: date,
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 50),
         question: "Когда и чем сбивать температуру у ребенка? Стоит ли ее сбивать вообще?"
     },
     question3: {
@@ -662,7 +666,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: date,
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 30),
         question: "После визита к вам прошло 5 дней, температура спала, можно ли выйти на улицу?"
     },
     question4: {
@@ -670,7 +674,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child1.id,
         parentId: parentFixture.parent1.id,
-        createdAt: date,
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 10),
         question: "У Марка температура иногда поднимается. Можно ли выйти на улицу с температурой выше 37?"
     },
     question5: {
@@ -678,7 +682,7 @@ const questionsFixture = {
         doctorId: docFixture.doc4.id,
         childId: childrenFixture.child3.id,
         parentId: parentFixture.parent1.id,
-        createdAt: date,
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 5),
         question: "У ребенка кажется колики, можно ли ставить ребенку газоотводную трубку?"
     },
     question6: {
@@ -686,7 +690,7 @@ const questionsFixture = {
         doctorId: docFixture.doc5.id,
         childId: childrenFixture.child4.id,
         parentId: parentFixture.parent2.id,
-        createdAt: date,
+        createdAt: new Date(),
         question: "Можете порекомендовать солнцезащитный крем для младенца"
     }
 };
@@ -695,7 +699,7 @@ const messagesFixtures = {
     message1: {
         id: uuid(),
         authorId: userFixture.user9.id,
-        createdAt: date,
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 100),
         questionId: questionsFixture.question1.id,
         text: "Ещё не завезли, я Вам сообщу.",
         url: ""
@@ -703,7 +707,7 @@ const messagesFixtures = {
     message2: {
         id: uuid(),
         authorId: userFixture.user7.id,
-        createdAt: date,
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 50),
         questionId: questionsFixture.question1.id,
         text: "Тут ещё вопрос с картинкой",
         url: "default-any-image.svg"
@@ -711,7 +715,7 @@ const messagesFixtures = {
     message3: {
         id: uuid(),
         authorId: userFixture.user9.id,
-        createdAt: date,
+        createdAt: new Date(),
         questionId: questionsFixture.question1.id,
         text: "Третье сообщение с картинкой (ответ врача)",
         url: "default-any-image.svg"
@@ -755,19 +759,19 @@ const reviewFixtures = {
     review1: {
         id: uuid(),
         userId: userFixture.user5.id,
-        createdAt: date,
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 100),
         text: "Принимая во внимание показатели успешности, глубокий уровень погружения прекрасно подходит для реализации своевременного выполнения сверхзадачи."
     },
     review2: {
         id: uuid(),
         userId: userFixture.user6.id,
-        createdAt: date,
+        createdAt: new Date().setSeconds(new Date().getSeconds() - 50),
         text: "Добрая половина выводов сделала своё дело!"
     },
     review3: {
         id: uuid(),
         userId: userFixture.user7.id,
-        createdAt: date,
+        createdAt: new Date(),
         text: "Но современная методология разработки говорит о возможностях направлений прогрессивного развития. Современные технологии достигли такого уровня, что глубокий уровень погружения позволяет оценить значение кластеризации усилий."
     }
 };
@@ -842,10 +846,10 @@ export const createUserFixtures = async (): Promise<void> => {
         ]);
 
         await Recommendation.bulkCreate([
-            { ...recomendationsFix.reco1},
-            { ...recomendationsFix.reco2},
-            { ...recomendationsFix.reco3},
-            { ...recomendationsFix.reco4},
+            { ...recommendationsFix.reco1},
+            { ...recommendationsFix.reco2},
+            { ...recommendationsFix.reco3},
+            { ...recommendationsFix.reco4},
         ]);
 
         await Parent.bulkCreate([

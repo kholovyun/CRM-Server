@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/repository/subDb/recomendationsDb.ts</title>
+    <title>Code coverage report for src/repository/subDb/recommendationsDb.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../prettify.css" />
     <link rel="stylesheet" href="../../../base.css" />
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/repository/subDb</a> recomendationsDb.ts</h1>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/repository/subDb</a> recommendationsDb.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -382,20 +382,20 @@ import IError from "../../interfaces/IError";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 import { EErrorMessages } from "../../enums/EErrorMessages";
 import { Recommendation } from "../../models/Recommendation";
-import IRecomendationCreateDto from "../../interfaces/IRecomendation/IRecomendationCreateDto";
-import IRecomendationGetDto from "../../interfaces/IRecomendation/IRecomendationGetDto";
+import IRecommendationCreateDto from "../../interfaces/IRecommendation/IRecommendationCreateDto";
+import IRecommendationGetDto from "../../interfaces/IRecommendation/IRecommendationGetDto";
 &nbsp;
-export class RecomendationsDb {
-    public getRecomendationsByDoctor = <span class="fstat-no" title="function not covered" >async </span>(doctorId: string): Promise&lt;IResponse&lt;IRecomendationGetDto[] | IError&gt;&gt; =&gt; {
+export class RecommendationsDb {
+    public getRecommendationsByDoctor = <span class="fstat-no" title="function not covered" >async </span>(doctorId: string): Promise&lt;IResponse&lt;IRecommendationGetDto[] | IError&gt;&gt; =&gt; {
 <span class="cstat-no" title="statement not covered" >        try {</span>
             const foundDoctor = <span class="cstat-no" title="statement not covered" >await Doctor.findByPk(doctorId);</span>
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (!foundDoctor) <span class="cstat-no" title="statement not covered" >throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);</span></span>
-            const recomendations = <span class="cstat-no" title="statement not covered" >await Recommendation.findAll({</span>
+            const recommendations = <span class="cstat-no" title="statement not covered" >await Recommendation.findAll({</span>
                 where: {doctorId: doctorId}
             });
 <span class="cstat-no" title="statement not covered" >            return {</span>
                 status: StatusCodes.OK,
-                result: recomendations
+                result: recommendations
             };
         } catch (err: unknown) {
             const error = <span class="cstat-no" title="statement not covered" >err as Error;</span>
@@ -410,7 +410,7 @@ export class RecomendationsDb {
         }
     };
 &nbsp;
-    public createRecomendation = <span class="fstat-no" title="function not covered" >async </span>(userId: string, recomendation: IRecomendationCreateDto): Promise&lt;IResponse&lt;IRecomendationCreateDto | IError&gt;&gt; =&gt; {
+    public createRecommendation = <span class="fstat-no" title="function not covered" >async </span>(userId: string, recommendation: IRecommendationCreateDto): Promise&lt;IResponse&lt;IRecommendationCreateDto | IError&gt;&gt; =&gt; {
 <span class="cstat-no" title="statement not covered" >        try {</span>
             const foundUser = <span class="cstat-no" title="statement not covered" >await User.findByPk(userId);</span>
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (!foundUser || foundUser.isBlocked) <span class="cstat-no" title="statement not covered" >throw new Error(EErrorMessages.NO_ACCESS);</span></span>
@@ -419,14 +419,14 @@ export class RecomendationsDb {
                 const foundDoctor = <span class="cstat-no" title="statement not covered" >await Doctor.findOne({</span>
                     where: {userId: foundUser.id}
                 });
-<span class="cstat-no" title="statement not covered" >                <span class="missing-if-branch" title="if path not taken" >I</span>if (!foundDoctor || recomendation.doctorId !== foundDoctor.id ) </span>
+<span class="cstat-no" title="statement not covered" >                <span class="missing-if-branch" title="if path not taken" >I</span>if (!foundDoctor || recommendation.doctorId !== foundDoctor.id ) </span>
 <span class="cstat-no" title="statement not covered" >                    throw new Error(EErrorMessages.NO_ACCESS);</span>
             }
 &nbsp;
-            const newRecomeddation: IRecomendationCreateDto = <span class="cstat-no" title="statement not covered" >await Recommendation.create({...recomendation});</span>
+            const newRecommendation: IRecommendationCreateDto = <span class="cstat-no" title="statement not covered" >await Recommendation.create({...recommendation});</span>
 <span class="cstat-no" title="statement not covered" >            return {</span>
                 status: StatusCodes.OK,
-                result: newRecomeddation
+                result: newRecommendation
             };
         } catch (err: unknown) {
             const error = <span class="cstat-no" title="statement not covered" >err as Error;</span>
@@ -441,7 +441,7 @@ export class RecomendationsDb {
         }
     };
 &nbsp;
-    public editRecomendation = <span class="fstat-no" title="function not covered" >async </span>(userId: string, recomendationId : string, upgradedRecomendation: IRecomendationCreateDto): Promise&lt;IResponse&lt;IRecomendationCreateDto | IError&gt;&gt; =&gt; {
+    public editRecommendation = <span class="fstat-no" title="function not covered" >async </span>(userId: string, recommendationId : string, upgradedRecommendation: IRecommendationCreateDto): Promise&lt;IResponse&lt;IRecommendationCreateDto | IError&gt;&gt; =&gt; {
 <span class="cstat-no" title="statement not covered" >        try {</span>
             const foundUser = <span class="cstat-no" title="statement not covered" >await User.findByPk(userId);</span>
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (!foundUser || foundUser.isBlocked) <span class="cstat-no" title="statement not covered" >throw new Error(EErrorMessages.NO_ACCESS);</span></span>
@@ -450,20 +450,20 @@ export class RecomendationsDb {
                 const foundDoctor = <span class="cstat-no" title="statement not covered" >await Doctor.findOne({</span>
                     where: {userId: foundUser.id}
                 });
-<span class="cstat-no" title="statement not covered" >                <span class="missing-if-branch" title="if path not taken" >I</span>if (!foundDoctor || upgradedRecomendation.doctorId !== foundDoctor.id ) </span>
+<span class="cstat-no" title="statement not covered" >                <span class="missing-if-branch" title="if path not taken" >I</span>if (!foundDoctor || upgradedRecommendation.doctorId !== foundDoctor.id ) </span>
 <span class="cstat-no" title="statement not covered" >                    throw new Error(EErrorMessages.NO_ACCESS);</span>
             }
             
-            const editedRecomeddation: IRecomendationCreateDto = <span class="cstat-no" title="statement not covered" >await Recommendation.update({...upgradedRecomendation},</span>
+            const editedRecommendation: IRecommendationCreateDto = <span class="cstat-no" title="statement not covered" >await Recommendation.update({...upgradedRecommendation},</span>
                 {
-                    where: { id: recomendationId },
+                    where: { id: recommendationId },
                     returning: true
                 }).then(<span class="fstat-no" title="function not covered" >(r</span>esult) =&gt; { 
 <span class="cstat-no" title="statement not covered" >                return result[1][0];</span>
             });
 <span class="cstat-no" title="statement not covered" >            return {</span>
                 status: StatusCodes.OK,
-                result: editedRecomeddation
+                result: editedRecommendation
             };
 &nbsp;
         } catch (err: unknown) {
@@ -479,17 +479,17 @@ export class RecomendationsDb {
         }
     };
 &nbsp;
-    public deleteRecomendation = <span class="fstat-no" title="function not covered" >async </span>(userId: string, recomendationId: string): Promise&lt;IResponse&lt;string | IError&gt;&gt; =&gt; {
+    public deleteRecommendation = <span class="fstat-no" title="function not covered" >async </span>(userId: string, recommendationId: string): Promise&lt;IResponse&lt;string | IError&gt;&gt; =&gt; {
 <span class="cstat-no" title="statement not covered" >        try {</span>
             const foundUser = <span class="cstat-no" title="statement not covered" >await User.findByPk(userId);</span>
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (!foundUser || foundUser.isBlocked) <span class="cstat-no" title="statement not covered" >throw new Error(EErrorMessages.NO_ACCESS);</span></span>
             
-            const recomendation = <span class="cstat-no" title="statement not covered" >await Recommendation.findByPk(recomendationId);</span>
-<span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (!recomendation) <span class="cstat-no" title="statement not covered" >throw new Error(EErrorMessages.NO_RECOMENDATIONS_FOUND);</span></span>
+            const recommendation = <span class="cstat-no" title="statement not covered" >await Recommendation.findByPk(recommendationId);</span>
+<span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (!recommendation) <span class="cstat-no" title="statement not covered" >throw new Error(EErrorMessages.NO_RECOMMENDATIONS_FOUND);</span></span>
 <span class="cstat-no" title="statement not covered" >            if(foundUser.role === ERoles.ADMIN || ERoles.SUPERADMIN) {</span>
 <span class="cstat-no" title="statement not covered" >                await Recommendation.destroy(</span>
                     {
-                        where: {id: recomendationId}
+                        where: {id: recommendationId}
                     });
 <span class="cstat-no" title="statement not covered" >                return {</span>
                     status: StatusCodes.OK,
@@ -499,12 +499,12 @@ export class RecomendationsDb {
                 const foundDoctor = <span class="cstat-no" title="statement not covered" >await Doctor.findOne({</span>
                     where: {userId: foundUser.id}
                 });
-<span class="cstat-no" title="statement not covered" >                <span class="missing-if-branch" title="if path not taken" >I</span>if (!foundDoctor || recomendation.doctorId !== foundDoctor.id ) </span>
+<span class="cstat-no" title="statement not covered" >                <span class="missing-if-branch" title="if path not taken" >I</span>if (!foundDoctor || recommendation.doctorId !== foundDoctor.id ) </span>
 <span class="cstat-no" title="statement not covered" >                    throw new Error(EErrorMessages.NO_ACCESS);</span>
                 
 <span class="cstat-no" title="statement not covered" >                await Recommendation.destroy(</span>
                     {
-                        where: {id: recomendationId}
+                        where: {id: recommendationId}
                     });
 <span class="cstat-no" title="statement not covered" >                return {</span>
                     status: StatusCodes.OK,
@@ -528,7 +528,7 @@ export class RecomendationsDb {
 &nbsp;
 }
 &nbsp;
-export const recomendationDb = new RecomendationsDb();</pre></td></tr></table></pre>
+export const recommendationDb = new RecommendationsDb();</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->

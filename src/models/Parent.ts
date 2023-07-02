@@ -57,7 +57,7 @@ export class Parent extends Model {
         field: "is_active",
         type: DataType.BOOLEAN,
         allowNull: false,
-        defaultValue: true
+        defaultValue: false
     })
         isActive!: boolean;
 

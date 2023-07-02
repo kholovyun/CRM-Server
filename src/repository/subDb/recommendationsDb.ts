@@ -7,22 +7,22 @@ import IError from "../../interfaces/IError";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 import { EErrorMessages } from "../../enums/EErrorMessages";
 import { Recommendation } from "../../models/Recommendation";
-import IRecomendationCreateDto from "../../interfaces/IRecomendation/IRecomendationCreateDto";
-import IRecomendationGetDto from "../../interfaces/IRecomendation/IRecomendationGetDto";
+import IRecommendationCreateDto from "../../interfaces/IRecommendation/IRecommendationCreateDto";
+import IRecommendationGetDto from "../../interfaces/IRecommendation/IRecommendationGetDto";
 import {deleteFile} from "../../helpers/deleteFile";
 import { IMessage } from "../../interfaces/IMessage";
 
-export class RecomendationsDb {
-    public getRecomendationsByDoctor = async (doctorId: string): Promise<IResponse<IRecomendationGetDto[] | IError>> => {
+export class RecommendationsDb {
+    public getRecommendationsByDoctor = async (doctorId: string): Promise<IResponse<IRecommendationGetDto[] | IError>> => {
         try {
             const foundDoctor = await Doctor.findByPk(doctorId);
             if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
-            const recomendations = await Recommendation.findAll({
+            const recommendations = await Recommendation.findAll({
                 where: {doctorId: doctorId}
             });
             return {
                 status: StatusCodes.OK,
-                result: recomendations
+                result: recommendations
             };
         } catch (err: unknown) {
             const error = err as Error;
@@ -37,7 +37,7 @@ export class RecomendationsDb {
         }
     };
 
-    public createRecomendation = async (userId: string, recomendation: IRecomendationCreateDto): Promise<IResponse<IRecomendationCreateDto | IError>> => {
+    public createRecommendation = async (userId: string, recommendation: IRecommendationCreateDto): Promise<IResponse<IRecommendationCreateDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -46,18 +46,18 @@ export class RecomendationsDb {
                 const foundDoctor = await Doctor.findOne({
                     where: {userId: foundUser.id}
                 });
-                if (!foundDoctor || recomendation.doctorId !== foundDoctor.id ) 
+                if (!foundDoctor || recommendation.doctorId !== foundDoctor.id ) 
                     throw new Error(EErrorMessages.NO_ACCESS);
             }
 
-            const newRecomeddation: IRecomendationCreateDto = await Recommendation.create({...recomendation});
+            const newRecommendation: IRecommendationCreateDto = await Recommendation.create({...recommendation});
             return {
                 status: StatusCodes.CREATED,
-                result: newRecomeddation
+                result: newRecommendation
             };
         } catch (err: unknown) {
-            if (recomendation.url) {
-                deleteFile(recomendation.url, "docRecomends");
+            if (recommendation.url) {
+                deleteFile(recommendation.url, "docRecommends");
             }
             const error = err as Error;
             const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
@@ -71,7 +71,7 @@ export class RecomendationsDb {
         }
     };
 
-    public editRecomendation = async (userId: string, recomendationId : string, upgradedRecomendation: IRecomendationCreateDto): Promise<IResponse<IRecomendationCreateDto | IError>> => {
+    public editRecommendation = async (userId: string, recommendationId : string, upgradedRecommendation: IRecommendationCreateDto): Promise<IResponse<IRecommendationCreateDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -80,20 +80,20 @@ export class RecomendationsDb {
                 const foundDoctor = await Doctor.findOne({
                     where: {userId: foundUser.id}
                 });
-                if (!foundDoctor || upgradedRecomendation.doctorId !== foundDoctor.id ) 
+                if (!foundDoctor || upgradedRecommendation.doctorId !== foundDoctor.id ) 
                     throw new Error(EErrorMessages.NO_ACCESS);
             }
             
-            const editedRecomeddation: IRecomendationCreateDto = await Recommendation.update({...upgradedRecomendation},
+            const editedRecommendation: IRecommendationCreateDto = await Recommendation.update({...upgradedRecommendation},
                 {
-                    where: { id: recomendationId },
+                    where: { id: recommendationId },
                     returning: true
                 }).then((result) => { 
                 return result[1][0];
             });
             return {
                 status: StatusCodes.OK,
-                result: editedRecomeddation
+                result: editedRecommendation
             };
 
         } catch (err: unknown) {
@@ -109,17 +109,17 @@ export class RecomendationsDb {
         }
     };
 
-    public deleteRecomendation = async (userId: string, recomendationId: string): Promise<IResponse<IMessage | IError>> => {
+    public deleteRecommendation = async (userId: string, recommendationId: string): Promise<IResponse<IMessage | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
             
-            const recomendation = await Recommendation.findByPk(recomendationId);
-            if (!recomendation) throw new Error(EErrorMessages.NO_RECOMENDATIONS_FOUND);
+            const recommendation = await Recommendation.findByPk(recommendationId);
+            if (!recommendation) throw new Error(EErrorMessages.NO_RECOMMENDATION_FOUND);
             if(foundUser.role === ERoles.ADMIN || ERoles.SUPERADMIN) {
                 await Recommendation.destroy(
                     {
-                        where: {id: recomendationId}
+                        where: {id: recommendationId}
                     });
                 return {
                     status: StatusCodes.OK,
@@ -129,15 +129,15 @@ export class RecomendationsDb {
                 const foundDoctor = await Doctor.findOne({
                     where: {userId: foundUser.id}
                 });
-                if (!foundDoctor || recomendation.doctorId !== foundDoctor.id ) 
+                if (!foundDoctor || recommendation.doctorId !== foundDoctor.id ) 
                     throw new Error(EErrorMessages.NO_ACCESS);
                 
                 await Recommendation.destroy(
                     {
-                        where: {id: recomendationId}
+                        where: {id: recommendationId}
                     });
-                if (recomendation.url) {
-                    deleteFile(recomendation.url, "docRecomends");
+                if (recommendation.url) {
+                    deleteFile(recommendation.url, "docRecommends");
                 }
                 return {
                     status: StatusCodes.OK,
@@ -161,4 +161,4 @@ export class RecomendationsDb {
 
 }
 
-export const recomendationDb = new RecomendationsDb();
+export const recommendationDb = new RecommendationsDb();

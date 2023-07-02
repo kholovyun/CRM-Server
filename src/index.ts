@@ -8,7 +8,7 @@ import { UsersController } from "./controllers/usersController";
 import { DoctorsController } from "./controllers/doctorsController";
 import { ParentsController } from "./controllers/parentsController";
 import { DiplomasController } from "./controllers/diplomasController";
-import { RecomendationsController } from "./controllers/recomendationsController";
+import { RecommendationsController } from "./controllers/recommendationsController";
 import { childrenController } from "./controllers/childrenController";
 import { ReviewController } from "./controllers/reviewController";
 import { DocumentsController } from "./controllers/documentsController";
@@ -20,6 +20,7 @@ import { SpecExamsController } from "./controllers/specExamsControllers";
 import job from "./sheduleSubscripttion/sheduleSubscription";
 import { ChatMessagesController } from "./controllers/chatMessagesController";
 import { ChatMessagesStatusController } from "./controllers/chatMessagesStatusController";
+import {SubscriptionsController} from "./controllers/subscriptionsController";
 
 dotenv.config();
 
@@ -45,7 +46,7 @@ class App {
             this.app.use("/doctors", new DoctorsController().getRouter());
             this.app.use("/parents", new ParentsController().getRouter());
             this.app.use("/diplomas", new DiplomasController().getRouter());
-            this.app.use("/recomendations", new RecomendationsController().getRouter());
+            this.app.use("/recommendations", new RecommendationsController().getRouter());
             this.app.use("/children", new childrenController().getRouter());
             this.app.use("/reviews", new ReviewController().getRouter());
             this.app.use("/documents", new DocumentsController().getRouter());
@@ -56,6 +57,7 @@ class App {
             this.app.use("/examinations", new SpecExamsController().getRouter());
             this.app.use("/messages", new ChatMessagesController().getRouter());
             this.app.use("/messages-status", new ChatMessagesStatusController().getRouter());
+            this.app.use("/renew", new SubscriptionsController().getRouter());
             job;
         } catch (err: unknown) {
             const error = err as Error;

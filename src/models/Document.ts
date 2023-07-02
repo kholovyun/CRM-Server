@@ -28,7 +28,8 @@ export class Document extends Model {
     @Column({
         field: "created_at",
         type: DataType.DATE,
-        allowNull: false
+        allowNull: false,
+        defaultValue: DataType.NOW
     })
         createdAt!: Date;
 

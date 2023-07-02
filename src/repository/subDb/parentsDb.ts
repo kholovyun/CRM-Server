@@ -11,6 +11,7 @@ import IUser from "../../interfaces/IUser/IUser";
 import { Doctor } from "../../models/Doctor";
 import { Child } from "../../models/Child";
 import IParent from "../../interfaces/IParent/IParent";
+import { ERoles } from "../../enums/ERoles";
 
 export class ParentsDb {
     public getParents = async (userId: string, offset: string, limit: string): Promise<IResponse<IParentGetDto[] | IError>> => {
@@ -87,7 +88,6 @@ export class ParentsDb {
         }
     };
 
-
     public activateParent = async (userId: string, parentId: string): Promise<IResponse<IParentGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
@@ -95,6 +95,8 @@ export class ParentsDb {
                 throw new Error(EErrorMessages.NO_ACCESS);
             const foundParent: IParentGetDto | null = await Parent.findByPk(parentId);
             if (!foundParent) throw new Error(EErrorMessages.PARENT_NOT_FOUND);
+            if (foundUser.role === ERoles.PARENT && foundParent.userId !== foundUser.id)
+                throw new Error(EErrorMessages.NO_ACCESS);
             const updatedParent: IParentGetDto = await Parent.update(
                 { isActive: foundParent.isActive ? false : true},
                 { 

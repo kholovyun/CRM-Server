@@ -23,10 +23,10 @@ export class VisitsDb {
             if (!foundChild) throw new Error(EErrorMessages.CHILD_NOT_FOUND);
 
             const foundParent  = await Parent.findByPk(foundChild.parentId);
-            const foundDoctor = await Doctor.findOne({ where: { userId: foundUser.id } });
-            if (!foundDoctor) throw new Error(EErrorMessages.NO_ACCESS);
 
             if (foundUser.role === ERoles.DOCTOR) {
+                const foundDoctor = await Doctor.findOne({ where: { userId: foundUser.id } });
+                if (!foundDoctor) throw new Error(EErrorMessages.NO_ACCESS);
                 if (!foundParent || foundDoctor.id !== foundParent.doctorId || foundUser.isBlocked) {
                     throw new Error(EErrorMessages.NO_ACCESS);
                 }
