@@ -7,7 +7,7 @@ import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import { ParentsDb, parentsDb } from "../repository/subDb/parentsDb";
 import IError from "../interfaces/IError";
-import IParent from "../interfaces/IParent/IParent";
+import IParentWithUserAndDoctorDto from "../interfaces/IParent/IParentWithUserAndDoctorDto";
 
 export class ParentsController {
     private repository: ParentsDb;
@@ -16,24 +16,14 @@ export class ParentsController {
     constructor() {
         this.router = express.Router();
         this.router.use(morganMiddleware);
-        this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getParents);
-        this.router.get("/doctor/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR,]), this.getParentsByDoctorId);
-        this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getParentById);
+        this.router.get("/doctor/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR]), this.getParentsByDoctorId);
+        this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getParentByUserId);
         this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.PARENT]), this.activateParent);
         this.repository = parentsDb;
     }
 
     public getRouter = (): Router => {
         return this.router;
-    };
-
-    private getParents = async (expressReq: Request, res: Response): Promise<void> => {
-        const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<IParentGetDto[] | IError> = await this.repository.getParents(
-            user.id, String(req.query.offset), String(req.query.limit)
-        );
-        res.status(response.status).send(response.result);
     };
 
     private getParentsByDoctorId = async (expressReq: Request, res: Response): Promise<void> => {
@@ -45,10 +35,10 @@ export class ParentsController {
         res.status(response.status).send(response.result);
     };
 
-    private getParentById = async (expressReq: Request, res: Response): Promise<void> => {
+    private getParentByUserId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<IParent | IError> = await this.repository.getParentByUserId(
+        const response: IResponse<IParentWithUserAndDoctorDto | IError> = await this.repository.getParentByUserId(
             user.id,
             req.params.id
         );
