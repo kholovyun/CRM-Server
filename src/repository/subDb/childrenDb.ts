@@ -12,6 +12,7 @@ import { Parent } from "../../models/Parent";
 import { Doctor } from "../../models/Doctor";
 import { NewbornData } from "../../models/NewbornData";
 import { deleteFile } from "../../helpers/deleteFile";
+import { postgresDB } from "../postgresDb";
 
 export class ChildrenDb {
     public getChildrenByParentId = async (parentId: string, userId: string): Promise<IResponse<IChildGetDto[] | IError>> => {
@@ -136,42 +137,56 @@ export class ChildrenDb {
     };
     
     public createChild = async (child: IChildCreateDto, userId: string): Promise<IResponse<IChildCreateDto | IError>> => {
+        const transaction = await postgresDB.getSequelize().transaction();
+    
         try {
-            const foundUser = await User.findByPk(userId);
+            const foundUser = await User.findByPk(userId, { transaction });
             if (!foundUser) throw new Error(EErrorMessages.NO_ACCESS);
+    
             if (foundUser.isBlocked && foundUser.role !== ERoles.PARENT) 
                 throw new Error(EErrorMessages.NO_ACCESS);
+    
             if (foundUser.role === ERoles.PARENT) {
-                const foundParentByUser = await Parent.findOne({where: {userId}});
+                const foundParentByUser = await Parent.findOne({ where: { userId }, transaction });
                 if (!foundParentByUser || foundParentByUser.id !== child.parentId) {
                     throw new Error(EErrorMessages.NO_ACCESS);
                 }
             }
-            const foundParent = await Parent.findOne({where: {id: child.parentId}});
+    
+            const foundParent = await Parent.findOne({ where: { id: child.parentId }, transaction });
             if (!foundParent) throw new Error(EErrorMessages.PARENT_NOT_FOUND);
+    
             if (foundUser.role === ERoles.DOCTOR) {
-                const foundDoctor = await Doctor.findOne({where: {userId}});
+                const foundDoctor = await Doctor.findOne({ where: { userId }, transaction });
                 if (!foundDoctor || foundParent.doctorId !== foundDoctor.id) {
                     throw new Error(EErrorMessages.NO_ACCESS);
                 }
             }
+    
             if (child.photo === "") {
                 child.photo = "default-child-photo.svg";
             }
-            const newChild = await Child.create({...child});
-            
+    
+            const newChild = await Child.create({ ...child }, { transaction });
+    
             const newbornData = {
                 childId: newChild.id
             };
-            await NewbornData.create({...newbornData});
+            await NewbornData.create({ ...newbornData }, { transaction });
+    
+            await transaction.commit();
+    
             return {
                 status: StatusCodes.CREATED,
                 result: newChild,
             };
         } catch (err: unknown) {
+            await transaction.rollback();
+    
             if (child.photo && child.photo !== "default-child-photo.svg") {
                 deleteFile(child.photo, "childrenImgs");
             }
+    
             const error = err as Error;
             const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
             return {

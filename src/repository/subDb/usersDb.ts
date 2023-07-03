@@ -31,6 +31,7 @@ import IUserUpdateDto from "../../interfaces/IUser/IUserUpdateDto";
 import IUserCreateParentWithChildDto from "../../interfaces/IUser/IUserCreateParentWithChildDto";
 import { Subscription } from "../../models/Subscription";
 import { EPaymentType } from "../../enums/EPaymentType";
+import { postgresDB } from "../postgresDb";
 
 export class UsersDb {
     public getUsers = async (userId: string, offset: string, limit: string, filter?: string ): 
@@ -114,27 +115,32 @@ export class UsersDb {
     };
 
     public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDto | IError>> => {
+        const transaction = await postgresDB.getSequelize().transaction();
+        
         try {
             const userExists = await User.findOne({
                 where: {
                     email: userDto.email
-                }
+                },
+                transaction
             });
             if (userExists) throw new Error(EErrorMessages.USER_ALREADY_EXISTS);
+            
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const email: IEmailFromTokem = { email: userDto.email };
             if (!emailRegex.test(userDto.email)) {
                 throw new Error(EErrorMessages.WRONG_MAIL_FORMAT);
             }
-
+            
             const primaryPassword: string = shortid.generate();
-            // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
             console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
-            // const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
-            const user = await User.create({ ...userDto, password: "123"});
+            
+            const user = await User.create({ ...userDto, password: "123"}, { transaction });
+            
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
             const url = `http://localhost:5173/reset-password?token=${token}`;
             await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
+            
             if (user.role === ERoles.DOCTOR) {
                 const newDoctor: IDoctorCreateDto = {
                     userId: user.id,
@@ -144,15 +150,19 @@ export class UsersDb {
                     photo: "default-photo.svg",
                     price: userDto.price ? userDto.price : 5000
                 };
-                await Doctor.create({ ...newDoctor });
+                await Doctor.create({ ...newDoctor }, { transaction });
             }
-            // delete user.dataValues.password;
+            
+            await transaction.commit();
+            
             return {
                 status: StatusCodes.CREATED,
                 result: user
             };
         } catch (err: unknown) {
             const error = err as Error;
+            await transaction.rollback();
+            
             return {
                 status: StatusCodes.BAD_REQUEST,
                 result: {
@@ -162,69 +172,75 @@ export class UsersDb {
             };
         }
     };
+    
 
     public registerParent = async (userDto: IUserCreateParentWithChildDto, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
+        const transaction = await postgresDB.getSequelize().transaction();
+        
         try {
             if (userDto.role !== ERoles.PARENT) 
                 throw new Error(EErrorMessages.NO_ACCESS);
-            const foundUser = await User.findByPk(userId);
+            
+            const foundUser = await User.findByPk(userId, { transaction });
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);
+            
             const doctor = await Doctor.findOne({
                 where: {
                     userId: userId
-                }
+                },
+                transaction
             }); 
+            
             if (doctor && foundUser.role === ERoles.DOCTOR && doctor.id !== userDto.doctorId)
                 throw new Error(EErrorMessages.NO_ACCESS);
-            const foundDoctor = await Doctor.findByPk(userDto.doctorId);
+            
+            const foundDoctor = await Doctor.findByPk(userDto.doctorId, { transaction });
             if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
                 
             const userExists = await User.findOne({
                 where: {
                     email: userDto.email
-                }
+                },
+                transaction
             });
+            
             if (userExists) throw new Error(EErrorMessages.USER_ALREADY_EXISTS);
+            
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const email: IEmailFromTokem = { email: userDto.email };
+            
             if (!emailRegex.test(userDto.email)) {
                 throw new Error(EErrorMessages.WRONG_MAIL_FORMAT);
             }
+            
             const primaryPassword: string = shortid.generate();
-            // НИЖНЯЯ СТРОКА ПОЗВОЛЯЕТ УВИДЕТЬ ПАРОЛЬ В КОНСОЛИ. ВРЕМЕННО(ПОТОМ УДАЛИМ)
             console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
-            const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) });
+            
+            const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) }, { transaction });
+            
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
             const url = `http://localhost:5173/reset-password?token=${token}`;
             await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
+            
             const now = new Date();
             const newParent = {
                 userId: user.id,
                 doctorId: userDto.doctorId,
-                subscriptionEndDate: new Date(now.setMonth(now.getMonth() + userDto.subscrType))
+                subscriptionEndDate: now.setMonth(now.getMonth() + userDto.subscrType)
             };
-            const parentUser = await Parent.create({ ...newParent });
-            let sum;
-            switch (userDto.subscrType) {
-            case 1:
-                sum = foundDoctor.price;
-                break;
-            case 6:
-                sum = Math.floor((foundDoctor.price * 6 - (foundDoctor.price * 6) * 15/100) / 1000) * 1000;
-                break;
-            case 12:
-                sum = Math.floor((foundDoctor.price * 12 - (foundDoctor.price * 12) * 35/100) / 1000) * 1000;
-                break;
-            }
+            
+            const parentUser = await Parent.create({ ...newParent }, { transaction });
+            
             await Subscription.create({
                 userId: user.id,
                 payedBy: userDto.paymentType === EPaymentType.CASH ? foundDoctor.userId : parentUser.userId,
                 type: userDto.subscrType,
                 paymentType: userDto.paymentType,
-                endDate: new Date(now.setMonth(now.getMonth() + userDto.subscrType)),
-                sum: sum
-            });
+                endDate: now.setMonth(now.getMonth() + userDto.subscrType),
+                sum: foundDoctor.price*1
+            }, { transaction });
+            
             const child: IChildCreateDto = {
                 parentId: parentUser.id,
                 photo: "default_child_photo.svg",
@@ -236,19 +252,27 @@ export class UsersDb {
                 height: userDto.child.height,
                 weight: userDto.child.weight
             };
-            const createdChild: IChildGetDto = await Child.create({...child});
+            
+            const createdChild: IChildGetDto = await Child.create({...child}, { transaction });
+            
             const newbornData = {
                 childId: createdChild.id
             };
-
-            await NewbornData.create({...newbornData});
+            
+            await NewbornData.create({...newbornData}, { transaction });
+            
             delete user.dataValues.password;
+            
+            await transaction.commit();
+            
             return {
                 status: StatusCodes.CREATED,
                 result: user
             };
         } catch (err: unknown) {
             const error = err as Error;
+            await transaction.rollback();
+            
             return {
                 status: StatusCodes.BAD_REQUEST,
                 result: {
@@ -258,6 +282,7 @@ export class UsersDb {
             };
         }
     };
+    
 
     public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
         try {
