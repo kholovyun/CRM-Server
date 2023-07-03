@@ -48,9 +48,9 @@ export class VisitsDb {
                 status: StatusCodes.OK,
                 result: visits
             };
-        } catch (err) {
-            const error: Error = err as Error;
-            const status:number = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+        } catch (err: unknown) {
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
             return {
                 status,
                 result: {
@@ -83,8 +83,8 @@ export class VisitsDb {
                 result: newVisit
             };
         } catch (err: unknown) {
-            const error: Error = err as Error;
-            const status: number = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
             return {
                 status,
                 result: {
@@ -120,8 +120,8 @@ export class VisitsDb {
                 result: {message: "Посещение удалено!"}
             };
         } catch (err: unknown) {
-            const error: Error = err as Error;
-            const status: number = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
             return {
                 status,
                 result: {

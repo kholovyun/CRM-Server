@@ -19,7 +19,7 @@ export class ChildrenDb {
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser) throw new Error(EErrorMessages.NO_ACCESS);
-            if (foundUser.isBlocked && foundUser.role !== ERoles.PARENT) throw new Error(EErrorMessages.NO_ACCESS);
+            if (foundUser.role !== ERoles.PARENT && foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
             
             const foundParent = await Parent.findByPk(parentId);
             if (!foundParent) throw new Error(EErrorMessages.PARENT_NOT_FOUND);            
@@ -71,7 +71,7 @@ export class ChildrenDb {
                     model: Parent,
                     as: "parents",
                     where: { doctorId },
-                    attributes: ["id"]
+                    attributes: ["userId"]
                 },
                 order: [
                     ["surname", "ASC"],

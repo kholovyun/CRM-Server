@@ -47,7 +47,7 @@ export class childrenController {
         const response: IResponse<IChildGetDto[] | IError> = await this.repository.getChildrenByParentId(
             req.params.id, user.id
         );
-        res.status(response.status).send(response);
+        res.status(response.status).send(response.result);
     };
 
     private getChildrenByDoctorId = async (expressReq: Request, res: Response): Promise<void> => {
@@ -65,7 +65,7 @@ export class childrenController {
         const response: IResponse<IChildGetDto | IError> = await this.repository.getChildById(
             req.params.id, user.id
         );
-        res.status(response.status).send(response);
+        res.status(response.status).send(response.result);
     };
 
     private createChild = async (expressReq: Request, res: Response): Promise<void> => {
@@ -76,7 +76,7 @@ export class childrenController {
         const response: IResponse<IChildCreateDto | IError> = await this.repository.createChild(
             child, user.id
         );
-        res.status(response.status).send(response);
+        res.status(response.status).send(response.result);
     };
 
     private editChild = async (expressReq: Request, res: Response): Promise<void> => {
@@ -91,6 +91,6 @@ export class childrenController {
             child,
             user.id
         );
-        res.status(response.status).send(response);
+        res.status(response.status).send(response.result);
     };
 }
