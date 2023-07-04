@@ -263,6 +263,7 @@ export class UsersDb {
         try {
             const foundUser = await User.findOne({ where: { email: userDto.email } });
 
+
             if (!foundUser) throw new Error(EErrorMessages.WRONG_PASS_OR_EMAIL);
 
             const isMatch: boolean = await checkPassword(userDto.password, foundUser);

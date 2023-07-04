@@ -6,16 +6,19 @@ services:
     build:
       context: .
     image: nodebackend
+    ports:
+      -  "8000:8000"
     volumes:
       - ./public/uploads:/public/uploads
-  postgresql-db:
-      image: postgres:12
-      environment:
-        PG_DATA: /var/lib/postgresql/data
-      ports:
-        - 5432:5432
-      restart: always
-#      volumes:
-#      - ./persistentdata/db:/var/lib/postgresql/data
-      env_file:
-        - .env
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:12-alpine
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
