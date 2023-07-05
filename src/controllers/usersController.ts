@@ -16,11 +16,10 @@ export class UsersController {
     constructor() {
         this.router = express.Router();
         this.router.use(morganMiddleware);
-        this.router.post("/", this.register);
+        this.router.post("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.register);
         this.router.post("/parent", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.SUPERADMIN]), this.registerParent);
         this.router.post("/login", this.login);
         this.router.get("/", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.getUsers);
-        this.router.get("/:id", permission(), this.getUserById);
         this.router.patch("/:id", permission([ERoles.SUPERADMIN, ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.editUser);
         this.router.post("/set-password", this.setPassword);
         this.router.patch("/block/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.blockUser);
@@ -39,15 +38,10 @@ export class UsersController {
         res.status(response.status).send(response.result);
     };
 
-    private getUserById = async (expressReq: Request, res: Response): Promise<void> => {
+    public register = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<IUserGetDto | IError> = await this.repository.getUserByid(user.id, req.params.id);
-        res.status(response.status).send(response.result);
-    };
-
-    public register = async (req: Request, res: Response): Promise<void> => {
-        const response: IResponse<IUserGetDto | IError> = await this.repository.register(req.body);
+        const response: IResponse<IUserGetDto | IError> = await this.repository.register(user.id, req.body);
         res.status(response.status).send(response.result);
     };
 
@@ -66,7 +60,7 @@ export class UsersController {
     private editUser = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
-        const response: IResponse<IUserGetDto | IError> = await this.repository.editUser(user.id, req.params.id, req.body);
+        const response: IResponse<IUserGetDtoWithToken | IError> = await this.repository.editUser(user.id, req.params.id, req.body);
         res.status(response.status).send(response.result);
     };
 

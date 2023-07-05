@@ -85,58 +85,28 @@ export class UsersDb {
         }
     };
 
-    public getUserByid = async (seekerId: string, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
-        try {
-            const foundSeeker = await User.findByPk(seekerId);
-            if (!foundSeeker || foundSeeker.isBlocked && foundSeeker.role !== ERoles.PARENT)
-                throw new Error();
-            if (foundSeeker.role === ERoles.PARENT) {
-                const foundParent = await Parent.findOne({ where: { userId: foundSeeker.id } });
-                if (!foundParent || foundParent.userId !== userId)
-                    throw new Error(EErrorMessages.NO_ACCESS);
-            }
-            const foundUser = await User.findByPk(userId);
-            if (!foundUser) throw new Error(EErrorMessages.USER_NOT_FOUND);
-            return {
-                status: StatusCodes.OK,
-                result: foundUser
-            };
-        } catch (err: unknown) {
-            const error = err as Error;
-            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
-            return {
-                status,
-                result: {
-                    status: "error",
-                    message: error.message
-                }
-            };
-        }
-    };
-
-    public register = async (userDto: IUserCreateDto): Promise<IResponse<IUserGetDto | IError>> => {
+    public register = async (userId: string, userDto: IUserCreateDto): Promise<IResponse<IUserGetDto | IError>> => {
         const transaction = await postgresDB.getSequelize().transaction();
-        
         try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.isBlocked)
+                throw new Error(EErrorMessages.NO_ACCESS);
             const userExists = await User.findOne({
                 where: {
                     email: userDto.email
                 },
                 transaction
             });
-            if (userExists) throw new Error(EErrorMessages.USER_ALREADY_EXISTS);
-            
+            if (userExists) throw new Error(EErrorMessages.USER_ALREADY_EXISTS);            
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             const email: IEmailFromTokem = { email: userDto.email };
             if (!emailRegex.test(userDto.email)) {
                 throw new Error(EErrorMessages.WRONG_MAIL_FORMAT);
-            }
-            
+            }            
             const primaryPassword: string = shortid.generate();
             console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
             
-            const user = await User.create({ ...userDto, password: "123"}, { transaction });
-            
+            const user = await User.create({ ...userDto, password: "123"}, { transaction });            
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
             const url = `http://localhost:5173/reset-password?token=${token}`;
             await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
@@ -151,10 +121,8 @@ export class UsersDb {
                     price: userDto.price ? userDto.price : 5000
                 };
                 await Doctor.create({ ...newDoctor }, { transaction });
-            }
-            
-            await transaction.commit();
-            
+            }            
+            await transaction.commit();            
             return {
                 status: StatusCodes.CREATED,
                 result: user
@@ -162,7 +130,6 @@ export class UsersDb {
         } catch (err: unknown) {
             const error = err as Error;
             await transaction.rollback();
-            
             return {
                 status: StatusCodes.BAD_REQUEST,
                 result: {
@@ -173,22 +140,17 @@ export class UsersDb {
         }
     };
     
-
     public registerParent = async (userDto: IUserCreateParentWithChildDto, userId: string): Promise<IResponse<IUserGetDto | IError>> => {
-        const transaction = await postgresDB.getSequelize().transaction();
-        
+        const transaction = await postgresDB.getSequelize().transaction();        
         try {
             if (userDto.role !== ERoles.PARENT) 
-                throw new Error(EErrorMessages.NO_ACCESS);
-            
+                throw new Error(EErrorMessages.NO_ACCESS);            
             const foundUser = await User.findByPk(userId, { transaction });
             if (!foundUser || foundUser.isBlocked)
                 throw new Error(EErrorMessages.NO_ACCESS);
             
             const doctor = await Doctor.findOne({
-                where: {
-                    userId: userId
-                },
+                where: { userId },
                 transaction
             }); 
             
@@ -203,22 +165,15 @@ export class UsersDb {
                     email: userDto.email
                 },
                 transaction
-            });
-            
-            if (userExists) throw new Error(EErrorMessages.USER_ALREADY_EXISTS);
-            
+            });            
+            if (userExists) throw new Error(EErrorMessages.USER_ALREADY_EXISTS);            
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const email: IEmailFromTokem = { email: userDto.email };
-            
-            if (!emailRegex.test(userDto.email)) {
-                throw new Error(EErrorMessages.WRONG_MAIL_FORMAT);
-            }
-            
+            const email: IEmailFromTokem = { email: userDto.email };            
+            if (!emailRegex.test(userDto.email)) throw new Error(EErrorMessages.WRONG_MAIL_FORMAT);
+
             const primaryPassword: string = shortid.generate();
             console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
-            
             const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) }, { transaction });
-            
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
             const url = `http://localhost:5173/reset-password?token=${token}`;
             await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
@@ -227,18 +182,29 @@ export class UsersDb {
             const newParent = {
                 userId: user.id,
                 doctorId: userDto.doctorId,
-                subscriptionEndDate: now.setMonth(now.getMonth() + userDto.subscrType)
+                subscriptionEndDate: new Date(now.setMonth(now.getMonth() + userDto.subscrType))
             };
             
             const parentUser = await Parent.create({ ...newParent }, { transaction });
-            
+            let sum;
+            switch (userDto.subscrType) {
+            case 1:
+                sum = foundDoctor.price;
+                break;
+            case 6:
+                sum = Math.floor((foundDoctor.price * 6 - (foundDoctor.price * 6) * 15/100) / 1000) * 1000;
+                break;
+            case 12:
+                sum = Math.floor((foundDoctor.price * 12 - (foundDoctor.price * 12) * 35/100) / 1000) * 1000;
+                break;
+            }
             await Subscription.create({
                 userId: user.id,
                 payedBy: userDto.paymentType === EPaymentType.CASH ? foundDoctor.userId : parentUser.userId,
                 type: userDto.subscrType,
                 paymentType: userDto.paymentType,
-                endDate: now.setMonth(now.getMonth() + userDto.subscrType),
-                sum: foundDoctor.price*1
+                endDate: new Date(now.setMonth(now.getMonth() + userDto.subscrType)),
+                sum: sum
             }, { transaction });
             
             const child: IChildCreateDto = {
@@ -259,12 +225,10 @@ export class UsersDb {
                 childId: createdChild.id
             };
             
-            await NewbornData.create({...newbornData}, { transaction });
-            
-            delete user.dataValues.password;
-            
+            await NewbornData.create({...newbornData}, { transaction });            
+            delete user.dataValues.password;            
             await transaction.commit();
-            
+                        
             return {
                 status: StatusCodes.CREATED,
                 result: user
@@ -281,20 +245,17 @@ export class UsersDb {
                 }
             };
         }
-    };
-    
+    };    
 
     public login = async (userDto: IUserLoginDto): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
         try {
             const foundUser = await User.findOne({ where: { email: userDto.email } });
-
             if (!foundUser) throw new Error(EErrorMessages.WRONG_PASS_OR_EMAIL);
-
             const isMatch: boolean = await checkPassword(userDto.password, foundUser);
-
             if (!isMatch) throw new Error(EErrorMessages.WRONG_PASS_OR_EMAIL);
+            
             const user = foundUser.dataValues;
-            delete user.password;
+            delete user.password;            
             const userWithToken: IUserGetDtoWithToken =
                 { ...user, token: generateJWT({ id: user.id, email: user.email, role: user.role }) };
 
@@ -315,7 +276,7 @@ export class UsersDb {
         }
     };
 
-    public editUser = async (editorId: string, userId: string, userDto: IUserUpdateDto, ): Promise<IResponse<IUserGetDto | IError>> => {
+    public editUser = async (editorId: string, userId: string, userDto: IUserUpdateDto, ): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
         try {
             const foundUser = await User.findByPk(editorId);
             const editingUser = await User.findByPk(userId);
@@ -337,10 +298,13 @@ export class UsersDb {
             const user = await User.update(userDto, { where: { id: userId }, fields: myFields, returning: true }).then((result) => {
                 return result[1][0];
             });
-
+            const updatedUser = user.dataValues;
+            delete updatedUser.password;            
+            const userWithToken: IUserGetDtoWithToken =
+                { ...updatedUser, token: generateJWT({ id: user.id, email: user.email, role: user.role }) };
             return {
                 status: StatusCodes.OK,
-                result: user
+                result: userWithToken
             };
         } catch (err: unknown) {
             const error = err as Error;
