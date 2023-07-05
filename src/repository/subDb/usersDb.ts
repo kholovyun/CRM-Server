@@ -209,7 +209,7 @@ export class UsersDb {
             
             const child: IChildCreateDto = {
                 parentId: parentUser.id,
-                photo: "default_child_photo.svg",
+                photo: "default-child-photo.svg",
                 name: userDto.child.name,
                 surname: userDto.child.surname,
                 patronim: userDto.child.patronim ? userDto.child.patronim : "",
