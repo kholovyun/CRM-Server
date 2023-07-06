@@ -18,7 +18,10 @@ export class RecommendationsDb {
             const foundDoctor = await Doctor.findByPk(doctorId);
             if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
             const recommendations = await Recommendation.findAll({
-                where: {doctorId: doctorId}
+                where: {doctorId: doctorId},
+                order: [
+                    ["createdAt", "DESC"]
+                ]
             });
             return {
                 status: StatusCodes.OK,
