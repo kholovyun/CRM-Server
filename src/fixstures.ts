@@ -137,7 +137,7 @@ const docFixture = {
         placeOfWork : "Темирязева 100",
         experience: 20,
         isActive: true,
-        price: 10000,
+        price: 12000,
         achievements: "Лучший дефектолог в мире",
         degree: "Проффессор"
     },
@@ -149,7 +149,7 @@ const docFixture = {
         placeOfWork : "Сатпаева 85",
         experience: 2,
         isActive: true,
-        price: 2000,
+        price: 5000,
         achievements: "Лучший Дефектолог в мире",
         degree: "Студент"
     },
@@ -161,7 +161,7 @@ const docFixture = {
         placeOfWork : "Абая 10",
         experience: 23,
         isActive: true,
-        price: 20000,
+        price: 21000,
         achievements: "Лучший стоматолог в мире",
         degree: "Доцент"
     },
@@ -173,7 +173,7 @@ const docFixture = {
         placeOfWork : "Достык 150",
         experience: 11,
         isActive: true,
-        price: 7000,
+        price: 5000,
         achievements: "Лучший Терапевт в мире",
         degree: "Аспирант"
     },
@@ -185,11 +185,10 @@ const docFixture = {
         placeOfWork : "Абая 10",
         experience: 1,
         isActive: true,
-        price: 0,
+        price: 5000,
         achievements: "Лучший стоматолог в мире",
         degree: "Интерн"
     },
-
 };
 
 const parentFixture = {
