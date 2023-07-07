@@ -9,6 +9,7 @@ import IError from "../../interfaces/IError";
 import { errorCodesMathcher } from "../../helpers/errorCodeMatcher";
 import { EErrorMessages } from "../../enums/EErrorMessages";
 import { Parent } from "../../models/Parent";
+import { EDoctorLevel } from "../../enums/EDoctorLevel";
 
 export class DoctorsDb {
     public getDoctors = async (userId: string, offset?: string, limit?: string): 
@@ -153,6 +154,39 @@ export class DoctorsDb {
             if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
             const updatedDoctor = await Doctor.update(
                 { isActive: foundDoctor.isActive ? false : true},
+                { 
+                    where: {id: foundDoctor.id },
+                    returning: true 
+                }).then((result) => { return result[1][0]; });
+            return {
+                status: StatusCodes.OK,
+                result: updatedDoctor
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
+        }
+    };
+
+    public changeDoctorPrice = async (userId: string, doctorId: string, obj: { price: string }): Promise<IResponse<IDoctorGetDto | IError>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser || foundUser.isBlocked) 
+                throw new Error(EErrorMessages.NO_ACCESS);
+            const foundDoctor: IDoctorGetDto | null = await Doctor.findByPk(doctorId);
+            if (!foundDoctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
+            const newPrice = parseInt(obj.price);
+            if (!Number.isInteger(newPrice) || !Object.values(EDoctorLevel).includes(newPrice)) 
+                throw new Error(EErrorMessages.WRONG_PRICE);
+            const updatedDoctor = await Doctor.update(
+                { price: newPrice},
                 { 
                     where: {id: foundDoctor.id },
                     returning: true 

@@ -33,6 +33,7 @@ export class DoctorsController {
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getDoctorById);
         this.router.put("/:id", [permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR]), upload.single("photo")], this.editDoctor);
         this.router.patch("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.activateDoctor);
+        this.router.patch("/price/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.changeDoctorPrice);
         this.repository = doctorsDb;
     }
 
@@ -68,11 +69,18 @@ export class DoctorsController {
         const response: IResponse<IDoctorGetDto | IError> = await this.repository.editDoctor(user.id, req.params.id, doctor);
         res.status(response.status).send(response);
     };
-
+    
     private activateDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IDoctorGetDto | IError> = await this.repository.activateDoctor(user.id, req.params.id);
+        res.status(response.status).send(response.result);
+    };
+
+    private changeDoctorPrice = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const response: IResponse<IDoctorGetDto | IError> = await this.repository.changeDoctorPrice(user.id, req.params.id, req.body);
         res.status(response.status).send(response.result);
     };
 }
