@@ -369,6 +369,30 @@ export class UsersDb {
             };
         }
     };
+
+    public checkToken = async (id: string): Promise<IResponse<IUserGetDtoWithToken | IError>> => {
+        try {
+            const foundUser = await User.findByPk(id);
+            if (!foundUser) throw new Error(EErrorMessages.NO_ACCESS);
+            const returningUser = foundUser.dataValues;
+            delete returningUser.password;            
+            const userWithToken: IUserGetDtoWithToken =
+                { ...returningUser, token: generateJWT({ id: foundUser.id, email: foundUser.email, role: foundUser.role }) };
+            return {
+                status: StatusCodes.OK,
+                result: userWithToken
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            return {
+                status: StatusCodes.UNAUTHORIZED,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
+        }
+    };
 }
 
 export const usersDb = new UsersDb();

@@ -23,6 +23,7 @@ export class UsersController {
         this.router.patch("/:id", permission([ERoles.SUPERADMIN, ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.editUser);
         this.router.post("/set-password", this.setPassword);
         this.router.patch("/block/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN]), this.blockUser);
+        this.router.get("/token", permission([ERoles.SUPERADMIN, ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.checkToken);
         this.repository = usersDb;
     }
 
@@ -73,6 +74,13 @@ export class UsersController {
         const req = expressReq as IRequestWithTokenData;
         const user = req.dataFromToken as { id: string, email: string, role: string };
         const response: IResponse<IUserGetDto | IError> = await this.repository.blockUser(user.id, req.params.id);
+        res.status(response.status).send(response.result);
+    };
+
+    private checkToken = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const response: IResponse<IUserGetDtoWithToken | IError> = await this.repository.checkToken(user.id);
         res.status(response.status).send(response.result);
     };
 }
