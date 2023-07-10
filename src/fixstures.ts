@@ -20,6 +20,7 @@ import { Visit } from "./models/Visit";
 import { EVisitReasons } from "./enums/EVisitReasons";
 import { Question } from "./models/Question";
 import { MessagesStatus } from "./models/MessagesStatus";
+import { SpecialistExam } from "./models/SpecialistExam";
 
 const db = PostgresDB;
 const date: Date = new Date();
@@ -775,6 +776,36 @@ const reviewFixtures = {
     }
 };
 
+const specExaminationFixtures = {
+    specExam1: {
+        id: uuid(),
+        childId: childrenFixture.child1.id,
+        specialist: "Окулист",
+        name: "Наурызбаева Светлана",
+        date: "2023-06-23",
+        conclusion: "Общее состояние: относительно удовлетворительное, Острота зрения: Правый глаз: без корр. Левый глаз: без корр. Орбита, положение глаз, двигательный аппарат: норма",
+        recommend: "Рекомендуется носить антибликовые очки"
+    },
+    specExam2: {
+        id: uuid(),
+        childId: childrenFixture.child2.id,
+        specialist: "Гастроэнтеролог",
+        name: "Ким Василий",
+        date: "2023-02-15",
+        conclusion: "Эпидемиологический анамнез: контакты с инфекционными больными за последние 3 недели отрицает.Употребление сырого молока и молочных продуктов деревенского производства отрицает",
+        recommend: "Рекомендована саблюдать диету: без молочных продуктов и глютена"
+    },
+    specExam3: {
+        id: uuid(),
+        childId: childrenFixture.child2.id,
+        specialist: "Невропатолог",
+        name: "Ескендирова Алиса",
+        date: "2022-02-15",
+        conclusion: "Все в норме. Все рефлексы работают",
+        recommend: "Рекомендована получить 10-дневный лечебный массаж"
+    }
+};
+
 export const createUserFixtures = async (): Promise<void> => {
     try {
         await Message.destroy({ where: {} });
@@ -793,6 +824,7 @@ export const createUserFixtures = async (): Promise<void> => {
         await Document.destroy({ where: {} });
         await Visit.destroy({ where: {} });
         await Question.destroy({ where: {} });
+        await SpecialistExam.destroy({where: {}});
         await User.bulkCreate([
             {
                 ...userFixture.user1,
@@ -929,6 +961,12 @@ export const createUserFixtures = async (): Promise<void> => {
             {...reviewFixtures.review1},
             {...reviewFixtures.review2},
             {...reviewFixtures.review3},
+        ]);
+
+        await SpecialistExam.bulkCreate([
+            {...specExaminationFixtures.specExam1},
+            {...specExaminationFixtures.specExam2},
+            {...specExaminationFixtures.specExam3},
         ]);
 
         Logger.info("Фикстуры созданы");
