@@ -10,6 +10,7 @@ import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import { DoctorsDb, doctorsDb } from "../repository/subDb/doctorsDb";
 import IError from "../interfaces/IError";
+import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -43,7 +44,7 @@ export class DoctorsController {
 
     private getDoctors = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<{rows: IDoctorGetDto[], count: number} | IError> = await this.repository.getDoctors(
             user.id, req.query.offset ? String(req.query.offset) : undefined, req.query.limit ? String(req.query.limit): undefined
         );
@@ -52,7 +53,7 @@ export class DoctorsController {
 
     private getDoctorById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IDoctorGetDto | IError> = await this.repository.getDoctorByUserId(
             user.id, req.params.id
         );
@@ -61,7 +62,7 @@ export class DoctorsController {
 
     private editDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const doctor = req.body;
         if (req.file && req.file.filename) {
             doctor.photo = req.file.filename;
@@ -72,14 +73,14 @@ export class DoctorsController {
     
     private activateDoctor = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IDoctorGetDto | IError> = await this.repository.activateDoctor(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private changeDoctorPrice = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IDoctorGetDto | IError> = await this.repository.changeDoctorPrice(user.id, req.params.id, req.body);
         res.status(response.status).send(response.result);
     };

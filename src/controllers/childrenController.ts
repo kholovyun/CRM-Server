@@ -11,6 +11,7 @@ import IChildGetDto from "../interfaces/IChild/IChildGetDto";
 import multer from "multer";
 import shortid from "shortid";
 import { config } from "../index.config";
+import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -43,7 +44,7 @@ export class childrenController {
     
     private getChildrenByParentId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IChildGetDto[] | IError> = await this.repository.getChildrenByParentId(
             req.params.id, user.id
         );
@@ -52,7 +53,7 @@ export class childrenController {
 
     private getChildrenByDoctorId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<{rows: IChildGetDto[], count: number} | IError> = await this.repository.getChildrenByDoctorId(
             user.id, String(req.query.offset), String(req.query.limit), req.params.id
         );
@@ -61,7 +62,7 @@ export class childrenController {
 
     private getChildById = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IChildGetDto | IError> = await this.repository.getChildById(
             req.params.id, user.id
         );
@@ -70,7 +71,7 @@ export class childrenController {
 
     private createChild = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const child = req.body;
         child.photo = req.file ? req.file.filename : "";
         const response: IResponse<IChildCreateDto | IError> = await this.repository.createChild(
@@ -81,7 +82,7 @@ export class childrenController {
 
     private editChild = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const child = req.body;
         if (req.file && req.file.filename) {
             child.photo = req.file.filename;

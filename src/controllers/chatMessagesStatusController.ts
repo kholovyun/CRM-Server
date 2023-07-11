@@ -8,6 +8,7 @@ import IChatMessagesStatusGetDto from "../interfaces/IChatMessagesStatus/IChatMe
 import IError from "../interfaces/IError";
 import { ChatMessagesStatusDb, chatMessagesStatusDb } from "../repository/subDb/chatMessagesStatusDb";
 import { IMessage } from "../interfaces/IMessage";
+import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 
 export class ChatMessagesStatusController {
     private repository: ChatMessagesStatusDb;
@@ -27,14 +28,14 @@ export class ChatMessagesStatusController {
 
     private getMessagesStatusByMessage = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IChatMessagesStatusGetDto[] | IError> = await this.repository.getMessagesStatusByMessage(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private createMessageStatus = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IMessage | IError> = await this.repository.createMessageStatus(user.id, req.body);
         res.status(response.status).send(response.result);
     };

@@ -8,6 +8,7 @@ import { ERoles } from "../enums/ERoles";
 import { ParentsDb, parentsDb } from "../repository/subDb/parentsDb";
 import IError from "../interfaces/IError";
 import IParentWithUserAndDoctorDto from "../interfaces/IParent/IParentWithUserAndDoctorDto";
+import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 
 export class ParentsController {
     private repository: ParentsDb;
@@ -28,7 +29,7 @@ export class ParentsController {
 
     private getParentsByDoctorId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<{rows: IParentGetDto[], count: number} | IError> = await this.repository.getParentsByDoctorId(
             user.id, String(req.query.offset), String(req.query.limit), req.params.id
         );
@@ -37,7 +38,7 @@ export class ParentsController {
 
     private getParentByUserId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IParentWithUserAndDoctorDto | IError> = await this.repository.getParentByUserId(
             user.id,
             req.params.id
@@ -47,7 +48,7 @@ export class ParentsController {
 
     private activateParent = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IParentGetDto | IError> = await this.repository.activateParent(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };

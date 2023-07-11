@@ -6,6 +6,7 @@ import IError from "../interfaces/IError";
 import { permission } from "../middleware/permission";
 import { ERoles } from "../enums/ERoles";
 import { IMessage } from "../interfaces/IMessage";
+import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 
 export class SubscriptionsController {
     private repository: SubscriptionsDb;
@@ -23,7 +24,7 @@ export class SubscriptionsController {
 
     private renewSubscription = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IMessage | IError> = await this.repository.renewSubscription(user.id, req.body);
         res.status(response.status).send(response.result);
     };

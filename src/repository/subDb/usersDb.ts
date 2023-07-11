@@ -257,7 +257,7 @@ export class UsersDb {
             const user = foundUser.dataValues;
             delete user.password;            
             const userWithToken: IUserGetDtoWithToken =
-                { ...user, token: generateJWT({ id: user.id, email: user.email, role: user.role }) };
+                { ...user, token: generateJWT({ id: user.id, role: user.role, email: user.email, phone: user.phone, name: user.name, surname: user.surname, patronim: user.patronim, isBlocked: user.isBlocked }) };
 
             return {
                 status: StatusCodes.OK,
@@ -301,7 +301,7 @@ export class UsersDb {
             const updatedUser = user.dataValues;
             delete updatedUser.password;            
             const userWithToken: IUserGetDtoWithToken =
-                { ...updatedUser, token: generateJWT({ id: user.id, email: user.email, role: user.role }) };
+                { ...updatedUser, token: generateJWT({ id: user.id, role: user.role, email: user.email, phone: user.phone, name: user.name, surname: user.surname, patronim: user.patronim, isBlocked: user.isBlocked }) };
             return {
                 status: StatusCodes.OK,
                 result: userWithToken
@@ -377,7 +377,7 @@ export class UsersDb {
             const returningUser = foundUser.dataValues;
             delete returningUser.password;            
             const userWithToken: IUserGetDtoWithToken =
-                { ...returningUser, token: generateJWT({ id: foundUser.id, email: foundUser.email, role: foundUser.role }) };
+                { ...returningUser, token: generateJWT({ id: foundUser.id, role: foundUser.role, email: foundUser.email, phone: foundUser.phone, name: foundUser.name, surname: foundUser.surname, patronim: foundUser.patronim, isBlocked: foundUser.isBlocked }) };
             return {
                 status: StatusCodes.OK,
                 result: userWithToken

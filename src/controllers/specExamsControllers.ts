@@ -8,6 +8,7 @@ import { SpecialistExams, specialistExamsDb } from "../repository/subDb/speciali
 import ISpecialistExamsGetDto from "../interfaces/ISpecialistExams/ISpecialistExamsGetDto";
 import ISpecialistExamsCreateDto from "../interfaces/ISpecialistExams/ISpecialistExamsCreateDto";
 import { IMessage } from "../interfaces/IMessage";
+import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 
 export class SpecExamsController {
     private repository: SpecialistExams;
@@ -27,21 +28,21 @@ export class SpecExamsController {
 
     private getSpecialistExamsByChildId = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<ISpecialistExamsGetDto[] | IError> = await this.repository.getSpecialistExamsByChildId(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private createSpecialistExam = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<ISpecialistExamsCreateDto | IError> = await this.repository.createSpecialistExam(user.id, req.body);
         res.status(response.status).send(response.result);
     };
 
     private deleteSpecialistExam = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IMessage | IError> = await this.repository.deleteSpecialistExam(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
