@@ -12,6 +12,7 @@ import IError from "../interfaces/IError";
 import { IMessage } from "../interfaces/IMessage";
 import IChatMessageWithUserGetDto from "../interfaces/IChatMessage/IChatMessageWithUserGetDto";
 import IChatMessage from "../interfaces/IChatMessage/IChatMessage";
+import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -43,14 +44,14 @@ export class ChatMessagesController {
 
     private getMessagesByQuestion = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IChatMessageWithUserGetDto[] | IError> = await this.repository.getMessagesByQuestion(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private createMessage = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const message = req.body;
         message.url = req.file ? req.file.filename : "";
         const response: IResponse<IChatMessage | IError> = await this.repository.createMessage(user.id, message);
@@ -59,7 +60,7 @@ export class ChatMessagesController {
 
     private deleteMessage = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IMessage | IError> = await this.repository.deleteMessage(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };

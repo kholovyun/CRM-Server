@@ -11,6 +11,7 @@ import { RecommendationsDb, recommendationDb } from "../repository/subDb/recomme
 import IRecommendationCetDto from "../interfaces/IRecommendation/IRecommendationGetDto";
 import IRecommendationCreateDto from "../interfaces/IRecommendation/IRecommendationCreateDto";
 import { IMessage } from "../interfaces/IMessage";
+import IUserGetDto from "../interfaces/IUser/IUserGetDto";
 
 const storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -48,7 +49,7 @@ export class RecommendationsController {
 
     private createRecommendation = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const recommendation = req.body;
         recommendation.url = req.file ? req.file.filename : "";
         const response: IResponse<IRecommendationCreateDto | IError> = await this.repository.createRecommendation(user.id, recommendation);
@@ -57,14 +58,14 @@ export class RecommendationsController {
 
     private deleteRecommendation = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IMessage | IError> = await this.repository.deleteRecommendation(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private editRecommendation = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const upgradedRecommendation = req.body;
         if (req.file && req.file.filename) {
             upgradedRecommendation.url = req.file.filename;

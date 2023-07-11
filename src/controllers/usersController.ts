@@ -33,7 +33,7 @@ export class UsersController {
 
     private getUsers = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<{rows: IUserGetDto[], count: number} | IError> = await this.repository.getUsers(
             user.id, String(req.query.offset), String(req.query.limit), String(req.query.filter));
         res.status(response.status).send(response.result);
@@ -41,14 +41,14 @@ export class UsersController {
 
     public register = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IUserGetDto | IError> = await this.repository.register(user.id, req.body);
         res.status(response.status).send(response.result);
     };
 
     private registerParent = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IUserGetDto | IError> = await this.repository.registerParent(req.body, user.id);
         res.status(response.status).send(response.result);
     };
@@ -60,7 +60,7 @@ export class UsersController {
 
     private editUser = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IUserGetDtoWithToken | IError> = await this.repository.editUser(user.id, req.params.id, req.body);
         res.status(response.status).send(response.result);
     };
@@ -72,14 +72,14 @@ export class UsersController {
 
     private blockUser = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IUserGetDto | IError> = await this.repository.blockUser(user.id, req.params.id);
         res.status(response.status).send(response.result);
     };
 
     private checkToken = async (expressReq: Request, res: Response): Promise<void> => {
         const req = expressReq as IRequestWithTokenData;
-        const user = req.dataFromToken as { id: string, email: string, role: string };
+        const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<IUserGetDtoWithToken | IError> = await this.repository.checkToken(user.id);
         res.status(response.status).send(response.result);
     };
