@@ -33,5 +33,6 @@ export enum EErrorMessages {
     VISITS_NOT_FOUND = "Записи о посещениях не найдены.",
     MESSAGE_NOT_FOUND = "Сообщение не найдено.",
     NO_SUBSCRIPTION = "Подписки нет.",
-    WRONG_PRICE = "Некорректная базовая цена."
+    WRONG_PRICE = "Некорректная базовая цена.",
+    NEWBORN_DATA_NOT_FOUND = "Сведение о новорожденном не найдено."
 }
