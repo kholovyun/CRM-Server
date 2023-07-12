@@ -211,8 +211,8 @@ export class ChildrenDb {
                 throw new Error(EErrorMessages.NO_ACCESS);
                      
             const foundChild = await Child.findByPk(childId);
-            
             if (!foundChild) throw new Error(EErrorMessages.CHILD_NOT_FOUND);
+            
             if (foundUser.role === ERoles.PARENT) {
                 const foundParentByUser = await Parent.findOne({where: {userId}});
                 if (!foundParentByUser || foundChild.parentId !== foundParentByUser.id)

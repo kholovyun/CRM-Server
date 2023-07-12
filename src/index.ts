@@ -21,7 +21,7 @@ import job from "./sheduleSubscripttion/sheduleSubscription";
 import { ChatMessagesController } from "./controllers/chatMessagesController";
 import { ChatMessagesStatusController } from "./controllers/chatMessagesStatusController";
 import {SubscriptionsController} from "./controllers/subscriptionsController";
-import { NewbornDataController } from "./controllers/newbornDataController";
+import { NewbornDatasController } from "./controllers/newbornDatasController";
 
 dotenv.config();
 
@@ -59,7 +59,7 @@ class App {
             this.app.use("/messages", new ChatMessagesController().getRouter());
             this.app.use("/messages-status", new ChatMessagesStatusController().getRouter());
             this.app.use("/renew", new SubscriptionsController().getRouter());
-            this.app.use("/newborn-data", new NewbornDataController().getRouter());
+            this.app.use("/newborn-data", new NewbornDatasController().getRouter());
             job;
         } catch (err: unknown) {
             const error = err as Error;
