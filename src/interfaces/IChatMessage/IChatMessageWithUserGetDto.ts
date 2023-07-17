@@ -1,3 +1,5 @@
+import { ERoles } from "../../enums/ERoles";
+
 export default interface IChatMessageWithUserGetDto {
     id: string
     createdAt: Date
@@ -6,6 +8,7 @@ export default interface IChatMessageWithUserGetDto {
     questionId: string
     authorId: string
     users: {
+        role: ERoles
         name: string
         surname: string
         patronim?: string

@@ -31,7 +31,7 @@ export class ChatMessagesDb {
                 include: {
                     model: User,
                     as: "users",
-                    attributes: ["name", "patronim", "surname"]
+                    attributes: ["role", "name", "patronim", "surname"]
                 },
                 order: [
                     ["createdAt", "ASC"]
