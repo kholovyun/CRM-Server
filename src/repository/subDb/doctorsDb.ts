@@ -107,6 +107,39 @@ export class DoctorsDb {
         }
     };
 
+    public getDoctorById = async (userId: string, doctorId: string): Promise<IResponse<IDoctorGetDto | IError>> => {
+        try {
+            const foundUser = await User.findByPk(userId);
+            if (!foundUser) throw new Error(EErrorMessages.NOT_AUTHORIZED);
+
+            const doctor: IDoctorGetDto | null = await Doctor.findOne(
+                {   
+                    where: {id: doctorId},
+                    include: {
+                        model: User,
+                        as: "users",
+                        attributes: ["name", "patronim", "surname"]
+                    }
+                });
+            if (!doctor) throw new Error(EErrorMessages.DOCTOR_NOT_FOUND);
+            
+            return {
+                status: StatusCodes.OK,
+                result: doctor
+            };
+        } catch (err: unknown) {
+            const error = err as Error;
+            const status = errorCodesMathcher[error.message] || StatusCodes.INTERNAL_SERVER_ERROR;
+            return {
+                status,
+                result: {
+                    status: "error",
+                    message: error.message
+                }
+            };
+        }
+    };
+
     public editDoctor = async (userId: string, searchId: string, doctor: IDoctorUpdateDto): Promise<IResponse<IDoctorGetDto | IError>> => {
         try {
             const foundUser = await User.findByPk(userId);
