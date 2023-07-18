@@ -1,15 +1,17 @@
-FROM node:latest
+FROM node:18.13.0-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package*.json .
+
+RUN npm ci --only=production
 
 RUN npm install
 
 COPY . .
 
-RUN npm run build
+ENV PORT=8000
 
-ENV APP_PORT=8000
+EXPOSE 8000
 
 CMD ["npm", "run", "dev"]

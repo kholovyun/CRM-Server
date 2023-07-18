@@ -1,29 +1,32 @@
 stages:
-  - build
   - deploy
-
-variables: 
-  TAG_LATEST: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest
-  TAG_COMMIT: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
-
-build_job:
-  stage: build
-  only: ["dev"]
-  image: docker:20.10.16
+deploy:
+  stage: deploy
+  image: docker:latest
+  only:
+    - "dev"
   services:
-    - docker:20.10.16-dind
-  tags:
-    - ajstag
-
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    PROJECT_NAME: 
   before_script:
-    - docker info
-    - echo 'building job is running'
-
-  script: 
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - eval $(ssh-agent)
+    - ssh-add ~/.ssh/id_rsa
+    - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
+  script:
+    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "echo Connected"
+    - ssh $SSH_USER@$SERVER_IP "docker stop $PROJECT_NAME || true"
+    - ssh $SSH_USER@$SERVER_IP "docker rm $PROJECT_NAME || true"
     - cp -f $ENV_FILE .env
-    - docker build -t $TAG_COMMIT -t $TAG_LATEST .
-    - docker push $TAG_COMMIT
-    - docker push $TAG_LATEST
-    - docker rmi $TAG_COMMIT
-    - docker rmi $TAG_LATEST
+    - docker build -t $PROJECT_NAME:$CI_COMMIT_SHA .
+    - docker save $PROJECT_NAME:$CI_COMMIT_SHA | ssh $SSH_USER@$SERVER_IP "docker load"
+    - ssh $SSH_USER@$SERVER_IP "docker run -d --restart always --name $PROJECT_NAME -p 8000:8000 -v /my/app/public:/app/public $PROJECT_NAME:$CI_COMMIT_SHA"
+  after_script:
+    - ssh -i ssh_key "$USER_SERVER@$IP_SERVER" "docker image prune -a -f"
+    - ls -la
+    - rm -f ssh_key
