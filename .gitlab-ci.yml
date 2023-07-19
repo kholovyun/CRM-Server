@@ -13,7 +13,7 @@ build:
     - echo "проверка сервера стоп"
   
  
-only: ["dev"]
+  only: ["dev"]
 
 deploy:
   stage: deploy
