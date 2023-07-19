@@ -34,7 +34,8 @@ deploy:
     - docker save $PROJECT_NAME:$CI_COMMIT_SHA | sshpass -p "$SERVER_PASS" ssh $SERVER_USER@$SERVER_IP "docker load"
     - sshpass -p "$SERVER_PASS" ssh $SERVER_USER@$SERVER_IP "docker run -d --restart always --name $PROJECT_NAME -p 8000:8000 -v /my/app/public:/app/public $PROJECT_NAME:$CI_COMMIT_SHA"
   only: ["dev"]
-
+  after_script:
+  - sshpass -p "$SERVER_PASS" ssh $SERVER_USER@$SERVER_IP "docker image prune -a -f"
 
 
 #   stages:
