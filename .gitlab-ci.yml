@@ -13,6 +13,8 @@ build:
     - echo "$SSH_USER@$SERVER_IP"
     - echo "проверка сервера стоп"
     - npm install
+  only:
+    - dev
 
 deploy:
 
@@ -44,3 +46,5 @@ deploy:
     - docker build -t $PROJECT_NAME:$CI_COMMIT_SHA .
     - docker save $PROJECT_NAME:$CI_COMMIT_SHA | ssh $SSH_USER@$SERVER_IP "docker load"
     - ssh $SSH_USER@$SERVER_IP "docker run -d --restart always --name $PROJECT_NAME -p 8000:8000 -v /my/app/public:/app/public $PROJECT_NAME:$CI_COMMIT_SHA"
+  only:
+    - dev
