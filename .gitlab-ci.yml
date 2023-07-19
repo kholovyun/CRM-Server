@@ -18,8 +18,7 @@ build:
     - sshpass -p $SERVER_PASS ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "echo Connected"
     # - ssh -i /tmp/id_rsa -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "echo Connected"
     - echo "проверка сервера стоп"
-  only:
-    - dev
+  only: ["dev"]
 
 # deploy:
 
