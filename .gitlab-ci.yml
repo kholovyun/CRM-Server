@@ -14,7 +14,7 @@ build:
     - apk update && apk add openssh-client
     - echo "проверка сервера старт"
     - echo "$SSH_USER@$SERVER_IP"
-    - ssh -i /tmp/id_rsa -o $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "echo Connected"
+    - ssh -i /tmp/id_rsa -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "echo Connected"
     - echo "проверка сервера стоп"
   only:
     - dev
