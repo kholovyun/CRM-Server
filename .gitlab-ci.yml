@@ -9,9 +9,11 @@ build:
   image: node:18.13.0-alpine
 
   script:
+    - chmod og= $SSH_PRIVATE_KEY
+    - apk update && apk add openssh-client
     - echo "проверка сервера старт"
     - echo "$SSH_USER@$SERVER_IP"
-    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "echo Connected"
+    - ssh -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "echo Connected"
     - echo "проверка сервера стоп"
     # - npm install
   only:
