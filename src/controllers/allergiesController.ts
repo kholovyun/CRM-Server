@@ -18,8 +18,8 @@ export class AllergiesController {
         this.repository = allergiesDb;
         this.router = express.Router();
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getAllergies);
-        this.router.post("/", permission([ERoles.DOCTOR, ERoles.SUPERADMIN]), this.createAllergy);
-        this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.SUPERADMIN]), this.deleteAllergy);
+        this.router.post("/", permission([ERoles.DOCTOR, ERoles.SUPERADMIN, ERoles.PARENT]), this.createAllergy);
+        this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.SUPERADMIN, ERoles.PARENT]), this.deleteAllergy);
     }
 
     public getRouter = (): Router => {
