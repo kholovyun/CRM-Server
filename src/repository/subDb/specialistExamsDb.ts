@@ -60,6 +60,10 @@ export class SpecialistExams {
                 const foundParent = await Parent.findOne({where: {id: foundChild.parentId}});
                 if (!foundDoctor || !foundParent || foundDoctor.id !== foundParent.doctorId) throw new Error(EErrorMessages.NO_ACCESS);
             }
+            if (foundUser.role === ERoles.PARENT) {
+                const foundParentByUser = await Parent.findOne({where: {userId}});
+                if (!foundParentByUser || foundChild.parentId !== foundParentByUser.id) throw new Error(EErrorMessages.NO_ACCESS);
+            }
             const newExams: ISpecialistExamsGetDto = await SpecialistExam.create({...exams});
             return {
                 status: StatusCodes.OK,
@@ -90,6 +94,10 @@ export class SpecialistExams {
                 const foundDoctor = await Doctor.findOne({where: {userId}});
                 const foundParent = await Parent.findOne({where: {id: foundChild.parentId}});
                 if (!foundDoctor || !foundParent || foundDoctor.id !== foundParent.doctorId) throw new Error(EErrorMessages.NO_ACCESS);
+            }
+            if (foundUser.role === ERoles.PARENT) {
+                const foundParentByUser = await Parent.findOne({where: {userId}});
+                if (!foundParentByUser || foundChild.parentId !== foundParentByUser.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
             await SpecialistExam.destroy({where: {id: examinationId}});
             return {

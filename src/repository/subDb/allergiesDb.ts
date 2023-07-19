@@ -60,6 +60,10 @@ export class AllergiesDb {
                 const foundParent = await Parent.findOne({where: {id: foundChild.parentId}});
                 if (!foundDoctor || !foundParent || foundDoctor.id !== foundParent.doctorId) throw new Error(EErrorMessages.NO_ACCESS);
             }
+            if (foundUser.role === ERoles.PARENT) {
+                const foundParentByUser = await Parent.findOne({where: {userId}});
+                if (!foundParentByUser || foundChild.parentId !== foundParentByUser.id) throw new Error(EErrorMessages.NO_ACCESS);
+            }
             const newAllergy: IAllergy = await Allergy.create({...allDto});
             return {
                 status: StatusCodes.CREATED,
@@ -90,6 +94,10 @@ export class AllergiesDb {
                 const foundDoctor = await Doctor.findOne({where: {userId}});
                 const foundParent = await Parent.findOne({where: {id: foundChild.parentId}});
                 if (!foundDoctor || !foundParent || foundDoctor.id !== foundParent.doctorId) throw new Error(EErrorMessages.NO_ACCESS);
+            }
+            if (foundUser.role === ERoles.PARENT) {
+                const foundParentByUser = await Parent.findOne({where: {userId}});
+                if (!foundParentByUser || foundChild.parentId !== foundParentByUser.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
             await Allergy.destroy({where: {id: allId}});
             return {

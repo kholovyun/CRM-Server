@@ -60,6 +60,10 @@ export class VaccinationsDb {
                 const foundParent = await Parent.findOne({where: {id: foundChild.parentId}});
                 if (!foundDoctor || !foundParent || foundDoctor.id !== foundParent.doctorId) throw new Error(EErrorMessages.NO_ACCESS);
             }
+            if (foundUser.role === ERoles.PARENT) {
+                const foundParentByUser = await Parent.findOne({where: {userId}});
+                if (!foundParentByUser || foundChild.parentId !== foundParentByUser.id) throw new Error(EErrorMessages.NO_ACCESS);
+            }
             const newVaccination: IVaccination = await Vaccination.create({...vacDto});
             return {
                 status: StatusCodes.CREATED,
@@ -90,6 +94,10 @@ export class VaccinationsDb {
                 const foundDoctor = await Doctor.findOne({where: {userId}});
                 const foundParent = await Parent.findOne({where: {id: foundChild.parentId}});
                 if (!foundDoctor || !foundParent || foundDoctor.id !== foundParent.doctorId) throw new Error(EErrorMessages.NO_ACCESS);
+            }
+            if (foundUser.role === ERoles.PARENT) {
+                const foundParentByUser = await Parent.findOne({where: {userId}});
+                if (!foundParentByUser || foundChild.parentId !== foundParentByUser.id) throw new Error(EErrorMessages.NO_ACCESS);
             }
             await Vaccination.destroy({where: {id: vacId}});
             return {
