@@ -39,12 +39,12 @@ const userFixture = {
     user2: {
         id: uuid(),
         role: ERoles.SUPERADMIN,
-        email: "kholov.yunus@gmail.com",
+        email: "superadmin@gmail.com",
         phone: "+996(707)15-22-02",
         name: "Джейн",
         surname: "Доу",
-        password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
-        isBlocked: false,
+        password: "$2b$10$gPNEOhRJu02JEa16bcdiNuLPM7zouK7sdLsIkj1TlhcN1ApkhTqMW",
+        isBlocked: false
     },
     user3: {
         id: uuid(),
