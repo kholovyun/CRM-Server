@@ -14,4 +14,6 @@ ENV PORT=8000
 
 EXPOSE 8000
 
+RUN npm run seed
+
 CMD ["npm", "run", "dev"]
