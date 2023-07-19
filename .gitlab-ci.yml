@@ -23,6 +23,8 @@ deploy:
   variables:
     DOCKER_DRIVER: overlay2
     PROJECT_NAME: serverapi
+  before_script:
+    - apk update && apk add openssh-client sshpass
   script:
     - sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "echo Connected"
     - sshpass -p "$SERVER_PASS" ssh $SERVER_USER@$SERVER_IP "docker stop $PROJECT_NAME || true"
