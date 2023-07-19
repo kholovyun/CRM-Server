@@ -1,6 +1,6 @@
 stages:
   - build
-  - deploy
+  # - deploy
 
 build:
 
@@ -11,23 +11,24 @@ build:
   script:
     - echo "проверка сервера старт"
     - echo "$SSH_USER@$SERVER_IP"
+    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "echo Connected"
     - echo "проверка сервера стоп"
     # - npm install
   only:
     - dev
 
-deploy:
+# deploy:
 
-  stage: deploy
+#   stage: deploy
 
-  image: docker:latest
+#   image: docker:latest
 
-  services:
-    - docker:dind
+#   services:
+#     - docker:dind
 
-  variables:
-    DOCKER_DRIVER: overlay2
-    PROJECT_NAME: serverapi
+#   variables:
+#     DOCKER_DRIVER: overlay2
+#     PROJECT_NAME: serverapi
 
   # before_script:
   #   - apk add --no-cache openssh-client
@@ -38,13 +39,13 @@ deploy:
   #   - ssh-add ~/.ssh/id_rsa
   #   - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
 
-  script:
-    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "echo Connected"
-    - ssh $SSH_USER@$SERVER_IP "docker stop $PROJECT_NAME || true"
-    - ssh $SSH_USER@$SERVER_IP "docker rm $PROJECT_NAME || true"
-    - cp -f $ENV_FILE .env
-    - docker build -t $PROJECT_NAME:$CI_COMMIT_SHA .
-    - docker save $PROJECT_NAME:$CI_COMMIT_SHA | ssh $SSH_USER@$SERVER_IP "docker load"
-    - ssh $SSH_USER@$SERVER_IP "docker run -d --restart always --name $PROJECT_NAME -p 8000:8000 -v /my/app/public:/app/public $PROJECT_NAME:$CI_COMMIT_SHA"
-  only:
-    - dev
+  # script:
+  #   - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "echo Connected"
+  #   - ssh $SSH_USER@$SERVER_IP "docker stop $PROJECT_NAME || true"
+  #   - ssh $SSH_USER@$SERVER_IP "docker rm $PROJECT_NAME || true"
+  #   - cp -f $ENV_FILE .env
+  #   - docker build -t $PROJECT_NAME:$CI_COMMIT_SHA .
+  #   - docker save $PROJECT_NAME:$CI_COMMIT_SHA | ssh $SSH_USER@$SERVER_IP "docker load"
+  #   - ssh $SSH_USER@$SERVER_IP "docker run -d --restart always --name $PROJECT_NAME -p 8000:8000 -v /my/app/public:/app/public $PROJECT_NAME:$CI_COMMIT_SHA"
+  # only:
+  #   - dev
