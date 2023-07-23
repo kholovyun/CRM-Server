@@ -15,7 +15,7 @@ export class SubscriptionsController {
     constructor() {
         this.repository = subscriptionsDb;
         this.router = express.Router();
-        this.router.patch("/", permission([ERoles.DOCTOR, ERoles.PARENT]), this.renewSubscription);
+        this.router.post("/", permission([ERoles.DOCTOR, ERoles.PARENT]), this.renewSubscription);
     }
 
     public getRouter = (): Router => {
