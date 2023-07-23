@@ -21,4 +21,4 @@ export const CheckSubDiraation = (duration: string,time: Date, price: number) =>
         return data;
     }
 
-}
+};
