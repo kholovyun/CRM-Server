@@ -7,8 +7,8 @@ import { IMail } from "../interfaces/IMail";
 
 dotenv.config();
 
-// const myEmail = "testteamtest22@mail.ru";
-const myEmail = "bumer_boy86@mail.ru";
+const myEmail = "testteamtest22@mail.ru";
+// const myEmail = "bumer_boy86@mail.ru";
 
 const sendMail = async (data: IMail) => {
     const transporter = nodemailer.createTransport({

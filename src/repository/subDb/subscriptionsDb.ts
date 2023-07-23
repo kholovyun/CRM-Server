@@ -32,9 +32,6 @@ export class SubscriptionsDb {
                     throw new Error(EErrorMessages.NO_ACCESS);
             }
 
-            const foundSubscription = await Subscription.findOne({ where: { userId: subscriptionDto.userId } });
-            if (!foundSubscription) throw new Error(EErrorMessages.NO_SUBSCRIPTION);
-
             let sum;
             switch (subscriptionDto.type) {
             case 1:
@@ -57,14 +54,7 @@ export class SubscriptionsDb {
             }            
 
             await Parent.update({subscriptionEndDate: updatedEndDate}, {where: {id: foundParent.id}});
-
-            await Subscription.update({
-                endDate: updatedEndDate,
-                payedBy: userId,
-                type: subscriptionDto.type,
-                paymentType: subscriptionDto.paymentType,
-                sum: sum
-            }, {where: {id: foundSubscription.id}});
+            await Subscription.create({subscriptionDto});
 
             return {
                 status: StatusCodes.OK, result: {message: "Subscription is renewed"}
