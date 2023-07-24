@@ -12,8 +12,8 @@ const myEmail = process.env.EMAIL;
 const sendMail = async (data: IMail) => {
     const transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
-        port: 465,
-        secure: true,
+        port: 587,
+        secure: false,
         auth: {
             user: myEmail,
             pass: process.env.CLIENT_SECRET
