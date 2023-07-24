@@ -1,9 +1,9 @@
 import morganMiddleware from "../config/morganMiddleware";
-import express, { Request, Response } from "express";
+import express, {Request, Response} from "express";
 import sendMail from "../lib/mailer";
 import jwt from "jsonwebtoken";
-import { IEmailFromTokem } from "../interfaces/IEmailFromTokem";
-import { User } from "../models/User";
+import {IEmailFromTokem} from "../interfaces/IEmailFromTokem";
+import {User} from "../models/User";
 
 const router = express.Router();
 
@@ -21,7 +21,7 @@ router.post("/send-set-password-link", async (req: Request, res: Response) => {
         if (!foundUser) throw new Error("Пользователь не найден!");
         const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
         const url = `${process.env.REG_LINK}?token=${token}`;
-        await sendMail({ link: url, recipient: email.email, theme: "Восстановление пароля" });
+        await sendMail({link: url, recipient: email.email, theme: "Восстановление пароля"});
         res.status(200).send(email);
     } catch (err: unknown) {
         const error = err as Error;
