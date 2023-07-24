@@ -8,7 +8,7 @@ RUN npm ci --only=production
 
 RUN npm install
 
-RUN apt-get update && apt-get install -y nano
+RUN apk update && apk add nano
 
 COPY . .
 
