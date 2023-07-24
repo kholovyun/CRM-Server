@@ -32,6 +32,7 @@ export class childrenController {
         this.router.use(morganMiddleware);
         this.router.get("/parent/:id", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildrenByParentId);
         this.router.get("/doctor/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR,]), this.getChildrenByDoctorId);
+        this.router.get("/for-doctor/:id", permission([ERoles.DOCTOR]), this.getChildrenForDoctor);
         this.router.post("/", [permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), upload.single("photo")], this.createChild);
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), this.getChildById);
         this.router.patch("/:id", [permission([ERoles.ADMIN, ERoles.DOCTOR, ERoles.PARENT, ERoles.SUPERADMIN]), upload.single("photo")], this.editChild);
@@ -56,6 +57,15 @@ export class childrenController {
         const user = req.dataFromToken as IUserGetDto;
         const response: IResponse<{rows: IChildGetDto[], count: number} | IError> = await this.repository.getChildrenByDoctorId(
             user.id, String(req.query.offset), String(req.query.limit), req.params.id
+        );
+        res.status(response.status).send(response.result);
+    };
+
+    private getChildrenForDoctor = async (expressReq: Request, res: Response): Promise<void> => {
+        const req = expressReq as IRequestWithTokenData;
+        const user = req.dataFromToken as IUserGetDto;
+        const response: IResponse<IChildGetDto[] | IError> = await this.repository.getChildrenForDoctor(
+            req.params.id, user.id
         );
         res.status(response.status).send(response.result);
     };
