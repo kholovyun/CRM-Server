@@ -18,7 +18,7 @@ const sendMail = async (data: IMail) => {
             user: myEmail,
             pass: process.env.CLIENT_SECRET
         },
-        connectionTimeout: 5000
+        connectionTimeout: 30000
     });
 
     const mailOptions = {
