@@ -8,6 +8,8 @@ RUN npm ci --only=production
 
 RUN npm install
 
+RUN apt-get update && apt-get install -y nano
+
 COPY . .
 
 ENV PORT=8000
