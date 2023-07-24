@@ -20,7 +20,7 @@ router.post("/send-set-password-link", async (req: Request, res: Response) => {
 
         if (!foundUser) throw new Error("Пользователь не найден!");
         const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
-        const url = `http://localhost:5173/reset-password?token=${token}`;
+        const url = `${process.env.REG_LINK}?token=${token}`;
         await sendMail({ link: url, recipient: email.email, theme: "Восстановление пароля" });
         res.status(200).send(email);
     } catch (err: unknown) {
