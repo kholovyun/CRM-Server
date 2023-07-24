@@ -7,12 +7,11 @@ import { IMail } from "../interfaces/IMail";
 
 dotenv.config();
 
-// const myEmail = "testteamtest22@mail.ru";
-const myEmail = "bumer_boy86@mail.ru";
+const myEmail = process.env.EMAIL;
 
 const sendMail = async (data: IMail) => {
     const transporter = nodemailer.createTransport({
-        host: "smtp.mail.ru",
+        host: process.env.MAIL_HOST,
         port: 465,
         secure: true,
         auth: {
