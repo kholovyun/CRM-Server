@@ -18,8 +18,8 @@ export class VaccinationsController {
         this.repository = vaccinationsDb;
         this.router = express.Router();
         this.router.get("/:id", permission([ERoles.ADMIN, ERoles.SUPERADMIN, ERoles.DOCTOR, ERoles.PARENT]), this.getVaccinations);
-        this.router.post("/", permission([ERoles.DOCTOR, ERoles.SUPERADMIN]), this.createVaccination);
-        this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.SUPERADMIN]), this.deleteVaccination);
+        this.router.post("/", permission([ERoles.DOCTOR, ERoles.SUPERADMIN, ERoles.PARENT]), this.createVaccination);
+        this.router.delete("/:id", permission([ERoles.DOCTOR, ERoles.SUPERADMIN, ERoles.PARENT]), this.deleteVaccination);
     }
 
     public getRouter = (): Router => {

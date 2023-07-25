@@ -3,44 +3,36 @@ stages:
   - deploy
 
 build:
-
   stage: build
-
   image: node:18.13.0-alpine
-
   script:
+    - apk update && apk add openssh-client sshpass
     - echo "проверка сервера старт"
-    - echo "$SSH_USER@$SERVER_IP"
+    - echo "$SERVER_USER@$SERVER_IP"
+    - sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "echo Connected"
     - echo "проверка сервера стоп"
-    - npm install
+  
+ 
+  only: ["dev"]
 
 deploy:
-
   stage: deploy
-
   image: docker:latest
-
   services:
     - docker:dind
-
   variables:
     DOCKER_DRIVER: overlay2
     PROJECT_NAME: serverapi
-
   before_script:
-    - apk add --no-cache openssh-client
-    - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - eval $(ssh-agent)
-    - ssh-add ~/.ssh/id_rsa
-    - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
-
+    - apk update && apk add openssh-client sshpass
   script:
-    - ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "echo Connected"
-    - ssh $SSH_USER@$SERVER_IP "docker stop $PROJECT_NAME || true"
-    - ssh $SSH_USER@$SERVER_IP "docker rm $PROJECT_NAME || true"
+    - sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "echo Connected"
+    - sshpass -p "$SERVER_PASS" ssh $SERVER_USER@$SERVER_IP "docker stop $PROJECT_NAME || true"
+    - sshpass -p "$SERVER_PASS" ssh $SERVER_USER@$SERVER_IP "docker rm $PROJECT_NAME || true"
     - cp -f $ENV_FILE .env
     - docker build -t $PROJECT_NAME:$CI_COMMIT_SHA .
-    - docker save $PROJECT_NAME:$CI_COMMIT_SHA | ssh $SSH_USER@$SERVER_IP "docker load"
-    - ssh $SSH_USER@$SERVER_IP "docker run -d --restart always --name $PROJECT_NAME -p 8000:8000 -v /my/app/public:/app/public $PROJECT_NAME:$CI_COMMIT_SHA"
+    - docker save $PROJECT_NAME:$CI_COMMIT_SHA | sshpass -p "$SERVER_PASS" ssh $SERVER_USER@$SERVER_IP "docker load"
+    - sshpass -p "$SERVER_PASS" ssh $SERVER_USER@$SERVER_IP "docker run -d --restart always --name $PROJECT_NAME -p 8000:8000 -v /my/app/public:/app/public $PROJECT_NAME:$CI_COMMIT_SHA"
+  only: ["dev"]
+  after_script:
+  - sshpass -p "$SERVER_PASS" ssh $SERVER_USER@$SERVER_IP "docker image prune -a -f"
