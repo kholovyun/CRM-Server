@@ -1,20 +1,21 @@
-import { NodemailerExpressHandlebarsOptions } from "nodemailer-express-handlebars";
-import hbs from "nodemailer-express-handlebars";
+import hbs, {NodemailerExpressHandlebarsOptions} from "nodemailer-express-handlebars";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import path from "path";
-import { IMail } from "../interfaces/IMail";
+import {IMail} from "../interfaces/IMail";
+import logger from "./logger";
 
 dotenv.config();
 
-const myEmail = "testteamtest22@mail.ru";
-// const myEmail = "bumer_boy86@mail.ru";
+const myEmail = process.env.EMAIL;
 
 const sendMail = async (data: IMail) => {
     const transporter = nodemailer.createTransport({
-        host: "smtp.mail.ru",
+        host: process.env.MAIL_HOST,
         port: 465,
+        debug: true,
         secure: true,
+        logger: true,
         auth: {
             user: myEmail,
             pass: process.env.CLIENT_SECRET
@@ -41,13 +42,12 @@ const sendMail = async (data: IMail) => {
 
     transporter.use("compile", hbs(handlebarOptions));
 
-    transporter.sendMail(mailOptions, (error, info) => {
+    transporter.sendMail(mailOptions, async (error, info) => {
         if (error) {
-            console.log(error);
+            logger.info("Сообщение не отправлено: " + error.message);
         } else {
-            console.log("Сообщение отправлено: " + info.response);
+            logger.info("Сообщение отправлено: " + info.response);
         }
-        transporter.close();
     });
 };
 

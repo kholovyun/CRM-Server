@@ -8,6 +8,8 @@ RUN npm ci --only=production
 
 RUN npm install
 
+RUN apk update && apk add nano
+
 COPY . .
 
 ENV PORT=8000

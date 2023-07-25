@@ -104,11 +104,9 @@ export class UsersDb {
                 throw new Error(EErrorMessages.WRONG_MAIL_FORMAT);
             }            
             const primaryPassword: string = shortid.generate();
-            console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
-            
-            const user = await User.create({ ...userDto, password: "123"}, { transaction });            
+            const user = await User.create({ ...userDto, password: primaryPassword}, { transaction });            
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
-            const url = `http://localhost:5173/reset-password?token=${token}`;
+            const url = `${process.env.REG_LINK}?token=${token}`;
             await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
             
             if (user.role === ERoles.DOCTOR) {
@@ -172,10 +170,9 @@ export class UsersDb {
             if (!emailRegex.test(userDto.email)) throw new Error(EErrorMessages.WRONG_MAIL_FORMAT);
 
             const primaryPassword: string = shortid.generate();
-            console.log("АВТОМАТИЧЕСКИЙ СГЕНЕРИРОВАННЫЙ ПАРОЛЬ: " + primaryPassword);
             const user = await User.create({ ...userDto, password: await generateHash(primaryPassword) }, { transaction });
             const token = jwt.sign(email, `${process.env.MAIL_KEY}`, { expiresIn: "24h" });
-            const url = `http://localhost:5173/reset-password?token=${token}`;
+            const url = `${process.env.REG_LINK}?token=${token}`;
             await sendMail({ link: url, recipient: email.email, theme: "Регистрация" });
             
             const now = new Date();
