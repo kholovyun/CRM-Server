@@ -10,9 +10,14 @@ import { Subscription } from "../../models/Subscription";
 import { Doctor } from "../../models/Doctor";
 import ISubscriptionUpdateDto from "../../interfaces/ISubscription/ISubscriptionUpdateDto";
 import { ERoles } from "../../enums/ERoles";
+import { EPaymentType } from "../../enums/EPaymentType";
+import { calcSumAndDate } from "../../helpers/calcSumAndDate";
+import { postgresDB } from "../postgresDb";
 
 export class SubscriptionsDb {
     public renewSubscription = async (userId: string, subscriptionDto: ISubscriptionUpdateDto): Promise<IResponse<IMessage | IError>> => {
+        const transaction = await postgresDB.getSequelize().transaction();        
+
         try {
             const foundUser = await User.findByPk(userId);
             if (!foundUser || foundUser.isBlocked) throw new Error(EErrorMessages.NO_ACCESS);
@@ -31,46 +36,27 @@ export class SubscriptionsDb {
                 if (!foundDoctorByUser || foundParent.doctorId !== foundDoctorByUser.id) 
                     throw new Error(EErrorMessages.NO_ACCESS);
             }
+            if(typeof subscriptionDto.type !== "string") throw new Error(EErrorMessages.WRONG_SUB_TYPE);
 
-            const foundSubscription = await Subscription.findOne({ where: { userId: subscriptionDto.userId } });
-            if (!foundSubscription) throw new Error(EErrorMessages.NO_SUBSCRIPTION);
-
-            let sum;
-            switch (subscriptionDto.type) {
-            case 1:
-                sum = foundDoctor.price;
-                break;
-            case 6:
-                sum = Math.floor((foundDoctor.price * 6 - (foundDoctor.price * 6) * 15/100) / 1000) * 1000;
-                break;
-            case 12:
-                sum = Math.floor((foundDoctor.price * 12 - (foundDoctor.price * 12) * 35/100) / 1000) * 1000;
-                break;
-            }
-            const newDate = new Date();
-            let updatedEndDate: Date;
-            if (foundParent.subscriptionEndDate.getTime() > newDate.getTime()) {
-                updatedEndDate = new Date(new Date(new Date(foundParent.subscriptionEndDate))
-                    .setMonth(new Date(foundParent.subscriptionEndDate).getMonth() + subscriptionDto.type));
-            } else {
-                updatedEndDate = new Date(new Date().setMonth(new Date().getMonth() + subscriptionDto.type));
-            }            
-
-            await Parent.update({subscriptionEndDate: updatedEndDate}, {where: {id: foundParent.id}});
-
-            await Subscription.update({
-                endDate: updatedEndDate,
-                payedBy: userId,
+            const dataToAdd = calcSumAndDate(subscriptionDto.type,foundParent.subscriptionEndDate,foundDoctor.price);     
+            await Subscription.create({
+                userId: subscriptionDto.userId,
+                payedBy: subscriptionDto.paymentType === EPaymentType.CASH ? foundDoctor.userId : subscriptionDto.userId,
                 type: subscriptionDto.type,
                 paymentType: subscriptionDto.paymentType,
-                sum: sum
-            }, {where: {id: foundSubscription.id}});
-
+                endDate: dataToAdd?.newSubDate,
+                sum: dataToAdd?.sum
+            },
+            { transaction }
+            );
+            await Parent.update({subscriptionEndDate: dataToAdd?.newSubDate}, {where: {id: foundParent.id}, transaction});
+            await transaction.commit();
             return {
                 status: StatusCodes.OK, result: {message: "Subscription is renewed"}
             };
         } catch (err: unknown) {
             const error = err as Error;
+            await transaction.rollback();
             const status = errorCodesMathcher[error.message] || StatusCodes.BAD_REQUEST;
             return {
                 status, result: {

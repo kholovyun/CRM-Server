@@ -30,4 +30,5 @@ export const errorCodesMathcher: ErrorObject = {
     [EErrorMessages.WRONG_PASS_OR_EMAIL]: StatusCodes.BAD_REQUEST,
     [EErrorMessages.VISIT_NOT_FOUND] : StatusCodes.NOT_FOUND,
     [EErrorMessages.VISITS_NOT_FOUND] : StatusCodes.NOT_FOUND,
+    [EErrorMessages.WRONG_SUB_TYPE] : StatusCodes.BAD_REQUEST
 };
