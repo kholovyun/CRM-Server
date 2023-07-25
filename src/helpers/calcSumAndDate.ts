@@ -1,6 +1,6 @@
 import { addMonthesToUTCDate } from "./AddSubDate";
 
-export const CheckSubDiraation = (duration: string,time: Date, price: number) => {
+export const calcSumAndDate = (duration: string,time: Date, price: number) => {
     const data = {
         sum: 0,
         newSubDate: new Date()
