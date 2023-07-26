@@ -41,17 +41,10 @@ const userFixture = {
         role: ERoles.SUPERADMIN,
         email: "superadmin@gmail.com",
         phone: "+996(707)15-22-02",
-<<<<<<< f4dcfd8b328977ac16d7d2c206827d0dc6015e81
         name: "Наталья",
         surname: "Рудока",
         password: "$2b$10$8XUZIvtgKi63lULdT7sxPec3EWlbU9wdihK/ESXoKl7I1YENmuHzq",
         isBlocked: false,
-=======
-        name: "Джейн",
-        surname: "Доу",
-        password: "$2b$10$gPNEOhRJu02JEa16bcdiNuLPM7zouK7sdLsIkj1TlhcN1ApkhTqMW",
-        isBlocked: false
->>>>>>> e1cbe43f66b0ae0d2ad2f4091abd148636851d6a
     },
     user3: {
         id: uuid(),
