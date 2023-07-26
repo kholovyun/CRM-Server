@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
         callback(null, config.docRecommends);
     },
     filename(req, file, callback) {
-        callback(null, `${shortid()}${file.originalname}`);
+        callback(null, shortid());
     },
 });
 
