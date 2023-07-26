@@ -11,9 +11,8 @@ build:
     - echo "$SERVER_USER@$SERVER_IP"
     - sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "echo Connected"
     - echo "проверка сервера стоп"
-  
  
-  only: ["dev"]
+  only: ["main"]
 
 deploy:
   stage: deploy
